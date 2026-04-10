@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_precalentador_aire' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8">
+            {% if not edicion %}
+            <h3 class="text-center" style="color: #e31e24;">Nuevo Precalentador de Aire</h3>
+            {% else %}
+            <h3 class="text-center" style="color: #e31e24;">Edición de Precalentador de Aire</h3>
+            {% endif %}
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+    
+    <h4 class="text-center" style="color: #e31e24;">Identificación del Precalentador</h4>
+
+    <div class="row">
+        <div class="col-3">
+            {{forms.form_equipo.tag.label_tag}}
+            {% render_field forms.form_equipo.tag class="form-control" placeholder="Tag del Precalentador de Aire" %}
+            <small>{{forms.form_equipo.tag.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{forms.form_equipo.complejo.label_tag}}
+            {% render_field forms.form_equipo.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            <small>{{forms.form_equipo.complejo.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{forms.form_equipo.planta.label_tag}}
+            {% render_field forms.form_equipo.planta class="form-select" %}
+            <small>{{forms.form_equipo.planta.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{forms.form_equipo.fabricante.label_tag}}
+            {% render_field forms.form_equipo.fabricante class="form-control" placeholder="Fabricante del Precalentador de Aire" %}
+            <small>{{forms.form_equipo.fabricante.errors}}</small>
+        </div>
+        <div class="col-6">
+            {{forms.form_equipo.tipo.label_tag}}
+            {% render_field forms.form_equipo.tipo class="form-control" %}
+            <small>{{forms.form_equipo.tipo.errors}}</small>
+        </div>
+        <div class="col-6">
+            {{forms.form_equipo.modelo.label_tag}}
+            {% render_field forms.form_equipo.modelo class="form-control" placeholder="Modelo del Precalentador de Aire" %}
+            <small>{{forms.form_equipo.modelo.errors}}</small>
+        </div>
+
+        <div class="col-12">
+            {{forms.form_equipo.descripcion.label_tag}}
+            {% render_field forms.form_equipo.descripcion class="form-control" placeholder="Descripción Funcional del Precalentador de Agua" %}
+            <small>{{forms.form_equipo.descripcion.errors}}</small>
+        </div>
+    </div>
+
+    <hr>
+
+    <h4 class="text-center mt-3 mb-3" style="color: #e31e24;">Especificaciones del Precalentador</h4>
+
+    <div class="row">
+        <div class="col-4">
+            {{forms.form_especificaciones.material.label_tag}}
+            {% render_field forms.form_especificaciones.material class="form-control" placeholder="Material del Precalentador" %}
+            <small>{{forms.form_especificaciones.material.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{forms.form_especificaciones.espesor.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.espesor class="form-control" placeholder="Espesor de las tuberías" %}
+                <select name="longitud_unidad" id="id_longitud_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='L' pk_selected=forms.form_especificaciones.instance.longitud_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.espesor.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{forms.form_especificaciones.diametro.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.diametro class="form-control" placeholder="Diámetro de las tuberías" %}
+                <select name="longitud_unidad" id="id_longitud_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with unidades=unidades tipo='L' pk_selected=forms.form_especificaciones.instance.longitud_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.diametro.errores}}</small>
+        </div>
+        
+        <div class="col-4">
+            {{forms.form_especificaciones.altura.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.altura class="form-control" placeholder="Altura" %}
+                <select name="longitud_unidad" id="id_longitud_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with unidades=unidades tipo='L' pk_selected=forms.form_especificaciones.instance.longitud_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.altura.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{forms.form_especificaciones.superficie_calentamiento.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.superficie_calentamiento class="form-control" placeholder="Superficie de Calentamiento" %}
+                <select name="area_unidad" id="id_area_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='A' pk_selected=forms.form_especificaciones.instance.area_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.superficie_calentamiento.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{forms.form_especificaciones.area_transferencia.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.area_transferencia class="form-control" placeholder="Área de Transferencia" %}
+                <select name="area_unidad" id="id_area_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with unidades=unidades tipo='A' pk_selected=forms.form_especificaciones.instance.area_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.area_transferencia.errores}}</small>
+        </div>
+
+        <div class="col-4">
+            {{forms.form_especificaciones.temp_operacion.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.temp_operacion class="form-control" placeholder="Temperatura de Operación" %}
+                <select name="temp_unidad" id="id_temp_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_especificaciones.instance.temp_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.temp_operacion.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{forms.form_especificaciones.presion_operacion.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.presion_operacion class="form-control" placeholder="Presión de Operación" min="0" %}
+                <select name="presion_unidad" id="id_presion_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_especificaciones.instance.presion_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.presion_operacion.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{forms.form_especificaciones.u.label_tag}}
+            <div class="input-group">
+                {% render_field forms.form_especificaciones.u class="form-control" placeholder="Coeficiente Global de Transferencia" %}
+                <select name="u_unidad" id="id_u_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=forms.form_especificaciones.instance.u_unidad.pk %}
+                </select>
+            </div>
+            <small>{{forms.form_especificaciones.u.errores}}</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mt-3">
+            <h2 class="text-center">Condiciones del Precalentador</h2>
+        </div>
+        <div class="col-6">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center">Aire</h2>
+                    {{forms.form_aire.flujo.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.flujo class="form-control" placeholder="Flujo Másico" %}
+                        <select name="aire-flujo_unidad" id="id_aire-flujo_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=forms.form_aire.instance.flujo_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_aire.flujo.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.temp_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.temp_entrada class="form-control" placeholder="Temp. Entrada" %}
+                        <select name="aire-temp_unidad" id="id_aire-temp_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_aire.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_aire.temp_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.temp_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.temp_salida class="form-control" placeholder="Temp. Salida" %}
+                        <select name="aire-temp_unidad" id="id_aire-temp_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_aire.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_aire.temp_salida.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.presion_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.presion_entrada class="form-control" placeholder="Presión de Entrada" min="0.0001" %}
+                        <select name="aire-presion_unidad" id="id_aire-presion_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_aire.presion_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.presion_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.presion_salida class="form-control" placeholder="Presión de Salida" min="0.0001" %}
+                        <select name="aire-presion_unidad" id="id_aire-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_aire.presion_salida.errores}}</small>
+                </div>
+
+                <div class="col-12">
+                    {{forms.form_aire.caida_presion.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.caida_presion class="form-control" placeholder="Caída de Presión" min="0" %}
+                        <select name="aire-presion_unidad" id="id_aire-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_aire.caida_presion.errores}}</small>
+                </div>
+
+                <div class="col-12 p-3">
+                    <h4 class="text-center mb-2">Composiciones</h4>
+                    <table class="table text-center table-bordered table-hover">
+                        <thead>
+                            <tr class="table-dark">
+                                <th>Compuesto</th>
+                                <th>% Volumen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{forms_aire}}
+                            {% for form in forms.forms_aire %}
+                            <tr>
+                                <th>{{form.fluido}}</th>
+                                <td>
+                                    {% render_field form.form.porcentaje class="form-control porc-aire" placeholder="% Volumen Aire" %}
+                                    {% render_field form.form.fluido %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>    
+        <div class="col-6">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center">Gases</h2>
+                    {{forms.form_gases.flujo.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.flujo class="form-control" placeholder="Flujo Másico" %}
+                        <select name="gases-flujo_unidad" id="id_gases-flujo_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=forms.form_gases.instance.flujo_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_gases.flujo.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.temp_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.temp_entrada class="form-control" placeholder="Temp. Entrada" %}
+                        <select name="gases-temp_unidad" id="id_gases-temp_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_gases.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_gases.temp_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.temp_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.temp_salida class="form-control" placeholder="Temp. Salida" %}
+                        <select name="gases-temp_unidad" id="id_gases-temp_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_gases.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_gases.temp_salida.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.presion_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.presion_entrada class="form-control" placeholder="Presión de Entrada" min="0.0001" %}
+                        <select name="gases-presion_unidad" id="id_gases-presion_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_gases.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_gases.presion_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.presion_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.presion_salida class="form-control" placeholder="Presión de Salida" min="0.0001" %}
+                        <select name="gases-presion_unidad" id="id_gases-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_gases.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_gases.presion_salida.errores}}</small>
+                </div>
+
+                <div class="col-12">
+                    {{forms.form_gases.caida_presion.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.caida_presion class="form-control" placeholder="Caída de Presión" min="0" %}
+                        <select name="gases-presion_unidad" id="id_gases-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_gases.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{forms.form_gases.caida_presion.errores}}</small>
+                </div>
+
+                <div class="col-12 p-3">
+                    <h4 class="text-center mb-2">Composiciones</h4>
+                    <table class="table text-center table-bordered table-hover">
+                        <thead>
+                            <tr class="table-dark">
+                                <th>Compuesto</th>
+                                <th>% Volumen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form in forms.forms_gases %}
+                            <tr>
+                                <th>{{form.fluido}}</th>
+                                <td>
+                                    {% render_field form.form.porcentaje class="form-control porc-vol" placeholder="% Volumen Gas" %}
+                                    {% render_field form.form.fluido %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>    
+    </div>
+
+    <hr>
+
+    <div class="w-100 mt-3 mb-3 d-flex justify-content-center">
+        <button class="btn btn-danger" id="submit">Enviar Formulario</button>
+    </div>
+
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/precalentadores_aire/creacion.js"></script>
+{% endblock %}

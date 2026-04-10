@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {{ forms_corrientes.management_form }}
+
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+            <a class="btn d-block btn-secondary" href="{% url 'consulta_precalentadores_agua' %}">↶ Regresar</a>
+        </div>
+        <div class="col-md-6 col-lg-8">
+            <h3 class="text-center" style="color: #e31e24;">Corrientes Asociadas al Precalentador {{precalentador.tag}}</h3>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+    
+    {% if error %}
+    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <hr>
+    {% endif %}
+
+    <h4 class="text-center" style="color: #e31e24;">Corrientes del Lado de la Carcasa</h2>
+
+        <div class="text-center">
+            <small>Los datos deben ser ingresados de forma manual ya que corresponden al diseño.</small>
+        </div>
+
+        <table class="table">
+                <tbody id="form-carcasa">
+                    <tr class="table-dark">
+                        <th class="text-center">#</th>
+                        <th class="text-center">Nombre</th>
+                        <th class="text-center">Entra/sale</th>
+                        <th class="text-center">Flujo</th>
+                        <th class="text-center">Entalpía</th>
+                        <th class="text-center">Presión</th>
+                        <th class="text-center">Densidad</th>
+                        <th class="text-center">Temperatura</th>
+                        <th class="text-center">Fase</th>
+                        <th class="text-center">+/-</th>
+                    </tr>
+
+                    <tr>
+                        <th class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">
+                            <select name="flujo_unidad" id="id_flujo_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="F" pk_selected=form_datos_corrientes.instance.flujo_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="entalpia_unidad" id="id_entalpia_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="n" pk_selected=form_datos_corrientes.instance.entalpia_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="presion_unidad" id="id_presion_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="P" pk_selected=form_datos_corrientes.instance.presion_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="densidad_unidad" id="id_densidad_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="D" pk_selected=form_datos_corrientes.instance.densidad_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="T" pk_selected=form_datos_corrientes.instance.temperatura_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            -
+                        </td>
+                        <td class="text-center">-</td>
+                    </tr>
+                    {{ formset_corrientes_carcasa.management_form }}
+                    {% for form in formset_corrientes_carcasa %}
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    <tr class="form-carcasa">
+                        <td>
+                            {{form.id}}
+                            {% render_field form.numero_corriente class="form-control numero-corriente-carcasa" placeholder="Número de la Corriente" required="" %}
+                            <small>{{form.numero_corriente.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.nombre class="form-control" placeholder="Descripción de la Corriente" required="" %}
+                            <small>{{form.nombre.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.rol class="form-select" placeholder="Entra/sale" required="required" min="0.00001" %}
+                            <small>{{form.rol.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.flujo class="form-control flujo" placeholder="Flujo" required="required" min="0.00001" %}
+                            <small>{{form.flujo.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" required="required" min="0.00001" %}
+                            <small>{{form.entalpia.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.presion class="form-control presion" placeholder="Presión (Manométrica)" min="0.00001" %}
+                            <small>{{form.presion.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.densidad class="form-control" placeholder="Densidad" required="required" min="-273.15" %}
+                            <small>{{form.densidad.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" min="-273.15" %}
+                            <small>{{form.temperatura.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.fase class="form-select" placeholder="Fase" required="required" %}
+                            <small>{{form.fase.errors}}</small>
+                        </td>
+                        <td>
+                            {% if forloop.first %}
+                            <a class="anadir w-100 btn btn-success">+</a>
+                            {% else %}
+                            <a class="eliminar w-100 btn btn-danger">-</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+        </table>
+                
+        <hr>
+    
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Corrientes del Lado del Tubo</h2>
+
+        <div class="text-center">
+            <small>Los datos deben ser ingresados de forma manual ya que corresponden al diseño.</small>
+        </div>
+
+        <table class="table">
+                <tbody id="form-tubos">
+                    <tr class="table-dark">
+                        <th class="text-center">#</th>
+                        <th class="text-center">Nombre</th>
+                        <th class="text-center">Entra/sale</th>
+                        <th class="text-center">Flujo</th>
+                        <th class="text-center">Entalpía</th>
+                        <th class="text-center">Presión</th>
+                        <th class="text-center">Densidad</th>
+                        <th class="text-center">Temperatura</th>
+                        <th class="text-center">Fase</th>
+                        <th class="text-center">+/-</th>
+                    </tr>
+
+                    <tr>
+                        <th class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">
+                            <select name="flujo_unidad" id="id_flujo_unidad" class="form-select" disabled>
+                                {% include 'unidades.html' with tipo="F" pk_selected=form_datos_corrientes.instance.flujo_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="entalpia_unidad" id="id_entalpia_unidad" class="form-select" disabled>
+                                {% include 'unidades.html' with tipo="n" pk_selected=form_datos_corrientes.instance.entalpia_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="presion_unidad" id="id_presion_unidad" class="form-select" disabled>
+                                {% include 'unidades.html' with tipo="P" pk_selected=form_datos_corrientes.instance.presion_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="densidad_unidad" id="id_densidad_unidad" class="form-select" disabled>
+                                {% include 'unidades.html' with tipo="D" pk_selected=form_datos_corrientes.instance.densidad_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select" disabled>
+                                {% include 'unidades.html' with tipo="T" pk_selected=form_datos_corrientes.instance.temperatura_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            -
+                        </td>
+                        <td class="text-center">-</td>
+                    </tr>
+                    {{ formset_corrientes_tubos.management_form }}
+                    {% for form in formset_corrientes_tubos %}
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    <tr class="form-tubos">
+                        <td>
+                            {{form.id}}
+                            {% render_field form.numero_corriente class="form-control numero-corriente-tubos" placeholder="Número de la Corriente" %}
+                            <small>{{form.numero_corriente.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.nombre class="form-control" placeholder="Descripción de la Corriente" %}
+                            <small>{{form.nombre.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.rol class="form-select" placeholder="Entra/sale" required="required" min="0.00001" %}
+                            <small>{{form.rol.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.flujo class="form-control flujo" placeholder="Flujo" required="required" min="0.00001" %}
+                            <small>{{form.flujo.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" required="required" min="0.00001" %}
+                            <small>{{form.entalpia.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.presion class="form-control presion" placeholder="Presión (Manométrica)" min="0.00001" %}
+                            <small>{{form.presion.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.densidad class="form-control" placeholder="Densidad" required="required" min="-273.15" %}
+                            <small>{{form.densidad.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" min="-273.15" %}
+                            <small>{{form.temperatura.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.fase class="form-select" placeholder="Fase" required="required" %}
+                            <small>{{form.fase.errors}}</small>
+                        </td>
+                        <td>
+                            {% if forloop.first %}
+                            <a class="anadir w-100 btn btn-success">+</a>
+                            {% else %}
+                            <a class="eliminar w-100 btn btn-danger">-</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+        </table>
+                
+        <hr>
+
+        <div class="d-flex w-100 justify-content-center mb-3">
+            <button id="submit" type="submit" class="btn btn-danger">Enviar Formulario</button>
+        </div>
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/auxiliares/precalentadores_agua/creacion-corrientes.js' %}"></script>
+<script>
+    $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
+</script>
+{% endblock %}

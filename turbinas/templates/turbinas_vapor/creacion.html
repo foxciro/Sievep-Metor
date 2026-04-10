@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {{ forms_corrientes.management_form }}
+
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+            <a class="btn d-block btn-secondary" href="{% url 'consulta_turbinas_vapor' %}">↶ Regresar</a>
+        </div>
+        <div class="col-md-6 col-lg-8">
+            {% if not form_turbina.instance.pk %}
+            <h3 class="text-center" style="color: #e31e24;">Registro de Nueva Turbina de Vapor</h3>
+            {% else %}
+            <h3 class="text-center" style="color: #e31e24;">Edición de Turbina de Vapor</h3>
+            {% endif %}
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+    
+    {% if error %}
+    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <hr>
+    {% endif %}
+
+    <h4 class="text-center" style="color: #e31e24;">Identificación de la Turbina de Vapor</h2>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_turbina.tag.label_tag}}*
+            {% render_field form_turbina.tag class="form-control" placeholder="Tag de la Turbina" %}
+            <small>{{form_turbina.tag.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_turbina.complejo.label_tag}}*
+            {% render_field form_turbina.complejo class="form-select" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            <small>{{form_turbina.complejo.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_turbina.planta.label_tag}}*
+            {% render_field form_turbina.planta class="form-select" %}
+            <small>{{form_turbina.planta.errors}}</small>
+        </div>
+        <div class="col-6">
+            {{form_turbina.fabricante.label_tag}}
+            {% render_field form_turbina.fabricante class="form-control" placeholder="Fabricante de la Turbina" %}
+            <small>{{form_turbina.fabricante.errors}}</small>
+        </div>
+
+        <div class="col-6">
+            {{form_turbina.modelo.label_tag}}
+            {% render_field form_turbina.modelo class="form-control" placeholder="Modelo de la Turbina" %}
+            <small>{{form_turbina.modelo.errors}}</small>
+        </div>
+        <div class="col-12">
+            {{form_turbina.descripcion.label_tag}}*
+            {% render_field form_turbina.descripcion class="form-control" placeholder="Descripción de la Turbina y su servicio" %}
+            <small>{{form_turbina.descripcion.errors}}</small>
+        </div>
+    </div>
+
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Especificaciones Técnicas de la Turbina</h2>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_especificaciones.potencia.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.potencia min="0.0001" class="form-control" placeholder="Potencia de la Turbina" %}
+                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="B" pk_selected=form_especificaciones.instance.potencia_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.potencia.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_especificaciones.potencia_max.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.potencia_max min="0.0001" class="form-control" placeholder="Potencia Máxima de la turbina" %}
+                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with tipo="B" pk_selected=form_especificaciones.instance.potencia_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.potencia_max.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_especificaciones.velocidad.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" placeholder="Velocidad de la turbina" %}
+                <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="O" pk_selected=form_especificaciones.instance.velocidad_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.velocidad.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_especificaciones.presion_entrada.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.presion_entrada min="0.0001" class="form-control" placeholder="Presión (abs.) de Entrada" %}
+                <select name="presion_entrada_unidad" id="id_presion_entrada_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="P" pk_selected=form_especificaciones.instance.presion_entrada_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.presion_entrada.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_especificaciones.temperatura_entrada.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.temperatura_entrada min="0.0001" class="form-control" placeholder="Temp. de Entrada" %}
+                <select name="temperatura_entrada_unidad" id="id_temperatura_entrada_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="T" pk_selected=form_especificaciones.instance.temperatura_entrada_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.temperatura_entrada.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_especificaciones.contra_presion.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.contra_presion min="0.0001" class="form-control" placeholder="Contra Presión (abs.)" %}
+                <select name="contra_presion_unidad" id="id_contra_presion_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="P" pk_selected=form_especificaciones.instance.contra_presion_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.contra_presion.errors}}</small>
+        </div>
+    </div>
+    
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Especificaciones del Generador Eléctrico</h2>
+        <div class="row">
+            <div class="col-6">
+                {{form_generador.polos.label_tag}}
+                {% render_field form_generador.polos class="form-control" min="0" placeholder="Polos del Generador" %}
+                
+                <small>{{form_generador.polos.errors}}</small>
+            </div>
+
+            <div class="col-6">
+                {{form_generador.fases.label_tag}}
+                {% render_field form_generador.fases class="form-control" min="0" placeholder="Fases del Generador" %}
+                
+                <small>{{form_generador.fases.errors}}</small>
+            </div>
+
+            <div class="col-4">
+                {{form_generador.voltaje.label_tag}}
+                <div class="input-group mb-1">
+                    {% render_field form_generador.voltaje min="0.0001" class="form-control" placeholder="Voltaje del Generador" %}
+                    <select name="voltaje_unidad" id="id_voltaje_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="X" pk_selected=form_generador.instance.voltaje_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_generador.voltaje.errors}}</small>
+            </div>
+
+            <div class="col-4">
+                {{form_generador.potencia_real.label_tag}}
+                <div class="input-group mb-1">
+                    {% render_field form_generador.potencia_real min="0.0001" class="form-control" placeholder="Pot. Real del Generador" %}
+                    <select name="potencia_real_unidad" id="id_potencia_real_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="B" pk_selected=form_generador.instance.potencia_real_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_generador.potencia_real.errors}}</small>
+            </div>
+    
+            <div class="col-4">
+                {{form_generador.potencia_aparente.label_tag}}
+                <div class="input-group mb-1">
+                    {% render_field form_generador.potencia_aparente min="0.0001" class="form-control" placeholder="Pot. Aparente del Generador" %}
+                    <select name="potencia_aparente_unidad" id="id_potencia_aparente_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="Z" pk_selected=form_generador.instance.potencia_aparente_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_generador.potencia_aparente.errors}}</small>
+            </div>
+    
+            <div class="col-4">
+                {{form_generador.ciclos.label_tag}}
+                <div class="input-group mb-1">
+                    {% render_field form_generador.ciclos min="0.0001" class="form-control" placeholder="Ciclos del Generador" %}
+                    <select name="ciclos_unidad" id="id_ciclos_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="H" pk_selected=form_generador.instance.ciclos_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_generador.ciclos.errors}}</small>
+            </div>
+
+            <div class="col-4">
+                {{form_generador.corriente_electrica.label_tag}}
+                <div class="input-group mb-1">
+                    {% render_field form_generador.corriente_electrica min="0.0001" class="form-control" placeholder="Corriente del Generador" %}
+                    <select name="corriente_electrica_unidad" id="id_corriente_electrica_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="Y" pk_selected=form_generador.instance.corriente_electrica_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_generador.corriente_electrica.errors}}</small>
+            </div>
+    
+            <div class="col-4">
+                {{form_generador.velocidad.label_tag}}
+                <div class="input-group mb-1">
+                    {% render_field form_generador.velocidad min="0.0001" class="form-control" placeholder="Velocidad del Generador" %}
+                    <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="O" pk_selected=form_generador.instance.velocidad_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_generador.velocidad.errors}}</small>
+            </div>
+        </div>
+        
+        <hr>
+
+        <div class="text-center">
+            <h4 class="text-center mb-0" style="color: #e31e24;">Datos de los Corrientes</h4>
+            <small>Los datos deben ser ingresados de forma manual ya que corresponden al diseño.</small>
+        </div>
+
+            <table class="table">
+                <tbody id="forms-corrientes">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Descripción</th>
+                        <th class="text-center">Entrada</th>
+                        <th class="text-center">Flujo</th>
+                        <th class="text-center">Entalpía</th>
+                        <th class="text-center">Presión</th>
+                        <th class="text-center">Temperatura</th>
+                        <th class="text-center">Fase</th>
+                        <th class="text-center">+/-</th>
+                    </tr>
+
+                    <tr>
+                        <th class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">
+                            <select name="flujo_unidad" id="id_flujo_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="F" pk_selected=form_datos_corrientes.instance.flujo_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="entalpia_unidad" id="id_entalpia_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="n" pk_selected=form_datos_corrientes.instance.entalpia_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="presion_unidad" id="id_presion_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="P" pk_selected=form_datos_corrientes.instance.presion_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="T" pk_selected=form_datos_corrientes.instance.temperatura_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                    </tr>
+
+                    {% for form in forms_corrientes %}
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    <tr class="form">
+                        <td>
+                            {% render_field form.numero_corriente class="form-control numero-corriente" placeholder="Número de la Corriente" %}
+                            <small>{{form.numero_corriente.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.descripcion_corriente class="form-control" placeholder="Descripción de la Corriente" %}
+                            <small>{{form.descripcion_corriente.errors}}</small>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center h-100">
+                                {% if form.instance %}
+                                {% if form.instance.entrada %}
+                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
+                                {% else %}
+                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
+                                {% endif %}
+                                {% else %}
+                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
+                                {% endif %}
+
+                            </div>
+                            <small>{{form.entrada.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.flujo class="form-control flujo" placeholder="Flujo" required="required" min="0.00001" %}
+                            <small>{{form.flujo.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" min="0.00001" %}
+                            <small>{{form.entalpia.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.presion class="form-control presion" placeholder="Presión (Manométrica)" min="0.00001" %}
+                            <small>{{form.presion.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.temperatura class="form-control temp" placeholder="Temperatura" required="required" min="-273.15" %}
+                            <small>{{form.temperatura.errors}}</small>
+                        </td>
+                        <td>
+                            {% render_field form.fase class="form-select fase" placeholder="Fase" required="required" %}
+                            <small>{{form.fase.errors}}</small>
+                        </td>
+                        <td>
+                            {% if forloop.first %}
+                            <a class="anadir w-100 btn btn-success">+</a>
+                            {% else %}
+                            <a class="eliminar w-100 btn btn-danger">-</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+                
+            <hr>
+
+            <div class="d-flex w-100 justify-content-center mb-3">
+                <button id="submit" type="submit" class="btn btn-danger">Enviar Formulario</button>
+            </div>
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/turbinas/creacion.js"></script>
+
+{% if form_turbina.instance.tag %}
+<script>
+    $('.entrada').change();
+</script>
+{% endif %}
+
+<script>
+    $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
+</script>
+{% endblock %}

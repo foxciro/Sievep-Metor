@@ -1,0 +1,175 @@
+{% load widget_tweaks %}
+<div class="modal fade" id="{{form.prefix}}-accesorios" tabindex="-1" aria-labelledby="{{form.prefix}}-accesoriosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="{{form.prefix}}-accesoriosLabel">Accesorios del Tramo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small p-3">
+          <div class="row">
+            <div class="col-12">
+                <h3 class="text-center">Codos</h3>
+            </div>
+            
+            <div class="col-6">
+                <label for="id_numero_codos_90">{{form.numero_codos_90.label_tag}}</label>
+                {% render_field form.numero_codos_90 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_codos_90.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_codos_90_rl">{{form.numero_codos_90_rl.label_tag}}</label>
+                {% render_field form.numero_codos_90_rl min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_codos_90_rl.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_codos_90_ros">{{form.numero_codos_90_ros.label_tag}}</label>
+                {% render_field form.numero_codos_90_ros min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_codos_90_ros.errors}}</small>
+            </div>
+
+            <div class="col-6">
+                <label for="id_numero_codos_45">{{form.numero_codos_45.label_tag}}</label>
+                {% render_field form.numero_codos_45 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_codos_45.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_codos_45_ros">{{form.numero_codos_45_ros.label_tag}}</label>
+                {% render_field form.numero_codos_45_ros min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_codos_45_ros.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_codos_180">{{form.numero_codos_180.label_tag}}</label>
+                {% render_field form.numero_codos_180 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_codos_180.errors}}</small>
+            </div>
+
+            <div class="col-12">
+                <hr>
+                <h3 class="text-center">Válvulas de Compuerta</h3>
+            </div>
+            
+            <div class="col-6">
+                <label for="id_numero_valvulas_compuerta">{{form.numero_valvulas_compuerta.label_tag}}</label>
+                {% render_field form.numero_valvulas_compuerta min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvulas_compuerta.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_valvulas_compuerta_abierta_3_4">{{form.numero_valvulas_compuerta_abierta_3_4.label_tag}}</label>
+                {% render_field form.numero_valvulas_compuerta_abierta_3_4 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvulas_compuerta_abierta_3_4.errors}}</small>
+            </div>
+
+            <div class="col-6">
+                <label for="id_numero_valvulas_compuerta_abierta_1_2">{{form.numero_valvulas_compuerta_abierta_1_2.label_tag}}</label>
+                {% render_field form.numero_valvulas_compuerta_abierta_1_2 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvulas_compuerta_abierta_1_2.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_valvulas_compuerta_abierta_1_4">{{form.numero_valvulas_compuerta_abierta_1_4.label_tag}}</label>
+                {% render_field form.numero_valvulas_compuerta_abierta_1_4 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvulas_compuerta_abierta_1_4.errors}}</small>
+            </div>
+
+            <div class="col-12">
+                <hr>
+                <h3 class="text-center">Válvulas Mariposa</h3>
+            </div>
+
+            <div class="col-6">
+                <label for="id_numero_valvulas_mariposa_2_8">{{form.numero_valvulas_mariposa_2_8.label_tag}}</label>
+                {% render_field form.numero_valvulas_mariposa_2_8 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvulas_mariposa_2_8.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_valvulas_mariposa_10_14">{{form.numero_valvulas_mariposa_10_14.label_tag}}</label>
+                {% render_field form.numero_valvulas_mariposa_10_14 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvulas_mariposa_10_14.errors}}</small>
+            </div>
+
+            <div class="col-12">
+                <label for="id_numero_valvulas_mariposa_16_24">{{form.numero_valvulas_mariposa_16_24.label_tag}}</label>
+                {% render_field form.numero_valvulas_mariposa_16_24 min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvulas_mariposa_16_24.errors}}</small>
+            </div>
+
+            <div class="col-12">
+                <hr>
+                <h3 class="text-center">Válvulas de Check</h3>
+            </div>
+
+            <div class="col-6">
+                <label for="id_numero_valvula_giratoria">{{form.numero_valvula_giratoria.label_tag}}</label>
+                {% render_field form.numero_valvula_giratoria min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvula_giratoria.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_valvula_bola">{{form.numero_valvula_bola.label_tag}}</label>
+                {% render_field form.numero_valvula_bola min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvula_bola.errors}}</small>
+            </div>
+
+            <div class="col-6">
+                <label for="id_numero_valvula_vastago">{{form.numero_valvula_vastago.label_tag}}</label>
+                {% render_field form.numero_valvula_vastago min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvula_vastago.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_valvula_bisagra">{{form.numero_valvula_bisagra.label_tag}}</label>
+                {% render_field form.numero_valvula_bisagra min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvula_bisagra.errors}}</small>
+            </div>
+
+            <div class="col-12">
+                <hr>
+                <h3 class="text-center">Accesorios</h3>
+            </div>
+
+            <div class="col-6">
+                <label for="id_numero_valvula_globo">{{form.numero_valvula_globo.label_tag}}</label>
+                {% render_field form.numero_valvula_globo min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvula_globo.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_valvula_angulo">{{form.numero_valvula_angulo.label_tag}}</label>
+                {% render_field form.numero_valvula_angulo min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_valvula_angulo.errors}}</small>
+            </div>
+
+            <div class="col-12">
+                <hr>
+                <h3 class="text-center">Otros Parámetros</h3>
+            </div>
+
+            <div class="col-6">
+                <label for="id_numero_contracciones_linea">{{form.numero_contracciones_linea.label_tag}}</label>
+                {% render_field form.numero_contracciones_linea min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_contracciones_linea.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_numero_expansiones_linea">{{form.numero_expansiones_linea.label_tag}}</label>
+                {% render_field form.numero_expansiones_linea min="0" class="form-control verificar-negativo" %}
+                <small>{{form.numero_expansiones_linea.errors}}</small>
+            </div>
+
+            <div class="col-6">
+                <label for="id_conexiones_t_directo">{{form.conexiones_t_directo.label_tag}}</label>
+                {% render_field form.conexiones_t_directo min="0" class="form-control verificar-negativo" %}
+                <small>{{form.conexiones_t_directo.errors}}</small>
+            </div>
+            <div class="col-6">
+                <label for="id_conexiones_t_ramal">{{form.conexiones_t_ramal.label_tag}}</label>
+                {% render_field form.conexiones_t_ramal min="0" class="form-control verificar-negativo" %}
+                <small>{{form.conexiones_t_ramal.errors}}</small>
+            </div>
+            
+            <div class="col-12 p-3">
+                <div class="w-100 d-flex justify-content-center">
+                    <a href="#" class="btn btn-danger w-100 guardar-accesorios" data-bs-dismiss="modal" aria-label="Close">Guardar</a>
+                </div>
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+</div>

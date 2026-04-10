@@ -1,0 +1,16 @@
+{% load l10n %}
+
+<input 
+    hx-swap-oob="true"
+    type="number" 
+    name="{% if adicional %}adicional-{% endif %}densidad{% if evaluacion %}_evaluacion{%endif%}" 
+    step="any" 
+    hx-indicator="#spinner" 
+    hx-trigger="keyup delay:1s" 
+    hx-get="/auxiliares/ventiladores/datos_fluido/" 
+    hx-swap="none" 
+    class="form-control" 
+    min="0.000001" 
+    disabled="disabled" 
+    value="{{densidad|unlocalize}}"
+    id="id_{% if adicional %}adicional-{% endif %}densidad{% if evaluacion %}_evaluacion{%endif%}">

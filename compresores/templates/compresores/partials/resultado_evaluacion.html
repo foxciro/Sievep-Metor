@@ -1,0 +1,274 @@
+<div id="resultados" hx-swap-oob="true">
+    <table class="table table-sm table-responsive table-bordered table-hover text-center" style="font-size: xx-small;">
+        <thead>
+            <tr>
+                <th colspan="{{etapas.count|add:1}}" class="table-dark">
+                    Resultados de la Evaluación
+                </th>
+            </tr>
+            <tr class="table-dark">
+                <th>
+                    Parámetro
+                </th>
+                {% for etapa in etapas %}
+                <th>
+                    Etapa {{etapa.numero}}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="table-dark w-50">
+                    Flujo Volumétrico Entrada (m³/h)
+                </th>
+                {% for f in resultados.flujo_entrada %}
+                <th>
+                    {{f|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Flujo Volumétrico Salida (m³/h)
+                </th>
+                {% for f in resultados.flujo_salida %}
+                <th>
+                    {{f|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Cabezal Calculado (m)
+                </th>
+                {% for c in resultados.cabezal %}
+                <th>
+                    {{c|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Cabezal Isentrópico (m)
+                </th>
+                {% for c in resultados.cabezal_iso %}
+                <th>
+                    {{c|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Potencia Calculada (kW)
+                </th>
+                {% for p in resultados.potencia %}
+                <th>
+                    {{p|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Potencia Isentrópica (kW)
+                </th>
+                {% for p in resultados.potencia_iso %}
+                <th>
+                    {{p|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Eficiencia Isentrópica (%)
+                </th>
+                {% for e in resultados.eficiencia %}
+                <th>
+                    {{e|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Eficiencia Teórica (%)
+                </th>
+                {% for e in resultados.eficiencia_teorica %}
+                <th>
+                    {{e|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    n
+                </th>
+                {% for n in resultados.n %}
+                <th>
+                    {{n|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Z Calculado Entrada
+                </th>
+                {% for z in resultados.z_in %}
+                <th>
+                    {{z|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Z Calculado Salida
+                </th>
+                {% for z in resultados.z_out %}
+                <th>
+                    {{z|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Relación de Compresión
+                </th>
+                {% for r in resultados.relacion_compresion %}
+                <th>
+                    {{r|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Relación de Temperatura
+                </th>
+                {% for r in resultados.relacion_temperatura %}
+                <th>
+                    {{r|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Relación Volumétrica
+                </th>
+                {% for r in resultados.relacion_volumetrica %}
+                <th>
+                    {{r|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    K Calculado Entrada
+                </th>
+                {% for k in resultados.k_in %}
+                <th>
+                    {{k|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    K Calculado Salida
+                </th>
+                {% for k in resultados.k_out %}
+                <th>
+                    {{k|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    K Promedio
+                </th>
+                {% for k in resultados.k_prom %}
+                <th>
+                    {{k|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    PM Promedio (gr/mol)
+                </th>
+                {% for p in resultados.pm_calculado %}
+                <th>
+                    {{p|floatformat:4}}
+                </th>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    {% if etapas.count > 1 %}
+    <table class="table table-sm table-responsive table-bordered table-hover text-center" style="font-size: xx-small;">
+        <thead>
+            <tr>
+                <th class="table-dark w-50" colspan="{{etapas.count|add:1}}">Diferencias entre Etapas</th>
+            </tr>
+            <tr>
+                <th class="table-dark w-50">Etapas</th>
+                {% for etapa in etapas %}
+                {% if not forloop.last %}
+                <th class="table-dark">Etapa {{ etapa.numero }} y Etapa {{ etapa.numero|add:1 }}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="table-dark w-50">Caída de Presión entre Etapas (bar)</th>
+                {% for p in resultados.caida_presion %}
+                <th>
+                    {{ p|floatformat:4 }}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">Caída de Temperatura entre Etapas (°C)</th>
+                {% for t in resultados.caida_temperatura %}
+                <th>
+                    {{ t|floatformat:4 }}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="table-dark w-50">Energía Retirada entre Etapas (kJ/kg)</th>
+                {% for er in resultados.energia_ret %}
+                <th>
+                    {{ er|floatformat:4 }}
+                </th>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-4 grafica" id="grafica_h_vs_p">
+            {{graficas.presion_vs_h.div|safe}}
+            {{graficas.presion_vs_h.script|safe}}
+        </div>
+
+        <div class="col-4 grafica" id="presion_vs_flujo">
+            {{graficas.presion_vs_flujo.div|safe}}
+            {{graficas.presion_vs_flujo.script|safe}}
+        </div>
+
+        <div class="col-4 grafica" id="cabezal_vs_flujo">
+            {{graficas.cabezal_vs_flujo.div|safe}}
+            {{graficas.cabezal_vs_flujo.script|safe}}
+        </div>
+
+        <script>
+            setTimeout(() => {
+                document.querySelectorAll('.grafica > div > .bk-Figure:not(:first-child)').forEach(figure => figure.remove());
+            }, 300);
+        </script>
+    </div>
+</div>
+
+<button hx-swap-oob="true" value="almacenar" name="submit" id="submit" type="submit" class="btn btn-danger">
+    Almacenar Resultados
+</button>

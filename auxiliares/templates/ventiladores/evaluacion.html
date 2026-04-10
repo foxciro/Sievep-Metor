@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form id="form" method="post" name="form" hx-indicator="#spinner" hx-swap="none" hx-post="/auxiliares/ventiladores/evaluar/{{ventilador.pk}}/resultado/">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'evaluaciones_ventilador' pk=ventilador.pk %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Ventilador {{ventilador.tag}}</h3></div>
+        <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{ventilador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
+    </div>
+            
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            {{form_evaluacion.nombre.label_tag}}*
+            {% render_field form_evaluacion.nombre class="form-control" placeholder="Nombre descriptivo de la evaluación" %}
+        </div>
+
+        <div class="col-lg-6 col-xs-12 border-end border-dark">
+            <div class="row">
+                <div class="mt-3 col-6">
+                    {{form_entrada_evaluacion.presion_entrada.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.presion_entrada class="form-control parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" placeholder="(Manométrica)" %}
+                        <select name="presion_salida_unidad" id="id_presion_salida_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'P' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.presion_salida_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3 col-6">
+                    {{form_entrada_evaluacion.presion_salida.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.presion_salida class="form-control" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" placeholder="(Manométrica)" %}
+                        <select name="presion_salida_unidad" id="id_presion_salida_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades" disabled>
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'P' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.presion_salida_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.temperatura_operacion.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.temperatura_operacion min="-273.15" class="form-control parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" placeholder="Temp. de Operación al Evaluar" %}
+                        <select name="temperatura_operacion_unidad" id="id_temperatura_operacion_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'T' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.temperatura_operacion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.densidad_evaluacion.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.densidad_evaluacion class="form-control" disabled="disabled" %}
+                        <select name="densidad_evaluacion_unidad" id="id_densidad_evaluacion_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'D' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.densidad_evaluacion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.flujo.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.flujo min="0.0001" class="form-control" placeholder="Flujo del Ventilador al Evaluar" %}
+                        <select name="flujo_unidad" id="id_flujo_unidad" class="form-select parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'F' or unidad.tipo == 'K' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.flujo_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.potencia_ventilador.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.potencia_ventilador min="0.0001" class="form-control" placeholder="Potencia del Ventilador al Evaluar" %}
+                        <select name="potencia_ventilador_unidad" id="id_potencia_ventilador_unidad" class="form-select parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'B' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.potencia_ventilador_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 col-12 d-flex justify-content-center">
+                <button id="calcular" name="submit" value="calcular" type="submit" class="btn btn-danger" disabled>Calcular Resultados</button>
+            </div>
+        </div>
+
+        <div id="resultados" class="col-lg-6 col-xs-12 p-4 h-auto d-flex align-items-center justify-content-center">
+            <table class="table table-responsive table-bordered text-center">
+                    <tbody>
+                        <tr>
+                            <th colspan="2" class="table-dark">
+                                Resultados de la Evaluación
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="table-dark w-50">
+                                Eficiencia de la Bomba
+                            </th>
+                            <td class="w-50">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark w-50">
+                                Potencia Calculada
+                            </th>
+                            <td class="w-50">
+                            </td>
+                        </tr>
+                    </tbody>
+            </table>
+        </div>
+        
+    </div>
+
+    <input type="hidden" name="evaluacion" value="1" class="parametros-propiedades">
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+
+{% include 'ventiladores/ficha.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/ventiladores/evaluacion.js"></script>
+
+<script>
+    $('select[name="presion_salida_unidad"]').html($('select[name="presion_salida_unidad"]').html().replaceAll('</option>', 'g</option>'));
+</script>
+{% endblock %}

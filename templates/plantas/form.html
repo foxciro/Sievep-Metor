@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_plantas' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8">
+            {% if not edicion %}
+            <h3 class="text-center" style="color: #e31e24;">Nueva Planta</h3>
+            {% else %}
+            <h3 class="text-center" style="color: #e31e24;">Editar Planta {{planta}}</h3>
+            {% endif %}
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <hr>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-6">
+            {{ form.nombre.label_tag }}
+            {% render_field form.nombre class="form-control" %}
+            <small>{{ form.nombre.errors }}</small>
+        </div>
+
+        <div class="col-6">
+            {{ form.complejo.label_tag }}
+            {% render_field form.complejo class="form-select" %}
+            <small>{{ form.complejo.errors }}</small>
+        </div>
+    </div>
+                
+    <hr>
+
+    <div class="d-flex w-100 justify-content-center mb-3">
+        <button id="submit" type="submit" class="btn btn-danger">Enviar Formulario</button>
+    </div>
+</form>
+
+{% if edicion or recarga %}
+{% if form_condiciones_adicionales.instance.calculo_densidad == 'A' and form_condiciones_adicionales.instance.densidad %}
+<div class="hidden" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad">
+</div>
+{% endif %}
+
+{% if form_condiciones_trabajo.instance.calculo_densidad == 'A' %}
+<div class="hidden" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad">
+</div>
+{% endif %}
+
+{% endif %}
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+{% endblock %}

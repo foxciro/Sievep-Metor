@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+
+<style>
+    input, select {
+        min-height: auto !important;
+        font-size: 0.6rem !important;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@bokeh/bokehjs@3.7.0/build/js/bokeh.min.js"></script>
+{% endblock %}
+
+{% block contenido %}
+<div class="row mb-3">
+    <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'evaluaciones_compresor' pk=compresor.pk %}">↶ Regresar</a></div>
+    <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Compresor {{compresor.tag}}</h3></div>
+    <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{compresor.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
+</div>
+
+<hr>
+
+<form id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}#resultados" hx-trigger="submit" hx-indicator="#spinner">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-8">
+            <label for="evaluacion-nombre" class="form-label">Nombre de la Evaluación</label>
+            <input type="text" id="evaluacion-nombre" name="evaluacion-nombre" class="form-control" required>
+        </div>
+        <div class="col-4">
+            <label for="evaluacion-caso" class="form-label">Precargar Información del Caso:</label>
+            <select form="None" hx-swap="outerHTML" name="evaluacion-caso" id="evaluacion-caso" class="form-select" hx-select="#datos-entrada" hx-target="#datos-entrada" hx-get="{% url 'evaluacion_compresor' pk=compresor.pk %}" required>
+                <option value="">--------------------</option>
+                {% for caso in compresor.casos.all %}
+                <option value="{{caso.pk}}">Caso {{forloop.counter}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <hr>
+    <div class="row" id="datos-entrada">
+        <div class="col-xl-7 col-lg-8 col-xs-12">
+            <h5 class="text-center">Datos de Entrada</h5>
+            <hr>
+
+            <table class="table table-sm text-center" style="font-size: x-small;">
+                <thead>
+                    <tr class="table-dark">
+                        <th>Parámetro</th>
+                        {% for etapa in compresor.casos.first.etapas.all %}
+                        <th>Etapa {{etapa.numero}}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr class="table-dark text-white">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">Datos de Flujo, Potencia, Cabezal de Ficha</th>
+                    </tr>
+                    <tr>
+                        <td>Flujo de Gas</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.flujo_gas style="min-width: 55%;" class="form-control form-control-sm" min="0.0001" %}
+                                <select name="{{form.prefix}}-flujo_gas_unidad" id="id_{{form.prefix}}-flujo_gas_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='F' pk_selected=form.initial.flujo_gas_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Flujo Volumétrico</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.flujo_volumetrico style="min-width: 55%;" class="form-control form-control-sm" min="0.0001" %}
+                                <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='K' pk_selected=form.initial.flujo_volumetrico_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Flujo Surge en RPM</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.flujo_surge style="min-width: 55%;" class="form-control form-control-sm" min="0.0001" %}
+                                <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm" disabled>
+                                    {% include 'unidades.html' with tipo='K' pk_selected=form.initial.flujo_volumetrico_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Velocidad</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.velocidad style="min-width: 55%;" class="form-control form-control-sm" min="0.0001" %}
+                                <select name="{{form.prefix}}-velocidad_unidad" id="id_{{form.prefix}}-velocidad_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='O' pk_selected=form.initial.velocidad_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="table-dark text-white">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
+                            Para Cabezal Hidráulico
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>Cabezal Politrópico</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.cabezal_politropico style="min-width: 55%;" class="form-control form-control-sm" min="0.0001" %}
+                                <select name="{{form.prefix}}-cabezal_politropico_unidad" id="id_{{form.prefix}}-cabezal_politropico_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='L' pk_selected=form.initial.cabezal_politropico_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="table-dark text-white">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
+                            Cálculo de la Potencia
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>Potencia Generada</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.potencia_generada style="min-width: 55%;" class="form-control form-control-sm" min="0.0001" %}
+                                <select name="{{form.prefix}}-potencia_generada_unidad" id="id_{{form.prefix}}-potencia_generada_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='B' pk_selected=form.initial.potencia_generada_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="table-dark text-white">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
+                            Cálculo de Eficiencia
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>Eficiencia Politrópica (%)</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.eficiencia_politropica style="min-width: 55%;" class="form-control form-control-sm" min="0.0001" %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="table-dark text-white">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
+                            Condiciones de la Corriente
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>Presión Entrada</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.presion_in style="min-width: 55%;" class="form-control form-control-sm" min="-1" %}
+                                <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='P' pk_selected=form.initial.presion_unidad.pk unidad_suffix="g" %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Presión Salida</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.presion_out style="min-width: 55%;" class="form-control form-control-sm" min="-1" %}
+                                <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm" disabled>
+                                    {% include 'unidades.html' with tipo='P' pk_selected=form.initial.presion_unidad.pk unidad_suffix="g" %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Temperatura Entrada</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.temperatura_in style="min-width: 55%;" class="form-control form-control-sm" min="-273.15" %}
+                                <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='T' pk_selected=form.initial.temperatura_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Temperatura Salida</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.temperatura_out style="min-width: 55%;" class="form-control form-control-sm" min="-273.15" %}
+                                <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm" disabled>
+                                    {% include 'unidades.html' with tipo='T' pk_selected=form.initial.temperatura_unidad.pk %}
+                                </select>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-dark text-white" colspan="{{compresor.casos.first.etapas.count|add:1}}">
+                            Cáculos de Coeficientes Isoentrópicos
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>K Entrada</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.k_in class="form-control form-control-sm" min="0.0001" %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>K Salida</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.k_out class="form-control form-control-sm" min="0.0001" %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-dark text-white" colspan="{{compresor.casos.first.etapas.count|add:1}}">
+                            Cálculo de Factor de Compresibilidad
+                        </th>
+                    </tr>
+                    <tr>
+                        <td>Z Entrada</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.z_in class="form-control form-control-sm" min="0.0001" %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Z Salida</td>
+                        {% for etapa,form in forms.entradas_etapa.items %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form.z_out class="form-control form-control-sm" min="0.0001" %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="col-xl-5 col-lg-4 col-xs-12">
+            <h5 class="text-center">Composición del Combustible por Etapa</h5>
+            <hr>
+
+            <table class="table table-sm table-bordered table-sm text-center" style="font-size: xx-small;">
+                <thead>
+                    <tr class="table-dark" style="vertical-align: middle;">
+                        <th>Compuesto</th>
+                        {% for etapa in compresor.casos.first.etapas.all %}
+                        <th>Etapa {{etapa.numero}}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="tabla_composiciones">
+                    {% for fluido,forms_etapas in forms.composiciones.items %}
+                    <tr>
+                        <td class="table-dark" style="vertical-align: middle;">{{fluido}}</td>
+                        {% for form_etapa in forms_etapas %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form_etapa.porc_molar min="0" class="form-control form-control-sm porc-mol" %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <th class="table-dark" style="vertical-align: middle;">TOTAL</th>
+                        {% for etapa in compresor.casos.first.etapas.all %}
+                        <th>
+                            <input disabled type="number" class="form-control form-control-sm porc-mol totals" max="100" min="0" value="0">
+                        </th>
+                        {% endfor %}
+                    </tr>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="resultados">
+
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <button type="submit" id="submit" name="submit" value="calcular" class="btn btn-danger">Calcular Resultados</button>
+    </div>
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+
+{% include 'compresores/partials/ficha.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/compresores/evaluacion.js' %}"></script>
+{% endblock %}

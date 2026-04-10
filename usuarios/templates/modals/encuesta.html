@@ -1,0 +1,24 @@
+<div class="modal fade" id="respuestas{{encuesta.pk}}" tabindex="-1" aria-labelledby="respuestas{{encuesta.pk}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="respuestas{{encuesta.pk}}Label">Resultados de la Encuesta (ID={{encuesta.pk}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small p-3">
+          {% regroup encuesta.respuestas.all by pregunta.seccion as secciones %}
+          {% for seccion in secciones %}
+          {%  if not forloop.first %}
+          <hr>
+          {% endif %}
+          <h3 class="text-center text-danger">— {{seccion.grouper.nombre}} —</h3>
+          <hr>
+          {% for respuesta in seccion.list %}
+          <h5>{{forloop.counter}}) {{respuesta.pregunta.nombre|default_if_none:"— NO RESPONDIÓ —"}}</h5>
+          <p><b>Respuesta:</b> {{respuesta.respuesta|default_if_none:"— NO RESPONDIÓ —"}}</p>
+          {% endfor %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+</div>

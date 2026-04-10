@@ -1,0 +1,96 @@
+<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <th class="table-dark">Eficiencia de la Caldera</th>
+            <th>{{resultados.eficiencia|floatformat:2}}%</th>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Balance de Materiales Másico/Molar</th>
+        </tr>
+        <tr>
+            <th class="table-dark">Gas de Entrada</th>
+            <td>{{resultados.balance_gas.masico|floatformat:4}} Kg/h / {{resultados.balance_gas.molar|floatformat:4}} Kmol/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Aire de Entrada</th>
+            <td>{{resultados.balance_aire.masico|floatformat:4}} Kg/h / {{resultados.balance_aire.molar|floatformat:4}} Kmol/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Lado Combustión</th>
+        </tr>
+        <tr>
+            <th class="table-dark">Flujo de Combustión</th>
+            <td>{{resultados.flujo_combustion|floatformat:4}} m3/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Oxígeno en Exceso </th>
+            <td>{{resultados.oxigeno_exceso|floatformat:4}}%</td>
+        </tr>
+        <tr>
+            <th colspan="2" class="table-dark">Composiciones de Gas a la Salida</th>
+        </tr>
+        <tr>
+            <th class="table-dark">H2O</th>
+            <td>{{resultados.fraccion_h2o_gas|floatformat:4}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">CO2</th>
+            <td>{{resultados.fraccion_co2_gas|floatformat:4}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">N2</th>
+            <td>{{resultados.fraccion_n2_gas|floatformat:4}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">O2</th>
+            <td>{{resultados.fraccion_o2_gas|floatformat:4}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">SO2</th>
+            <td>{{resultados.fraccion_so2_gas|floatformat:4}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Balance de Energía</th>
+        </tr>
+        <tr>
+            <th class="table-dark">Energía Entrada Gas</th>
+            <td>{{resultados.energia_gas_entrada|floatformat:4}} kJ/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Energía Entrada Aire</th>
+            <td>{{resultados.energia_aire_entrada|floatformat:4}} kJ/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Energía Total de Entrada</th>
+            <td>{{resultados.energia_total_entrada|floatformat:4}} kJ/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Energía Total Reacción</th>
+            <td>{{resultados.energia_total_reaccion|floatformat:4}} kJ/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Energía Total de Salida</th>
+            <td>{{resultados.energia_total_salida|floatformat:4}} kJ/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Energía del Horno</th>
+            <td>{{resultados.energia_horno|floatformat:4}} kJ/h</td>
+        </tr>
+        <tr>
+            <th colspan="2" class="table-dark">Lado Agua</th>
+        </tr>
+        <tr>
+            <th class="table-dark">Flujo de Purga</th>
+            <td>{{resultados.flujo_purga|floatformat:4}} T/h</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Energía del Vapor</th>
+            <td>{{resultados.energia_vapor|floatformat:4}} kJ/h</td>
+        </tr>
+        
+    </tbody>
+</table>
+
+<div class="d-flex justify-center w-full">
+    <button type="submit" name="accion" value="almacenar" id="submit" class="btn btn-danger w-100">Almacenar</button>
+</div>

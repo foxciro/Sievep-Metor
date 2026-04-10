@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form id="form" method="post" name="form" hx-post="{% url 'evaluar_turbina_vapor' pk=turbina.pk %}" hx-trigger="submit" hx-swap="none" hx-indicator="#spinner">
+    {% csrf_token %}
+    {{formset_entrada_corriente.formset.management_form}}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'evaluaciones_turbina_vapor' pk=turbina.pk %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Turbina de Vapor {{turbina.tag}}</h3></div>
+        <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{turbina.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
+    </div>
+            
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            {{form_evaluacion.nombre.label_tag}}*
+            {% render_field form_evaluacion.nombre class="form-control" placeholder="Nombre descriptivo de la evaluación" %}
+        </div>
+
+        <div class="col-lg-12 col-xs-12 mb-3">
+            <div class="row">
+                <div class="mt-3 col-6">
+                    {{form_entrada_evaluacion.flujo_entrada.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.flujo_entrada class="form-control parametros-propiedades" min="0.00001" placeholder="Flujo (Másico) de Entrada" %}
+                        <select name="flujo_entrada_unidad" id="id_flujo_entrada_unidad" class="form-select parametros-propiedades">
+                            {% include 'unidades.html' with tipo='F' pk_selected=turbina.datos_corrientes.flujo_unidad.pk %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3 col-6">
+                    {{form_entrada_evaluacion.potencia_real.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.potencia_real class="form-control" min="0.00001" placeholder="Potencia real al evaluar" %}
+                        <select name="potencia_real_unidad" id="id_potencia_real_unidad" class="form-select parametros-propiedades">
+                            {% include 'unidades.html' with tipo='B' pk_selected=turbina.generador_electrico.potencia_real_unidad.pk %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <table class="table table-hover">
+                <tbody id="forms-corrientes">
+                    <tr class="table-dark">
+                        <th class="text-center">#</th>
+                        <th class="text-center">Descripción</th>
+                        <th class="text-center">Presión</th>
+                        <th class="text-center">Temperatura</th>
+                        <th class="text-center">Flujo</th>
+                        <th class="text-center">Entalpía</th>
+                        <th class="text-center">Fase</th>
+                    </tr>
+
+                    <tr>
+                        <th class="text-center">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">
+                            <select name="presion_unidad" id="id_presion_unidad" class="form-select parametros-propiedades">
+                                {% include 'unidades.html' with tipo='P' pk_selected=turbina.datos_corrientes.presion_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select parametros-propiedades">
+                                {% include 'unidades.html' with tipo='T' pk_selected=turbina.datos_corrientes.temperatura_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="flujo_entrada_unidad" id="id_flujo_entrada_unidad" class="form-select parametros-propiedades" disabled>
+                                {% include 'unidades.html' with tipo='F' pk_selected=turbina.datos_corrientes.flujo_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <select name="" id="" disabled class="form-select">
+                                <option value="">{{turbina.datos_corrientes.entalpia_unidad}}</option>
+                            </select>
+                        </td>
+                        <td class="text-center">-</td>
+                    </tr>
+
+                    {% for form in formset_entrada_corriente.form_list %}
+                    <tr class="form {% if form.corriente.entrada %}table-success{%endif%}">
+                        {% render_field form.form.id hidden="true" %}
+                        <td class="text-center">
+                            {{form.corriente.numero_corriente}}{% if form.corriente.entrada %}*{%endif%}
+                        </td>
+                        <td class="text-center">
+                            {{form.corriente.descripcion_corriente}}                            
+                        </td>
+                        <td>
+                            {% if not form.corriente.presion %}
+                            {% render_field form.form.presion class="form-control" placeholder="Presión no req. (saturado)" disabled="disabled" min="0.00001" %}
+                            {% else %}
+                            {% render_field form.form.presion class="form-control" placeholder="Presión (Manométrica)" required="required" min="0.00001" %}
+                            {% endif %}                            
+                            <small>{{form.form.presion.errors}}</small>
+                        </td>
+                        <td>
+                            {% if not form.corriente.temperatura %}
+                            {% render_field form.form.temperatura class="form-control" placeholder="Temperatura no req. (saturado)" disabled="disabled" min="-273.15" %}
+                            {% else %}
+                            {% render_field form.form.temperatura class="form-control" placeholder="Temperatura" required="required" min="-273.15" %}
+                            {% endif %} 
+                            <small>{{form.form.temperatura.errors}}</small>
+                        </td>
+                        <td class="resultado" id="form-{{forloop.counter}}-flujo">
+                        </td>
+                        <td class="resultado" id="form-{{forloop.counter}}-entalpia">
+                        </td>
+                        <td class="resultado" id="form-{{forloop.counter}}-fase">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="resultados" class="resultado">
+
+        </div>
+
+        <div class="d-flex w-100 justify-content-center mb-3">
+            <button id="submit" type="submit" name="submit" value="calcular" class="btn btn-danger">
+                Calcular Resultados
+            </button>
+        </div>
+        
+    </div>
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+
+{% include 'turbinas_vapor/ficha.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/turbinas/vapor/evaluacion.js"></script>
+
+{% endblock %}

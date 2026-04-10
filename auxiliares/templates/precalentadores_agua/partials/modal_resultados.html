@@ -1,0 +1,186 @@
+{% load static %}
+{% load mathfilters %}
+
+<div class="modal fade" id="resultados_{{evaluacion.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk|default_if_none:'-'}}Label">Resultados de la Evaluación (ID: {{evaluacion.id}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+                <table class="table table-responsive text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-success" colspan="10">
+                                DATOS DE LAS CORRIENTES DE LA CARCASA
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">#</th>
+                            <th class="text-center table-dark">NOMBRE</th>
+                            <th class="text-center table-dark">ENTRA/SALE</th>
+                            <th class="text-center table-dark">TEMPERATURA ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
+                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}}g)</th>
+                            <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
+                            <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
+                            <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
+                            <th class="text-center table-dark">CP (J/KgK)</th>
+                            <th class="text-center table-dark">FASE</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        {% for corriente in evaluacion.datos_corrientes.corrientes_evaluacion.all %}
+                        {% if corriente.corriente.lado == "C" %}
+                        <tr>
+                            <td> {{corriente.corriente.numero_corriente}} </td>
+                            <td> {{corriente.corriente.nombre}} </td>
+                            <td> {{corriente.corriente.rol_largo}} </td>
+                            <td> {{corriente.temperatura|floatformat:4}} </td>
+                            <td> {{corriente.presion|floatformat:4}} </td>
+                            <td> {{corriente.flujo|floatformat:4}} </td>
+                            <td> {{corriente.entalpia|floatformat:4}} </td>
+                            <td> {{corriente.densidad|floatformat:4}} </td>
+                            <td> {{corriente.cp|floatformat:4}} </td>
+                            <td> {{corriente.fase_largo}} </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-12">
+                <table class="table table-responsive text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-success" colspan="10">
+                                DATOS DE LAS CORRIENTES DE LOS TUBOS
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">#</th>
+                            <th class="text-center table-dark">NOMBRE</th>
+                            <th class="text-center table-dark">ENTRA/SALE</th>
+                            <th class="text-center table-dark">TEMPERATURA ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
+                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}}g)</th>
+                            <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
+                            <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
+                            <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
+                            <th class="text-center table-dark">CP (J/KgK)</th>
+                            <th class="text-center table-dark">FASE</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        {% for corriente in evaluacion.datos_corrientes.corrientes_evaluacion.all %}
+                        {% if corriente.corriente.lado == "T" %}
+                        <tr>
+                            <td> {{corriente.corriente.numero_corriente}} </td>
+                            <td> {{corriente.corriente.nombre}} </td>
+                            <td> {{corriente.corriente.rol_largo}} </td>
+                            <td> {{corriente.temperatura|floatformat:4}} </td>
+                            <td> {{corriente.presion|floatformat:4}} </td>
+                            <td> {{corriente.flujo|floatformat:4}} </td>
+                            <td> {{corriente.entalpia|floatformat:4}} </td>
+                            <td> {{corriente.densidad|floatformat:4}} </td>
+                            <td> {{corriente.cp|floatformat:4}} </td>
+                            <td> {{corriente.fase_largo}} </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-12 mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="table-danger text-center" colspan="2">
+                                RESULTADOS DE LA EVALUACION
+                            </th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        <tbody>
+                            <tr>
+                                <th class="table-dark w-50">Eficiencia (%)</th>
+                                <td class="w-50">{{evaluacion.salida_general.eficiencia|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">Calor Carcasa (W)</th>
+                                <td class="w-50">{{evaluacion.salida_general.calor_carcasa|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">Calor Tubo (W)</th>
+                                <td class="w-50">{{evaluacion.salida_general.calor_tubos|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">Coeficiente Global de Transferencia U Calc./Diseño (W/m²K)</th>
+                                <td class="w-50">{{evaluacion.salida_general.u|floatformat:4}} / {{evaluacion.salida_general.u_diseno|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">Delta T Tubos ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
+                                <td class="w-50">{{evaluacion.salida_general.delta_t_tubos|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">Delta T Carcasa ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
+                                <td class="w-50">{{evaluacion.salida_general.delta_t_carcasa|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">MTD ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
+                                <td class="w-50">{{evaluacion.salida_general.mtd|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">Ensuciamiento (m²K/W)</th>
+                                <td class="w-50">{{evaluacion.salida_general.factor_ensuciamiento|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">NTU</th>
+                                <td class="w-50">{{evaluacion.salida_general.ntu|floatformat:4}}</td>
+                            </tr>
+                            <tr>
+                                <th class="table-dark w-50">Cmín (W/K)</th>
+                                <td class="w-50">{{evaluacion.salida_general.cmin|floatformat:4}}</td>
+                            </tr>
+                        </tbody>
+                    </tbody>
+                </table>
+
+                {% if evaluacion.salida_general.perdida_ambiente %}
+                <h5 class="text-center text-danger">PÉRDIDA DE ENERGÍA EN EL AMBIENTE</h5>
+                {% endif %}
+
+                {% if evaluacion.salida_general.invalido %}
+                    <h5 class="text-center text-danger">Los resultados podrían ser inconsistentes debido a datos de entrada que no se ajustaban al modelo.</h5>
+                {% endif %}
+            </div>
+          </div>
+
+          <div class="col-12 text-end">
+            <small>Evaluación creada por {{evaluacion.usuario.get_full_name}} al {{evaluacion.fecha}}.</small> 
+          </div>
+        </div>
+        <div class="modal-footer">
+            {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
+            {%endif%}
+
+            <form method="post" name="reporte">
+                {% csrf_token %}
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+            </form>
+        </div>
+    </div>
+    </div>
+</div>

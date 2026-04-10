@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<script src="{% static 'js/htmx.min.js' %}"></script>
+<style>
+  td, th{
+    vertical-align: middle;
+  }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="row d-flex justify-content-center align-items-center">
+  {% block encabezado %}
+  {% endblock %}
+</div>
+<hr>
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} mb-2" role="alert">
+  {{message}}
+</div>
+{% endfor %}
+{% endif %}
+
+<form id="filtrado" hx-get="" hx-target="main" hx-swap="outerHTML" hx-select="main" hx-vals="js:{tag: document.getElementById('tag').value, servicio: document.getElementById('servicio').value,planta: document.getElementById('planta').value,complejo: document.getElementById('complejo').value}, nombre: document.getElementById('nombre')">
+  <div class="row mb-2">
+      {% block formulario_filtrado %}
+      {% endblock %}
+  </div>
+</form>
+
+<div style="overflow-x: scroll;">
+  <table class="table table-responsive table-dark table-striped table-hover table-bordered">
+    {% block tabla %}
+    {% endblock %}
+  </table>
+</div>
+
+<div class="d-flex justify-content-between">
+  {% block opciones %}
+  {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+tipo,nombre
+T,Temperatura
+P,Presión
+L,Longitud
+M,Masa
+F,Tasa de Flujo Másico
+n,Entalpía Másica
+A,Área
+U,Coeficiente Global de Transferencia de Calor
+Q,Calor
+C,Calor Específico
+E,Ensuciamiento/Coeficiente de Transferencia Inverso
+K,Tasa de Flujo volumétrico
+%,Concentración
+B,Potencia
+H,Frecuencia
+X,Potencial Eléctrico
+D,Densidad Volumétrica
+O,Velocidad Angular
+Z,Potencia Eléctrica Aparente
+Y,Corriente Eléctrica
+I,Tiempo

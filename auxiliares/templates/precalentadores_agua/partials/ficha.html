@@ -1,0 +1,245 @@
+{% load static %}
+
+<div class="modal fade" id="ficha_{{precalentador.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{precalentador.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ficha_{{precalentador.pk|default_if_none:'-'}}Label">Ficha Técnica Precalentador de Agua ({{precalentador.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              {% if not precalentador.u or not precalentador.datos_corrientes %}
+              <p class="text-center text-danger">Debe definir un Coeficiente Global de Transferencia de Calor (U) por balance general y las corrientes del equipo para poder realizar evaluaciones.</p>
+              {% endif %}
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                      <th class="table-dark">Tag</th>
+                      <td><span id="tag_ficha">{{precalentador.tag|default_if_none:'-'}}</span></td>
+                      <td colspan="3" rowspan="5" style="background-color: lightgray;">
+                        <img src="/static/img/equipos_aux/prec_agua.png" style="max-width: 100%;" alt="">
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Complejo</th>
+                      <td>{{precalentador.planta.complejo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Planta</th>
+                      <td>{{precalentador.planta|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Tipo</th>
+                      <td>PRECALENTADOR DE AGUA</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fabricante</th>
+                      <td >{{precalentador.fabricante|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Descripción</th>
+                      <td colspan="4">{{precalentador.descripcion|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with seccion_vapor=precalentador.secciones_precalentador.all.2 %}
+                    {% with seccion_drenaje=precalentador.secciones_precalentador.all.1 %}
+                    {% with seccion_agua=precalentador.secciones_precalentador.all.0 %}
+                    <tr>
+                      <th class="table-dark"></th>
+                      <th class="table-dark" colspan="2">Carcasa</th>
+                      <th class="table-dark" colspan="2">Tubos</th>
+                    </tr>
+                    <tr>
+                      <th class="table-dark"></th>
+                      <th class="table-dark">VAPOR</th>
+                      <th class="table-dark">DRENAJE</th>
+                      <th class="table-dark" colspan="2">AGUA</th>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Flujo Másico Entrada</th>
+                      <td>{{seccion_vapor.flujo_masico_entrada|default:'-'}} {{seccion_vapor.flujo_unidad|default:'-'}}</td>
+                      <td>{{seccion_drenaje.flujo_masico_entrada|default:'-'}} {{seccion_drenaje.flujo_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_agua.flujo_masico_entrada|default:'-'}} {{seccion_agua.flujo_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Flujo Másico Salida</th>
+                      <td>—</td>
+                      <td>{{seccion_drenaje.flujo_masico_salida|default:'-'}} {{seccion_drenaje.flujo_unidad|default:'-'}}</td>
+                      <td colspan="2">—</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Entalpía de Entrada</th>
+                      <td>{{seccion_vapor.entalpia_entrada|default:'-'}} {{seccion_vapor.entalpia_unidad|default:'-'}}</td>
+                      <td>{{seccion_drenaje.entalpia_entrada|default:'-'}} {{seccion_drenaje.entalpia_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_agua.entalpia_entrada|default:'-'}} {{seccion_agua.entalpia_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Entalpía de Salida</th>
+                      <td>{{seccion_vapor.entalpia_salida|default:'-'}} {{seccion_vapor.entalpia_unidad|default:'-'}}</td>
+                      <td>{{seccion_drenaje.entalpia_salida|default:'-'}} {{seccion_drenaje.entalpia_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_agua.entalpia_salida|default:'-'}} {{seccion_agua.entalpia_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Temperatura de Entrada</th>
+                      <td>{{seccion_vapor.temp_entrada|default:'-'}} {{seccion_vapor.temp_unidad|default:'-'}}</td>
+                      <td>{{seccion_drenaje.temp_entrada|default:'-'}} {{seccion_drenaje.temp_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_agua.temp_entrada|default:'-'}} {{seccion_agua.temp_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Temperatura de Salida</th>
+                      <td>{{seccion_vapor.temp_salida|default:'-'}} {{seccion_vapor.temp_unidad|default:'-'}}</td>
+                      <td>{{seccion_drenaje.temp_salida|default:'-'}} {{seccion_drenaje.temp_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_agua.temp_salida|default:'-'}} {{seccion_agua.temp_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Presión de Entrada</th>
+                      <td>{{seccion_vapor.presion_entrada|default:'-'}} {{seccion_vapor.presion_unidad|default:'-'}}g</td>
+                      <td>{{seccion_drenaje.presion_entrada|default:'-'}} {{seccion_drenaje.presion_unidad|default:'-'}}g</td>
+                      <td colspan="2">{{seccion_agua.presion_entrada|default:'-'}} {{seccion_agua.presion_unidad|default:'-'}}g</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Caída de Presión</th>
+                      <td>{{seccion_vapor.caida_presion|default:'-'}} {{seccion_vapor.presion_unidad|default:'-'}}g</td>
+                      <td>{{seccion_drenaje.caida_presion|default:'-'}} {{seccion_drenaje.presion_unidad|default:'-'}}g</td>
+                      <td colspan="2">{{seccion_agua.caida_presion|default:'-'}} {{seccion_agua.presion_unidad|default:'-'}}g</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Velocidad Promedio</th>
+                      <td>{{seccion_vapor.velocidad_promedio|default:'-'}} {{seccion_vapor.velocidad_unidad|default:'-'}}</td>
+                      <td>{{seccion_drenaje.velocidad_promedio|default:'-'}} {{seccion_drenaje.velocidad_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_agua.velocidad_promedio|default:'-'}} {{seccion_agua.velocidad_unidad|default:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+
+                    {% with especificaciones_condensado=precalentador.especificaciones_precalentador.all.0 %}
+                    {% with especificaciones_drenaje=precalentador.especificaciones_precalentador.all.1 %}
+                    {% with especificaciones_reduccion=precalentador.especificaciones_precalentador.all.2 %}
+                    <tr>
+                      <th class="table-dark" colspan="2"></th>
+                      <th class="table-dark">DRENAJE</th>
+                      <th class="table-dark">CONDENSADO</th>
+                      <th class="table-dark">REDUCCIÓN DE DESOBRECALENTAMIENTO</th>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Calor</th>
+                      <td>{{especificaciones_drenaje.calor|default:'-'}} {{especificaciones_drenaje.calor_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_condensado.calor|default:'-'}} {{especificaciones_condensado.calor_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_reduccion.calor|default:'-'}} {{especificaciones_reduccion.calor_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Área</th>
+                      <td>{{especificaciones_drenaje.area|default:'-'}} {{especificaciones_drenaje.area_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_condensado.area|default:'-'}} {{especificaciones_condensado.area_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_reduccion.area|default:'-'}} {{especificaciones_reduccion.area_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Coeficiente Global de Transferencia</th>
+                      <td>{{especificaciones_drenaje.coeficiente_transferencia|default:'-'}} {{especificaciones_drenaje.coeficiente_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_condensado.coeficiente_transferencia|default:'-'}} {{especificaciones_condensado.coeficiente_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_reduccion.coeficiente_transferencia|default:'-'}} {{especificaciones_reduccion.coeficiente_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">MTD</th>
+                      <td>{{especificaciones_drenaje.mtd|default:'-'}} {{especificaciones_drenaje.mtd_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_condensado.mtd|default:'-'}} {{especificaciones_condensado.mtd_unidad|default:'-'}}</td>
+                      <td>{{especificaciones_reduccion.mtd|default:'-'}} {{especificaciones_reduccion.mtd_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Caída de Presión</th>
+                      <td>{{especificaciones_drenaje.caida_presion|default:'-'}} {{especificaciones_drenaje.caida_presion_unidad|default:'-'}}g</td>
+                      <td>{{especificaciones_condensado.caida_presion|default:'-'}} {{especificaciones_condensado.caida_presion_unidad|default:'-'}}g</td>
+                      <td>{{especificaciones_reduccion.caida_presion|default:'-'}} {{especificaciones_reduccion.caida_presion_unidad|default:'-'}}g</td>
+                    </tr>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+                    <tr>
+                      <th colspan="2" class="table-dark">Coeficiente Global de Transferencia por Balance General ({{precalentador.u_unidad}})</td>
+                      <td colspan="3">{{precalentador.u}}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="5">Precalentador registrado por {{precalentador.creado_por.get_full_name}} al {{precalentador.creado_al}}.</td>
+                    </tr>
+                    {% if precalentador.editado_por %}
+                    <tr>
+                      <td colspan="5">Precalentador editado por {{precalentador.editado_por.get_full_name}} al {{precalentador.editado_al}}.</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+
+                {% if precalentador.datos_corrientes %}
+                <small>
+                  <table class="table text-center table-hover">
+                    <thead class="table-dark">
+                      <tr>
+                        <th colspan="10" class="table-dark">Corrientes</th>
+                      </tr>
+                      <tr>
+                        <th>#</th>
+                        <th>NOMBRE</th>
+                        <th>LADO</th>
+                        <th>ENTRA/SALE</th>
+                        <th>FLUJO ({{precalentador.datos_corrientes.flujo_unidad}})</th>
+                        <th>PRESIÓN ({{precalentador.datos_corrientes.presion_unidad}})</th>
+                        <th>TEMPERATURA ({{precalentador.datos_corrientes.temperatura_unidad}})</th>
+                        <th>ENTALPÍA ({{precalentador.datos_corrientes.entalpia_unidad}})</th>
+                        <th>DENSIDAD ({{precalentador.datos_corrientes.densidad_unidad}})</th>
+                        <th>FASE</th>                      
+                      </tr>
+                    </thead> 
+                    
+                    <tbody>
+                      {% for corriente in precalentador.datos_corrientes.corrientes_precalentador_agua.all %}
+                      <tr>
+                        <td>{{corriente.numero_corriente}}</td>
+                        <td>{{corriente.nombre}}</td>
+                        <td>{{corriente.lado_largo}}</td>
+                        <td>{{corriente.rol_largo}}</td>
+                        <td>{{corriente.flujo|default:'-'}}</td>
+                        <td>{{corriente.presion|default:'-'}}</td>
+                        <td>{{corriente.temperatura|default:'-'}}</td>
+                        <td>{{corriente.entalpia|default:'-'}}</td>
+                        <td>{{corriente.densidad|default:'-'}}</td>
+                        <td>{{corriente.fase_largo}}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </small>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% if request.user.is_superuser or precalentador.planta.pk in permisos.ediciones %}
+          <a href="{% url 'edicion_precalentador_agua' pk=precalentador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+
+          {% if request.user.is_superuser or precalentador.planta.pk in permisos.instalaciones %}
+          <a href="{% url 'creacion_corrientes_precalentador_agua' pk=precalentador.pk %}" class="btn btn-info d-inline-flex" style="color: black;">Editar Corrientes</a>
+          {% endif %}
+
+          {% if request.user.is_superuser or precalentador.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_precalentador_agua' pk=precalentador.pk %}" method="post" name="duplicacion">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {% endif %}
+
+          <form method="post" name="ficha_form">
+            {% csrf_token %}
+            <input type="hidden" name="ficha" value="{{precalentador.pk}}">
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          </form>
+          
+        </div>
+      </div>
+    </div>
+</div>

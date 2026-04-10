@@ -1,0 +1,7 @@
+n_corriente;descripcion;presion;temperatura;flujo;entalpia;fase
+13;Vapor entrada a la turbina;58.6;482;171.82;809;V
+19;Vapor 1era Extraccion;23.8;224;15.62;669;V
+20;Vapor 2da Extraccion;9;179;11.45;663;V
+21;Vapor 3era Extraccion;2.3;350;12.98;758;V
+22;Vapor 4ta Extraccion;0.125635;87;8.48;634;V
+25;Condensado 5ta Extracción;;49;123.29;44;L

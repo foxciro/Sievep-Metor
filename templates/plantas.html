@@ -1,0 +1,13 @@
+<select name="planta" class="form-select" required="" id="id_planta" hx-swap-oob="true">
+    <option value="" selected="">---------</option>
+  
+    {% for planta in plantas %}
+    <option value="{{planta.pk}}" {% if selected_planta == planta.pk %}selected{% endif %}>{{planta.nombre}}</option>
+    {% endfor %}
+</select>
+
+<select name="complejo" id="id_complejo" hx-swap-oob="true" class="form-select"  hx-get="/plantas/" hx-trigger="change" hx-target="#id_planta" hx-swap="none">
+    {% for complejo in complejos %}
+    <option value="{{complejo.pk}}" {% if selected_complejo == complejo.pk %}selected{%endif%}>{{complejo}}</option>
+    {% endfor %}
+</select>

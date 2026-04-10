@@ -1,0 +1,185 @@
+{% load static %}
+<div class="modal fade" id="resultados_{{evaluacion.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk|default_if_none:'-'}}Label">Resultados de la Evaluación "{{evaluacion.nombre}}" (ID: {{evaluacion.id}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-lg-6 col-xs-12">
+                <table class="table table-bordered table-responsive text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-success" colspan="4">
+                                DATOS DE ENTRADA DE LA EVALUACIÓN
+                            </th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        {% with fluidos=evaluacion.entradas_fluidos_caldera.all %}
+                        <tr>
+                            <th class="table-dark" colspan="2">Método de Evaluación</th>
+                            <td colspan="2">{% if evaluacion.metodo == "D" %}Directo{% else %}Indirecto{% endif %}</td>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="4">CONDICIONES OPERATIVAS</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="4">GAS</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Flujo Volumétrico</th>
+                            <td>{{fluidos.1.flujo|default_if_none:"-"}} {{fluidos.1.flujo_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">Temperatura de Operación</th>
+                            <td>{{fluidos.1.temperatura|default_if_none:"-"}} {{fluidos.1.temperatura_unidad|default_if_none:"-"}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="2">Presión de Operación</th>
+                            <td colspan="2">{{fluidos.1.presion|default_if_none:"-"}} {{fluidos.1.presion_unidad|default_if_none:"-"}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="table-dark" colspan="4">AIRE</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Flujo Volumétrico</th>
+                            <td>{{fluidos.0.flujo|default_if_none:"-"}} {{fluidos.0.flujo_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">Temperatura de Operación</th>
+                            <td>{{fluidos.0.temperatura|default_if_none:"-"}} {{fluidos.0.temperatura_unidad|default_if_none:"-"}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Presión de Operación</th>
+                            <td>{{fluidos.0.presion|default_if_none:"-"}} {{fluidos.0.presion_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">% Humedad Relativa</th>
+                            <td>{{fluidos.0.humedad_relativa|default_if_none:"2.4"}} %</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="2">Velocidad</th>
+                            <td colspan="2">{{fluidos.0.velocidad|default_if_none:"-"}} {{fluidos.0.velocidad_unidad|default_if_none:"-"}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="table-dark" colspan="4">HORNO</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Temperatura de Operación</th>
+                            <td>{{fluidos.2.temperatura|default_if_none:"-"}} {{fluidos.2.temperatura_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">Presión de Operación</th>
+                            <td>{{fluidos.2.presion|default_if_none:"-"}} {{fluidos.2.presion_unidad|default_if_none:"-"}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="table-dark" colspan="4">SUPERFICIE DE LA CALDERA</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Temperatura de Operación</th>
+                            <td>{{fluidos.3.temperatura|default_if_none:"-"}} {{fluidos.3.temperatura_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">Área</th>
+                            <td>{{fluidos.3.area|default_if_none:"-"}} {{fluidos.3.area_unidad|default_if_none:"-"}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="2">% O2 Gases Combustión:</th>
+                            <td colspan="2">{{evaluacion.o2_gas_combustion|default_if_none:"-"}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="table-dark" colspan="4">VAPOR PRODUCIDO</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Flujo Másico</th>
+                            <td>{{fluidos.4.flujo|default_if_none:"-"}} {{fluidos.4.flujo_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">Temperatura de Operación</th>
+                            <td>{{fluidos.4.temperatura|default_if_none:"-"}} {{fluidos.4.temperatura_unidad|default_if_none:"-"}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="2">Presión de Operación</th>
+                            <td colspan="2">{{fluidos.4.presion|default_if_none:"-"}} {{fluidos.4.presion_unidad|default_if_none:"-"}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="table-dark" colspan="4">AGUA DE ENTRADA</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Flujo Másico</th>
+                            <td>{{fluidos.5.flujo|default_if_none:"-"}} {{fluidos.5.flujo_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">Temperatura de Operación</th>
+                            <td>{{fluidos.5.temperatura|default_if_none:"-"}} {{fluidos.5.temperatura_unidad|default_if_none:"-"}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="2">Presión de Operación</th>
+                            <td colspan="2">{{fluidos.5.presion|default_if_none:"-"}} {{fluidos.3.presion_unidad|default_if_none:"-"}}</td>
+                        </tr>
+                        {% endwith %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-6 col-xs-12">
+                <table class="table table-bordered table-responsive text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-secondary" colspan="4">
+                                COMPOSICIONES DEL COMBUSTIBLE
+                            </th>
+                        </tr>
+                        <tr class="table-dark">
+                            <th>COMPUESTO</th>
+                            <th>% VOLUMEN</th>
+                            <th>% AIRE</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        {% for composicion in evaluacion.composiciones_evaluacion.all %}
+                        <tr>
+                            <th class="table-dark text-center">{{composicion.composicion.fluido|default_if_none:"-"}}</th>
+                            <td>{{composicion.parc_vol|default_if_none:"-"}} %</td>
+                            <td>{% if composicion.parc_aire %} {{composicion.parc_aire|default_if_none:"-"}} % {% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>                
+            </div>
+            <div class="col-12 d-flex justify-content-center align-items-center">
+                <table class="table table-bordered table-responsive text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-danger" colspan="4">
+                                RESULTADOS DE LA EVALUACIÓN
+                            </th>
+                        </tr>
+                    </thead>
+            
+                    {% if evaluacion.metodo == 'D' %}
+                    {% include 'calderas/partials/tabla_resultados_directo.html' %}
+                    {% else %}
+                    {% include 'calderas/partials/tabla_resultados_indirecto.html' %}
+                    {% endif %}
+                </table>
+            </div>
+
+          <div class="col-12 text-end">
+            <small>Evaluación creada por {{evaluacion.usuario.get_full_name|floatformat:4|default_if_none:"-"}} al {{evaluacion.fecha|default_if_none:"-"}}.</small> 
+          </div>
+        </div>
+        <div class="modal-footer">
+            {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
+            {% endif %}
+
+            <form method="post" name="reporte">
+                {% csrf_token %}
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+            </form>
+        </div>
+    </div>
+    </div>
+</div>

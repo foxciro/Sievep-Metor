@@ -1,0 +1,58 @@
+{% load l10n %}
+
+<input required value="{{presion_vapor|unlocalize}}" hx-swap-oob="true" type="number" id="id_presion_vapor" name="presion_vapor" disabled class="form-control" step="any">
+<input required value="{{viscosidad|unlocalize}}" hx-swap-oob="true" type="number" id="id_viscosidad" name="viscosidad" disabled class="form-control" step="any">
+<input required value="{{densidad|unlocalize}}" hx-swap-oob="true" type="number" id="id_densidad" name="densidad" disabled class="form-control" step="any">
+
+{% if ficha %}
+
+<select disabled hx-swap-oob="true" name="presion_unidad" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" id="id_presion_unidad" disabled>
+    <option {% if presion_unidad == 7 %}selected{% endif %} value="7">bar</option>
+    <option {% if presion_unidad == 11 %}selected{% endif %} value="11">atm</option>
+    <option {% if presion_unidad == 17 %}selected{% endif %} value="17">PSI</option>
+    <option {% if presion_unidad == 22 %}selected{% endif %} value="22">mmHg</option>
+    <option {% if presion_unidad == 26 %}selected{% endif %} value="26">KPa</option>
+</select>
+
+<select disabled hx-swap-oob="true" name="presion_vapor_unidad" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" id="id_presion_vapor_unidad" disabled>
+    <option {% if presion_vapor_unidad == 7 %}selected{% endif %} value="7">bar</option>
+    <option {% if presion_vapor_unidad == 11 %}selected{% endif %} value="11">atm</option>
+    <option {% if presion_vapor_unidad == 17 %}selected{% endif %} value="17">PSI</option>
+    <option {% if presion_vapor_unidad == 22 %}selected{% endif %} value="22">mmHg</option>
+    <option {% if presion_vapor_unidad == 26 %}selected{% endif %} value="26">KPa</option>
+</select>
+
+<select disabled hx-swap-oob="true" name="temperatura_unidad" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" id="id_temperatura_unidad">
+    <option {% if temperatura_unidad == 1 %} selected {% endif %} value="1">°C</option>
+    <option {% if temperatura_unidad == 2 %} selected {% endif %} value="2">K</option>
+    <option {% if temperatura_unidad == 8 %} selected {% endif %} value="8">°R</option>
+    <option {% if temperatura_unidad == 9 %} selected {% endif %} value="9">°F</option>
+</select>
+
+<select disabled hx-swap-oob="true" name="viscosidad_unidad" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" id="id_viscosidad_unidad">
+    <option {% if viscosidad_unidad == 35 %} selected {% endif %} value="35">cP</option>
+    <option {% if viscosidad_unidad == 36 %} selected {% endif %} value="36">P</option>
+    <option {% if viscosidad_unidad == 44 %} selected {% endif %} value="44">Pa.s</option> 
+</select>
+
+<select disabled hx-swap-oob="true" name="densidad_unidad" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" id="id_densidad_unidad">
+    <option {% if not densidad_unidad %} selected {% endif %} value="" selected="">---------</option>
+    <option {% if densidad_unidad == 43 %} selected {% endif %} value="43">Kg/m³</option>
+    <option {% if densidad_unidad == 45 %} selected {% endif %} value="45">lb/in³</option>
+    <option {% if densidad_unidad == 46 %} selected {% endif %} value="46">lb/ft³</option>
+    <option {% if densidad_unidad == 47 %} selected {% endif %} value="47">oz/in³</option>  
+</select>
+
+<input required disabled hx-swap-oob="true"  value="{{densidad|unlocalize}}" type="number" id="id_densidad" name="densidad" class="form-control" step="any">
+<input required disabled hx-swap-oob="true" value="{{viscosidad|unlocalize}}" type="number" id="id_viscosidad" name="viscosidad" class="form-control" step="any">
+<input required disabled value="{{presion_vapor|unlocalize}}" hx-swap-oob="true" type="number" id="id_presion_vapor" name="presion_vapor" class="form-control" step="any">
+<input required disabled hx-swap-oob="true" value="{{presion_succion|unlocalize}}" type="number" name="presion_succion" step="any" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="keyup delay:1s" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-control" min="-273.15" id="id_presion_succion">
+<input required disabled hx-swap-oob="true" value="{{temperatura_operacion|unlocalize}}" type="number" name="temperatura_operacion" step="0.01" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="keyup delay:1s" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-control" min="-273.15" id="id_temperatura_operacion">
+
+{% if not densidad or not viscosidad or not presion_vapor or not presion_succion or not temperatura_operacion %}
+<button type="submit" id="submit" name="submit" value="calcular" disabled>Calcular Resultados</button>
+{% endif %}
+
+{% endif %}
+
+<small class="text-danger" id="aviso" hx-swap-oob="true">{% if bandera %}*Los datos fueron calculados asumiendo el fluido como líquido saturado ya que la temp. de operación y presión de succión no corresponden a la fase líquido.{% endif %}</small>

@@ -1,0 +1,386 @@
+{% load static %}
+
+<div class="modal fade" id="ficha_{{caldera.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{caldera.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ficha_{{caldera.pk|default_if_none:'-'}}Label">Ficha Técnica Caldera de Vapor ({{caldera.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0" style="vertical-align: middle;">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                      <th class="table-dark">Tag</th>
+                      <td><span id="tag_ficha">{{caldera.tag|default_if_none:'-'}}</span></td>
+                      <td colspan="2" rowspan="5" style="background-color: lightgray;">
+                        <img src="/static/img/calderas/caldera-ficha.png" style="max-width: 100%;" alt="">
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Complejo</th>
+                      <td>{{caldera.planta.complejo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Planta</th>
+                      <td>{{caldera.planta|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fabricante</th>
+                      <td>{{caldera.fabricante|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Modelo</th>
+                        <td>{{caldera.modelo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Tipo de Caldera</th>
+                        <td>{{caldera.tipo_caldera|default_if_none:'-'}}</td>
+                        <th class="table-dark">Accesorios</th>
+                        <td>{{caldera.accesorios|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Descripción</th>
+                        <td colspan="3">{{caldera.descripcion|default_if_none:'-'}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="table table-light text-center table-bordered tabla_ficha mt-0">
+                  <tbody id="tabla_ficha_contenido_body">
+                    {% with especificaciones=caldera.especificaciones %}
+                    <tr>
+                      <th class="table-dark" colspan="6">
+                        <div class="d-inline-flex align-items-center text-uppercase">
+                          ESPECIFICACIONES TÉCNICAS DE LA CALDERA
+                        </div>
+                      </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Material</th>
+                        <td>{{especificaciones.material|default_if_none:'-'}}</td>
+                        <th class="table-dark">Área de Transferencia de Calor ({{especificaciones.area_unidad}})</th>
+                        <td>{{especificaciones.area_transferencia_calor|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Calor Intercambiado ({{especificaciones.calor_unidad}})</th>
+                      <td>{{especificaciones.calor_intercambiado|default_if_none:'-'}}</td>
+                      <th class="table-dark">Capacidad ({{especificaciones.capacidad_unidad}})</th>
+                      <td>{{especificaciones.capacidad|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Temperatura de Diseño ({{especificaciones.temperatura_unidad}})</th>
+                        <td>{{especificaciones.temp_diseno|default_if_none:'-'}}</td>
+                        <th class="table-dark">Temperatura de Operación ({{especificaciones.temperatura_unidad}})</th>
+                        <td>{{especificaciones.temp_operacion|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Presión de Diseño ({{especificaciones.presion_unidad}})</th>
+                        <td>{{especificaciones.presion_diseno|default_if_none:'-'}}</td>
+                        <th class="table-dark">Presión de Operación ({{especificaciones.presion_unidad}})</th>
+                        <td>{{especificaciones.presion_operacion|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Carga ({{especificaciones.carga_unidad}})</th>
+                        <td>{{especificaciones.carga|default_if_none:'-'}}</td>
+                        <th class="table-dark">Eficiencia Térmica (%)</th>
+                        <td>{{especificaciones.eficiencia_termica|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+
+                    {% with dimensiones=caldera.dimensiones %}
+                    <tr>
+                        <th class="table-dark text-uppercase" colspan="4">
+                          <div class="d-inline-flex align-items-center">
+                            DIMENSIONES DE LA CALDERA
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Ancho ({{dimensiones.dimensiones_unidad}})</th>
+                        <td>{{dimensiones.ancho|default_if_none:'-'}}</td>
+                        <th class="table-dark">Largo ({{dimensiones.dimensiones_unidad}})</th>
+                        <td>{{dimensiones.largo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Alto ({{dimensiones.dimensiones_unidad}})</th>
+                      <td colspan="3">{{dimensiones.alto|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+
+                    {% with tambor=caldera.tambor %}
+                    <tr class="table-dark">
+                      <th colspan="4" class="text-center">ESPECIFICACIONES DEL TAMBOR</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Presión de Operación ({{tambor.presion_unidad}})</th>
+                      <td class="text-center">{{tambor.presion_operacion|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Presión de Diseño ({{tambor.presion_unidad}})</th>
+                      <td class="text-center">{{tambor.presion_diseno|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Temperatura de Operación ({{tambor.temperatura_unidad}})</th>
+                      <td class="text-center">{{tambor.temp_operacion|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Temperatura de Diseño ({{tambor.temperatura_unidad}})</th>
+                      <td class="text-center">{{tambor.temp_diseno|default_if_none:'-'}}</td>
+                    </tr>
+                    {% for seccion in tambor.secciones_tambor.all %}
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{seccion.dimensiones_unidad}}, Tambor {% if seccion.seccion == "S" %}Superior{% else %}Inferior{%endif%})</th>
+                      <td class="text-center">{{seccion.diametro|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Longitud ({{seccion.dimensiones_unidad}}, Tambor {% if seccion.seccion == "S" %}Superior{% else %}Inferior{%endif%})</th>
+                      <td class="text-center">{{seccion.longitud|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                      <th class="table-dark text-center">Material del Tambor</th>
+                      <td colspan="3">{{tambor.material|default_if_none:'-'}}</td>
+                    </tr>         
+                    {% endwith %}
+
+                    {% with sobrecalentador=caldera.sobrecalentador %}
+                    <tr class="table-dark">
+                      <th colspan="4" class="text-center">ESPECIFICACIONES DEL SOBRECALENTADOR</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Presión de Operación ({{sobrecalentador.presion_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.presion_operacion|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Presión de Diseño ({{sobrecalentador.presion_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.presion_diseno|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Temperatura de Operación ({{sobrecalentador.temperatura_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.temp_operacion|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Flujo Máximo Continuo ({{sobrecalentador.flujo_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.flujo_max_continuo|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with sobrecalentador_dimensiones=sobrecalentador.dims %}
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{sobrecalentador_dimensiones.diametro_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador_dimensiones.diametro_tubos|default_if_none:"-"}}</td>
+                      <th class="text-center table-dark">Número de Tubos</th>
+                      <td class="text-center">{{sobrecalentador_dimensiones.num_tubos|default_if_none:"-"}}</td>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark" colspan="2">Área Total de Transferencia ({{sobrecalentador_dimensiones.area_unidad}})</th>
+                      <td class="text-center" colspan="2">{{sobrecalentador_dimensiones.area_total_transferencia|default_if_none:"-"}}</td>
+                    </tr>
+                    {% endwith %}       
+                    {% endwith %}
+
+                    {% with chimenea=caldera.chimenea %}
+                    <tr>
+                      <th class="text-center table-dark" colspan="4">ESPECIFICACIONES DE LA CHIMENEA</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{chimenea.dimensiones_unidad}})</th>
+                      <td class="text-center">{{chimenea.diametro|default_if_none:"-"}}</td>
+                      <th class="text-center table-dark">Altura ({{chimenea.dimensiones_unidad}})</th>
+                      <td class="text-center">{{chimenea.altura|default_if_none:"-"}}</td>
+                    </tr>
+                    {% endwith %}
+
+                    {% with economizador=caldera.economizador %}
+                    <tr>
+                      <th class="text-center table-dark" colspan="4">ESPECIFICACIONES DEL ECONOMIZADOR</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{economizador.diametro_unidad}})</th>
+                      <td class="text-center">{{economizador.diametro_tubos|default_if_none:"-"}}</td>
+                      <th class="text-center table-dark">Número de Tubos</th>
+                      <td class="text-center">{{economizador.numero_tubos|default_if_none:"-"}}</td>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark" colspan="2">Área Total de Transferencia ({{economizador.area_unidad}})</th>
+                      <td class="text-center" colspan="2">{{economizador.area_total_transferencia|default_if_none:"-"}}</td>
+                    </tr>
+                    {% endwith %}
+                    
+                  {% with combustible=caldera.combustible %}
+                  <tr>
+                    <th colspan="4" class="table-dark text-uppercase">
+                      COMBUSTIBLE
+                    </th>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">Combustible Gas</th>
+                    <td colspan="3">{{combustible.nombre_gas}}</td>
+                  </tr>
+                  {% if combustible.liquido %}
+                  <tr>
+                    <th class="table-dark">Combustible Líquido</th>
+                    <td colspan="3">{{combustible.nombre_liquido}}</td>                    
+                  </tr>
+                  {% endif %}
+                  <tr>
+                    <th colspan="4" class="text-center table-dark">COMPOSICIÓN DEL COMBUSTIBLE</th>
+                  </tr>
+                  <tr class="table-dark">
+                    <th colspan="2">Compuesto</th>
+                    <th>% Vol</th>
+                    <th>% Aire</th>
+                  </tr>
+
+                  {% for compuesto in combustible.composicion_combustible_caldera.all %}
+                  <tr>
+                    <th colspan="2" class="text-center table-dark">{{compuesto.fluido}}</th>
+                    <td class="text-center">{{compuesto.porc_vol}} %</td>
+                    {% if compuesto.fluido.nombre == "Agua" or compuesto.fluido.nombre == "Nitrógeno" or compuesto.fluido.nombre == "Oxígeno" %}
+                    <td class="text-center">{{compuesto.porc_aire|default_if_none:0}} %</td>
+                    {% else %}
+                    <td class="text-center">-</td>
+                    {% endif %}
+                  </tr>
+                  {% endfor %}
+
+                  {% endwith %}
+                  
+                  <tr>
+                    <td colspan="6">Creado por el usuario <b>{{caldera.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{caldera.creado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% if caldera.editado_al %}
+                  <tr>
+                    <td colspan="6">Editado por <b>{{caldera.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{caldera.editado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% if request.user.is_superuser or caldera.planta.pk in permisos.ediciones %}
+          <a href="{% url 'edicion_caldera' pk=caldera.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+          {% if request.user.is_superuser or caldera.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_caldera' pk=caldera.pk %}" method="post" name="duplicacion">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {% endif %}
+          <button type="button" class="btn btn-secondary" data-bs-target="#ficha_adicional_{{caldera.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos Adicionales</button>
+
+          <form method="post" name="ficha_form">
+            {% csrf_token %}
+            <input type="hidden" name="ficha" value="{{caldera.pk}}">
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Ficha PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Ficha XLSX</button>
+          </form>
+          
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ficha_adicional_{{caldera.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{caldera.pk|default_if_none:'-'}}Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ficha_adicional_{{caldera.pk|default_if_none:'-'}}Label">Ficha Técnica Caldera de Vapor ({{caldera.tag|default_if_none:'-'}})</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small">
+        <div class="row">
+          <div class="col-12">
+            <div class="d-flex flex-column">
+              
+              <table class="table table-bordered text-center">
+                <thead>
+                  <tr>
+                    <th colspan="5" class="text-center table-dark">Características Adicionales</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% with caracteristicas=caldera.caracteristicas_caldera.all %}
+                  {% if caracteristicas.count %}
+                  <tr class="table-dark">
+                    <th>Característica</th>
+                    <th>25%</th>
+                    <th>50%</th>
+                    <th>75%</th>
+                    <th>100%</th>
+                  </tr>
+                  {% for caracteristica in caracteristicas %}
+                  <tr>
+                    <th class="table-dark">{{caracteristica.nombre.upper}} {% if caracteristica.unidad %}({{caracteristica.unidad}}){% endif %}</th>
+                    <td>{{caracteristica.carga_25|default_if_none:'-'}}</td>
+                    <td>{{caracteristica.carga_50|default_if_none:'-'}}</td>
+                    <td>{{caracteristica.carga_75|default_if_none:'-'}}</td>
+                    <td>{{caracteristica.carga_100|default_if_none:'-'}}</td>
+                  </tr>
+                  {% endfor %}
+                  {%else%}
+                  <tr>
+                    <th class="text-center">No hay características adicionales registradas para este equipo.</th>
+                  </tr>
+                  {% endif %}
+                  {% endwith %}
+                </tbody>
+              </table>
+
+              <table class="table table-bordered text-center">
+                <thead>
+                  <tr>
+                    <th colspan="7" class="text-center table-dark">Corrientes Circulantes por la Caldera</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% with corrientes=caldera.corrientes_caldera.all %}
+                  {% if corrientes.count %}
+                  <tr class="table-dark">
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Flujo Másico</th>
+                    <th>Densidad</th>
+                    <th>Temp. Operación</th>
+                    <th>Presión</th>
+                    <th>Estado</th>
+                  </tr>
+                  {% for corriente in corrientes %}
+                  <tr>
+                    <th class="table-dark">{{corriente.numero|default_if_none:"-"}}</th>
+                    <th class="text-center">{{corriente.nombre|default_if_none:"-"}}</th>
+                    <td class="text-center">{{corriente.flujo_masico|default_if_none:"-"}} {{corriente.flujo_masico_unidad}}</td>
+                    <td class="text-center">{{corriente.densidad|default_if_none:"-"}} {{corriente.densidad_unidad}}</td>
+                    <td class="text-center">{{corriente.temp_operacion|default_if_none:"-"}} {{corriente.temp_operacion_unidad}}</td>
+                    <td class="text-center">{{corriente.presion|default_if_none:"-"}} {{corriente.presion_unidad}}</td>
+                    <td class="text-center">{{corriente.estado|default_if_none:"-"}}</td>
+                  </tr>
+                  {% endfor %}
+                  {%else%}
+                  <tr>
+                    <th class="text-center">No hay corrientes registradas para este equipo.</th>
+                  </tr>
+                  {% endif %}
+                  {% endwith %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        {% if request.user.is_superuser or caldera.planta.pk in permisos.instalaciones %}
+        <a href="{% url 'registro_adicionales_caldera' pk=caldera.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+        
+        <form action="{% url 'duplicar_caldera' pk=caldera.pk %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+        </form>
+        {% endif %}
+        <button class="btn btn-secondary" data-bs-target="#ficha_{{caldera.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Ficha Técnica</button>
+
+        <form method="post" name="ficha_form">
+          {% csrf_token %}
+          <input type="hidden" name="ficha" value="{{caldera.pk}}">
+          <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Ficha PDF</button>
+          <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Ficha XLSX</button>
+        </form>
+        
+      </div>
+    </div>
+  </div>
+</div>

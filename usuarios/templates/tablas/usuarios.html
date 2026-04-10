@@ -1,0 +1,107 @@
+{% load static %}
+{% load mathfilters %}
+{% for usuario in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{usuario.get_full_name}}</td>
+    <td>{{usuario.username}}</td>
+    <td>{{usuario.email}}</td>
+    <td>{{usuario.is_superuser|yesno:"Sí,No"}}</td>
+    <td>
+      <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#usuario{{usuario.pk}}">
+        Ver Permisos
+      </button>
+      <div class="modal fade text-dark" id="usuario{{usuario.pk}}" tabindex="-1" aria-labelledby="usuario{{usuario.pk}}Label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="usuario{{usuario.pk}}Label">Información del usuario</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark text-start">
+              <ul>
+                <li><b>Nombre:</b> {{usuario.first_name}} {{usuario.last_name}}</li>
+                <li><b>Correo electrónico:</b> {{usuario.email}}</li>
+                <li><b>Activo:</b> {{usuario.is_active|yesno:"Sí,No"}}</li>
+                <li><b>Tipo de Usuario:</b> {{usuario.red.exists|yesno:"Red,Interno Sistema"}}</li>
+              </ul>
+
+              {% if usuario.permisos_complejo.count > 0 %}
+              <p>El usuario tiene privilegios de superusuario en la siguiente jurisdicción:</p>
+              <ul>
+                {% for permiso in usuario.permisos_complejo.all %}
+                <li>{{permiso.complejo}}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+
+              <p>Este usuario tiene los siguientes permisos:</p>              
+              <table class="text-center table table-responsive">
+                <thead>
+                  <tr class="table-dark">
+                    <th>Planta</th>
+                    <th>Lectura</th>
+                    <th>Creación</th>
+                    <th>Edición</th>
+                    <th>Administrar Usuarios</th>
+                    <th>Edición Adicionales</th>
+                    <th>Duplicación</th>
+                    <th>Ver Evaluaciones</th>
+                    <th>Crear Evaluación</th>
+                    <th>Eliminar Evaluación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if not usuario.is_superuser %}
+                  {% for permiso in usuario.usuario_planta.all %}
+                  <tr>
+                    <td>{{permiso.planta}}</td>
+                    <td>Sí</td>
+                    <td>{{permiso.crear|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.edicion|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.administrar_usuarios|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.edicion_instalacion|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.duplicacion|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.ver_evaluaciones|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.crear_evaluaciones|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.eliminar_evaluaciones|yesno:"Sí,No"}}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="10">El usuario no tiene permisos.</td>
+                  </tr>
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td colspan="10">El superusuario tiene todos los permisos.</td>
+                  </tr>
+                  {% endif %}
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+        {% if not usuario.is_superuser or usuario.is_superuser and request.user.is_superuser and not usuario.permisos_complejo.count > 1 %}
+        {% if request.user != usuario %}
+        <a href="{% url 'editar_usuario' pk=usuario.pk %}" class="btn btn-primary">
+            Editar
+        </a>
+        {% endif %}
+        {% if not usuario.red.exists %}
+        <a href="{% url 'cambiar_contrasena' pk=usuario.pk %}" class="btn btn-danger">
+            Cambiar contraseña
+        </a>
+        {% endif %}
+        {% endif %}
+    </td>
+  </tr>
+{% endfor %}

@@ -1,0 +1,26 @@
+{% load static %}
+{% load mathfilters %}
+{% for compresor in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{compresor.tag}}</td>
+    <td>{{compresor.planta}}</td>
+    <td>{{compresor.planta.complejo}}</td>
+    <td>{{compresor.descripcion}}</td>
+    <td>
+      {% if request.user.is_superuser or compresor.planta.pk in permisos.evaluaciones %}
+      <a class="btn btn-danger" href="{% url 'evaluaciones_compresor' pk=compresor.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {% endif %}
+    </td>
+    <td>
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{compresor.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></button>
+      {% include 'compresores/partials/ficha.html' %}
+    </td>
+  </tr>
+{% endfor %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'bienvenida' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8">
+            <h3 class="text-center" style="color: #e31e24;">Encuesta de Satisfacción SIEVEP</h3>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        {%  for seccion in forms %}
+            <div class="col-12">
+                <h4 class="text-center">SECCIÓN {{ seccion.seccion.nombre.upper }}</h4>
+            </div>
+            {% for pregunta in seccion.preguntas %}
+                <div class="col-12 p-3">
+                    <label>{{forloop.counter}}. {{ pregunta.pregunta.nombre }}</label>
+                    {% if pregunta.pregunta.tipo == "1" %}
+                    <select class="form-select" name="pregunta-{{ pregunta.pregunta.id }}-respuesta" id="id_pregunta-{{ pregunta.pregunta.id }}-respuesta" required>
+                        <option value="">--------------</option>
+                        <option value="Sí" {% if pregunta.form.respuesta.value == 'Sí' %}selected{% endif %}>Sí</option>
+                        <option value="No" {% if pregunta.form.respuesta.value == 'No' %}selected{% endif %}>No</option>
+                    </select>
+                    {% elif pregunta.pregunta.tipo == "2" %}
+                    <input class="form-control" type="number" name="pregunta-{{ pregunta.pregunta.id }}-respuesta" id="id_pregunta-{{ pregunta.pregunta.id }}-respuesta" required>
+                    {% elif pregunta.pregunta.tipo == "3" %}
+                    {% render_field pregunta.form.respuesta class="form-control" %}
+                    {% else %}
+                    <select class="form-select" name="pregunta-{{ pregunta.pregunta.id }}-respuesta" id="id_pregunta-{{pregunta.pregunta.id}}-respuesta" required>
+                        <option value="">--------------</option>
+                        <option value="1" {% if pregunta.form.respuesta.value == '1' %}selected{% endif %}>1 - Muy negativo</option>
+                        <option value="2" {% if pregunta.form.respuesta.value == '2' %}selected{% endif %}>2 - Negativo</option>
+                        <option value="3" {% if pregunta.form.respuesta.value == '3' %}selected{% endif %}>3 - Neutral</option>
+                        <option value="4" {% if pregunta.form.respuesta.value == '4' %}selected{% endif %}>4 - Positivo</option>
+                        <option value="5" {% if pregunta.form.respuesta.value == '5' %}selected{% endif %}>5 - Muy Positivo</option>
+                    </select>
+                    {% endif %}
+
+                    {% render_field pregunta.form.pregunta %}
+                </div>
+            {% endfor %}
+            <hr>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    <div class="w-100 mt-3 mb-3 d-flex justify-content-center">
+        <button class="btn btn-danger" id="submit">Enviar Formulario</button>
+    </div>
+
+</form>
+{% endblock %}

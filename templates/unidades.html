@@ -1,0 +1,5 @@
+{% for unidad in unidades %}
+{% if unidad.tipo == tipo %}
+    <option value="{{unidad.pk}}" {% if pk_selected == unidad.pk %}selected{%endif%}>{{unidad.simbolo}}{{unidad_suffix}}</option>
+{% endif %}
+{% endfor %}

@@ -1,0 +1,237 @@
+{% load static %}
+{% load mathfilters %}
+
+<div class="modal fade" id="resultados_{{evaluacion.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk|default_if_none:'-'}}Label">Resultados de la Evaluación (ID: {{evaluacion.id}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        {% with entrada=evaluacion.entrada %}
+        {% with salida=evaluacion.salida %}
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-lg-6 col-xs-12">
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-success" colspan="3">
+                                DATOS DE ENTRADA DE LA EVALUACIÓN
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">PROPIEDAD</th>
+                            <th class="text-center table-dark">SUCCIÓN</th>
+                            <th class="text-center table-dark">DESCARGA</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        
+                        <tr>
+                            <th class="table-dark text-center">Fluido</th>
+                            <td class="text-center" colspan="2">{{entrada.fluido|default_if_none:entrada.nombre_fluido}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Presión ({{entrada.presion_unidad}})</th>
+                            <td class="text-center">{{entrada.presion_succion|floatformat:4}}</td>
+                            <td class="text-center">{{entrada.presion_descarga|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Altura ({{entrada.altura_unidad}})</th>
+                            <td class="text-center">{{entrada.altura_succion|floatformat:4}}</td>
+                            <td class="text-center">{{entrada.altura_descarga|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Velocidad ({{entrada.velocidad_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.velocidad|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Temp. Operación ({{entrada.temperatura_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.temperatura_operacion|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Flujo ({{entrada.flujo_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.flujo|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Potencia ({{entrada.potencia_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.potencia|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">NPSHr ({{entrada.npshr_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.npshr|default_if_none:"Desconocido"}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-6 col-xs-12">
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-primary" colspan="3">
+                                RESULTADOS DE LA EVALUACIÓN
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">RESULTADO</th>
+                            <th class="text-center table-dark">VALOR EVALUACIÓN</th>
+                            <th class="text-center table-dark">VALOR EN FICHA</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">Cabezal Total</th>
+                            <td class="text-center">{{salida.cabezal_total|floatformat:4}} {{salida.cabezal_total_unidad}}</td>
+                            <td class="text-center">{{equipo.especificaciones_bomba.cabezal_total|floatformat:4}} {{equipo.especificaciones_bomba.cabezal_unidad}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Eficiencia</th>
+                            <td class="text-center">{{salida.eficiencia|floatformat:4}}%</td>
+                            <td class="text-center">{{equipo.especificaciones_bomba.eficiencia|default_if_none:'-'}}%</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Potencia Calculada</th>
+                            <td class="text-center">{{salida.potencia|floatformat:4}} {{salida.potencia_unidad}}</td>
+                            <td class="text-center">{{equipo.especificaciones_bomba.potencia_maxima|default_if_none:'-'}} {{equipo.especificaciones_bomba.potencia_unidad}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Velocidad Espec.</th>
+                            <td class="text-center">{{salida.velocidad|floatformat:4}} RPM</td>
+                            <td class="text-center">-</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">NPSHa / NPSHr</th>
+                            {% with npshr_unidad=entrada.npshr_unidad %}
+                            <td class="text-center">{{salida.npsha|floatformat:4}} {{npshr_unidad}}</td>
+                            <td class="text-center">
+                                {% if entrada.npshr %}
+                                {{entrada.npshr}} {{npshr_unidad}}
+                                {%else%}
+                                -
+                                {% endif %}         
+                            </td>
+                            {% endwith %}
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">La bomba cavita</th>
+                            <td class="text-center {% if salida.cavita %}table-danger{% elif salida.cavita is False %}table-success{%endif%}" colspan="2">
+                                {% if salida.cavita %}
+                                Sí
+                                {% elif salida.cavita is False %}
+                                No
+                                {% else %}
+                                Desconocido (NPSHr desconocido)
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% with salida_secciones=evaluacion.salida_secciones_evaluacionbomba %}
+            {% with salida_succion=salida_secciones.all.0 %}
+            {% with salida_descarga=salida_secciones.all.1 %}
+            <div class="col-12 mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="table-danger text-center" colspan="5">
+                                PÉRDIDAS
+                            </th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">LADO</th>
+                            <th class="table-dark text-center">PÉRDIDAS POR TUBERÍA</th>
+                            <th class="table-dark text-center">PÉRDIDAS POR ACCESORIO</th>
+                            <th class="table-dark text-center">PÉRDIDAS TOTALES</th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">
+                                SUCCIÓN
+                            </th>
+                            
+                            <td class="text-center">
+                                {{salida_succion.perdida_carga_tuberia|floatformat:4}} m
+                            </td>
+                            <td class="text-center">
+                                {{salida_succion.perdida_carga_accesorios|floatformat:4}} m
+                            </td>
+                            <td class="text-center">
+                                {{salida_succion.perdida_carga_total|floatformat:4}} m
+                            </td>
+                        </tr>
+            
+                        <tr>
+                            <th class="table-dark text-center">
+                                DESCARGA
+                            </th>
+                            <td class="text-center">
+                                {{salida_descarga.perdida_carga_tuberia|floatformat:4}} m
+                            </td>
+                            <td class="text-center">
+                                {{salida_descarga.perdida_carga_accesorios|floatformat:4}} m
+                            </td>
+                            <td class="text-center">
+                                {{salida_descarga.perdida_carga_total|floatformat:4}} m
+                            </td>
+                        </tr>
+            
+                        <tr class="table-dark">
+                            <th class="text-center">
+                                TOTAL
+                            </th>
+                            <td class="text-center">
+                                {{salida_succion.perdida_carga_tuberia|addition:salida_descarga.perdida_carga_tuberia|floatformat:4}} m
+                            </td>
+                            <td class="text-center">
+                                {{salida_succion.perdida_carga_accesorios|addition:salida_descarga.perdida_carga_accesorios|floatformat:4}} m
+                            </td>
+                            <td class="text-center">
+                                {{salida_succion.perdida_carga_total|addition:salida_descarga.perdida_carga_total|floatformat:4}} m
+                            </td>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-12">
+                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_succion.datos_tramos_seccion color="warning" lado="succión" %}
+            </div>
+
+            <div class="col-12">
+                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_descarga.datos_tramos_seccion color="info" lado="descarga" %}
+            </div>
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+          </div>
+
+          <div class="col-12 text-end">
+            <small>Evaluación creada por {{evaluacion.creado_por.get_full_name}} al {{evaluacion.fecha}}.</small> 
+          </div>
+        </div>
+        <div class="modal-footer">
+            {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
+            {%endif%}
+
+            <form method="post" name="reporte">
+                {% csrf_token %}
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+            </form>
+        </div>
+        {% endwith %}
+        {% endwith %}
+    </div>
+    </div>
+</div>

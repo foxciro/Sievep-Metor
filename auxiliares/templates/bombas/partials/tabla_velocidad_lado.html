@@ -1,0 +1,46 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th class="table-{{color}} text-center" colspan="6">
+                FLUJOS Y VELOCIDADES DE LA {{lado.upper}}
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <th class="table-dark text-center" style="vertical-align: middle;">#</th>
+            <th class="table-dark text-center">DIÁMETRO INTERNO</th>
+            <th class="table-dark text-center">LONGITUD TOTAL</th>
+            <th class="table-dark text-center">MATERIAL TUBERÍA</th>
+            <th class="table-dark text-center" style="vertical-align: middle;">VELOCIDAD</th>
+            <th class="table-dark text-center">TIPO DE FLUJO</th>
+        </tr>
+        {% for tramo in tramos.all %}
+        {% with datos_tramo=tramo.tramo %}
+        <tr>
+            <th class="text-center">{{forloop.counter}}</th>
+            <td class="text-center">{{datos_tramo.diametro_tuberia|floatformat:2}} {{datos_tramo.diametro_tuberia_unidad}}</td>
+            <td class="text-center">{{datos_tramo.longitud_tuberia|floatformat:2}} {{datos_tramo.longitud_tuberia_unidad}}</td>
+            <td class="text-center"><small>{{datos_tramo.material_tuberia}}</small></td>
+            <td class="text-center">{{tramo.velocidad|floatformat:2}} m/s</td>
+            <td class="text-center {% if tramo.flujo == 'T' %}table-danger{% elif tramo.flujo == 'L' %}table-success{%else%}table-warning{%endif%}">
+                {% if tramo.flujo == 'T' %}
+                Turbulento
+                {% elif tramo.flujo == 'L' %}
+                Laminar
+                {% else %}
+                Transitorio
+                {% endif %}
+            </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">
+                No hay tramos registrados de este lado al momento de registrar esta evaluación.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

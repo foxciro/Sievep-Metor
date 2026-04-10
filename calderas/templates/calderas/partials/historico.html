@@ -1,0 +1,215 @@
+{% load static %}
+
+<div class="modal fade" id="grafica_historica" tabindex="-1" aria-labelledby="grafica_historicaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="grafica_historicaLabel">Gráficas Históricas de las Evaluaciones</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+            <div class="row">
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historica4"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historica3"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historica2"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historica1"></canvas>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+    canvas = document.getElementById('grafica_historica1').getContext('2d');
+    let datosGraficaEfic = {}, datosGraficaCalorCombustion = {}, datosGraficaCalorVapor = {}, 
+        fechas = [], h2o = [], o2 = [], n2 = [], co2 = [], so2 = [];
+
+    $.ajax({
+        url: '{% url "generar_historico_caldera" pk=equipo.pk %}',
+        data: {
+            desde: $('#desde').val(),
+            hasta: $('#hasta').val(),
+            usuario: $('#usuario').val(),
+            nombre: $('#nombre').val(),
+        },
+        success: (res) => {
+            for (let i = 0; i < res.length; i++) {
+                const element = res[i];
+                const fecha = new Date(Date.parse(element.fecha));
+                const fecha_str = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+                
+                datosGraficaEfic[fecha_str] = element.eficiencia;
+
+                if(element.calor_combustion_total)
+                    datosGraficaCalorCombustion[fecha_str] = element.calor_combustion_total;
+                
+                if(element.calor_vapor)    
+                    datosGraficaCalorVapor[fecha_str] = element.calor_vapor;
+                
+                fechas.push(fecha_str);
+
+                if(element.composicion){
+                    h2o.push(element.composicion.h2o);
+                    o2.push(element.composicion.o2);
+                    n2.push(element.composicion.n2);
+                    co2.push(element.composicion.co2);
+                    so2.push(element.composicion.so2);
+                }
+            }
+
+            let canvas = document.getElementById('grafica_historica1').getContext('2d');
+            $('#grafica_historica1').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Eficiencia (%)",
+                            data: datosGraficaEfic,
+                            backgroundColor: ['#F00'],
+                            borderColor: ['#F44']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico de Eficiencia (%)',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
+
+            canvas = document.getElementById('grafica_historica2').getContext('2d');
+            $('#grafica_historica2').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Calor de Combustión (kJ/h)",
+                            data: datosGraficaCalorCombustion,
+                            backgroundColor: ['#0F0'],
+                            borderColor: ['#4F4']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico del Calor de Combustión',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
+
+            canvas = document.getElementById('grafica_historica3').getContext('2d');
+            $('#grafica_historica3').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Calor de vapor",
+                            data: datosGraficaCalorVapor,
+                            backgroundColor: ['#00F'],
+                            borderColor: ['#44F']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Calor de Vapor',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
+        
+            canvas = document.getElementById('grafica_historica4').getContext('2d');
+            $('#grafica_historica4').removeAttr('hidden');
+
+           chart = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: fechas,
+                    datasets: [
+                        {
+                            label: 'H2O',
+                            data: h2o,
+                            backgroundColor: '#00F',
+                        },
+                        {
+                            label: 'O2',
+                            data: o2,
+                            backgroundColor: '#F00',
+                        },
+                        {
+                            label: 'N2',
+                            data: n2,
+                            backgroundColor: ' #FFBF00',
+                        },
+                        {
+                            label: 'CO2',
+                            data: co2,
+                            backgroundColor: '#0F0',
+                        },
+                        {
+                            label: 'SO2',
+                            data: so2,
+                            backgroundColor: '#F0F',
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                        },
+                    },
+                    
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Composición Gases de Combustión',
+                            position: 'top'
+                        },
+                    }
+                },
+            });
+        }
+    });
+</script>

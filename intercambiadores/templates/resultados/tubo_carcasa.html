@@ -1,0 +1,256 @@
+{% load static %}
+{% load l10n %}
+
+<div class="modal fade" id="resultados_{{evaluacion.pk|default:'-'}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk|default:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk|default:'-'}}Label">Resultados de la Evaluación "{{evaluacion.nombre|default:'-'}}" - 
+            {{evaluacion.fecha|default:'-'}} ({{intercambiador.intercambiador.tag|default:'-'}})
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        {{esp|default:'-'}}
+        
+        <div class="modal-body text-start small pb-0">
+            <div class="row">
+                <div class="col-lg-6 col-xs-12">
+                    <table class="table table-light text-center table-bordered small">
+                        <tbody id="body">
+                          <tr>
+                            <th class="table-success" colspan="6">Datos de Entrada</th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" colspan="2"></th>
+                            <th class="table-dark small"colspan="2">Carcasa <br>
+                              {{fluido_carcasa|default:'-'}}
+                            </th>
+                            <th class="table-dark small"colspan="2">Tubo <br>
+                              {{fluido_tubo|default:'-'}}
+                            </th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
+                            <th class="table-dark small">Cp Vapor ({{evaluacion.cp_unidad|default:'-'}})</th>
+                            <th class="table-dark small">Cp Líq. ({{evaluacion.cp_unidad|default:'-'}})</th>
+                            <th class="table-dark small">Cp Vapor ({{evaluacion.cp_unidad|default:'-'}})</th>
+                            <th class="table-dark small">Cp Líq. ({{evaluacion.cp_unidad|default:'-'}})</th>
+                          </tr>
+                          <tr>
+                            <td>{% if evaluacion.cp_carcasa_gas %}{{evaluacion.cp_carcasa_gas|default:'-'}}{%else%}-{%endif%}</td>
+                            <td>{% if evaluacion.cp_carcasa_liquido %}{{evaluacion.cp_carcasa_liquido|default:'-'}}{%else%}-{%endif%}</td>
+                            <td>{% if evaluacion.cp_tubo_gas %}{{evaluacion.cp_tubo_gas|default:'-'}}{%else%}-{%endif%}</td>
+                            <td>{% if evaluacion.cp_tubo_liquido %}{{evaluacion.cp_tubo_liquido|default:'-'}}{%else%}-{%endif%}</td>
+                          </tr>
+                          <tr>                            
+                            <th colspan="2" class="table-dark" style="vertical-align: middle;">Cp Diseño ({{condicion_carcasa.unidad_cp|default:'-'}})</th>
+                            <td>{% if condicion_carcasa.fluido_cp_gas %}{{condicion_carcasa.fluido_cp_gas|default:'-'}}{%else%}-{%endif%}</td>
+                            <td>{% if condicion_carcasa.fluido_cp_liquido %}{{condicion_carcasa.fluido_cp_liquido|default:'-'}}{%else%}-{%endif%}</td>
+                            <td>{% if condicion_tubo.fluido_cp_gas %}{{condicion_tubo.fluido_cp_gas|default:'-'}}{%else%}-{%endif%}</td>
+                            <td>{% if condicion_tubo.fluido_cp_liquido %}{{condicion_tubo.fluido_cp_liquido|default:'-'}}{%else%}-{%endif%}</td>                            
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="4">Temperatura ({{evaluacion.temperaturas_unidad.simbolo|default:'-'}})</th>
+                            <th class="table-dark small">IN</th>
+                            <th class="table-dark small">OUT</th>
+                            <th class="table-dark small">IN</th>
+                            <th class="table-dark small">OUT</th>
+                          </tr>
+                          <tr>
+                            <td>{{evaluacion.temp_ex_entrada|default:'-'}}</td>
+                            <td>{{evaluacion.temp_ex_salida|default:'-'}}</td>
+                            <td>{{evaluacion.temp_in_entrada|default:'-'}}</td>
+                            <td>{{evaluacion.temp_in_salida|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th colspan="4" class="table-dark small">Promedios</th>
+                          </tr>
+                          <tr style="vertical-align: middle;">
+                            <td colspan="2">{{evaluacion.promedio_carcasa|default:'-'}}</td>
+                            <td colspan="2">{{evaluacion.promedio_tubo|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Flujo Másico ({{evaluacion.unidad_flujo|default:'-'}})</th>
+                            <th class="table-dark small" style="vertical-align: middle;" colspan="2">Externo</th>
+                            <th class="table-dark small" style="vertical-align: middle;" colspan="2">Interno</th>
+                          </tr>
+                          <tr style="vertical-align: middle;">
+                            <td colspan="2">{{evaluacion.flujo_masico_ex|default:'-'}}</td>
+                            <td colspan="2">{{evaluacion.flujo_masico_in|default:'-'}}</td>
+                          </tr>
+                          <tr>
+
+                          </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
+                  <canvas hidden id="grafica_{{evaluacion.pk|default:'-'}}" class="border border-dark" style="min-width: 100%;" class="bg-white m-3"></canvas>
+                </div>
+                <div class="col-12">
+                  <div class="row">
+                    <div class="col-lg-6 col-xs-12 small d-flex justify-content-center">
+                      <table class="table table-light text-center table-bordered">
+                        <tbody id="body">
+                          <tr>
+                            <th class="table-info" colspan="4">Resultados de la Evaluación</th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">MTD ({{evaluacion.temperaturas_unidad|default:'-'}})</th>
+                            <td>{{evaluacion.lmtd|default:'-'}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{evaluacion.area_diseno_unidad|default:'-'}})</th>
+                            <td>{{evaluacion.area_transferencia|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                            <td>{{evaluacion.eficiencia|default:'-'}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
+                            <td>{{evaluacion.efectividad|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">U ({{evaluacion.u_diseno_unidad|default:'-'}})</th>
+                            <td>{{evaluacion.u|default:'-'}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Q ({{evaluacion.q_diseno_unidad|default:'-'}})</th>
+                            <td>{{evaluacion.q|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                            <td>{{evaluacion.ntu|default:'-'}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Ensuciamiento ({{evaluacion.ensuc_diseno_unidad|default:'-'}})</th>
+                            <td>{{evaluacion.ensuciamiento|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Tubo ({{evaluacion.unidad_presion|default:'-'}})</th>
+                            <td>{{evaluacion.caida_presion_in|default:'-'}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Carcasa ({{evaluacion.unidad_presion|default:'-'}})</th>
+                            <td>{{evaluacion.caida_presion_ex|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
+                            <td colspan="3">{{evaluacion.numero_tubos|default:'-'}}</td>
+                          </tr>
+                        </tbody>
+                      </table>                    
+                    </div>
+                    <div class="col-lg-6 col-xs-12 small d-flex justify-content-center">
+                      <table class="table table-light text-center table-bordered">
+                        {% with generales=intercambiador.intercambiador %}
+                        <tbody id="body">
+                          <tr>
+                            <th class="table-warning" colspan="4">Datos de Diseño</th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">MTD ({% if generales.tipo.pk == 1 %}{{intercambiador.condicion_tubo.temperaturas_unidad|default:'-'}}{%else%}{{intercambiador.condicion_externo.temperaturas_unidad|default:'-'}}{%endif%})</th>
+                            <td>{% if generales.lmtd %}{{generales.lmtd|default:'-'}}{% endif %}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad|default:'-'}})</th>
+                            <td>{{intercambiador.area|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                            <td>{% if generales.eficiencia %}{{generales.eficiencia|default:'-'}}{% endif %}</td>
+                            <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
+                            <td>{% if generales.efectividad %}{{generales.efectividad|default:'-'}}{% endif %}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad|default:'-'}})</th>
+                            <td>{{intercambiador.u|floatformat:4|default:'-'}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad|default:'-'}})</th>
+                            <td>{{intercambiador.q|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                            <td>{% if generales.ntu %}{{generales.ntu|default:'-'}}{% endif %}</td>                            
+                            <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
+                            <td>{{intercambiador.ensuciamiento|default:'-'}}</td>
+                          </tr>
+                          <tr>                                                     
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Mín. Tubo ({{condicion_tubo.unidad_presion|default:'-'}})</th>
+                            <td>{{condicion_tubo.caida_presion_min|default:'-'}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. Tubo ({{condicion_tubo.unidad_presion|default:'-'}})</th>
+                            <td>{{condicion_tubo.caida_presion_max|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Mín. Carc ({{condicion_tubo.unidad_presion|default:'-'}})</th>
+                            <td>{{condicion_carcasa.caida_presion_min|default:'-'}}</td>                            
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. Carc. ({{condicion_tubo.unidad_presion|default:'-'}})</th>
+                            <td>{{condicion_carcasa.caida_presion_max|default:'-'}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
+                            <td colspan="3">{{intercambiador.numero_tubos|default:'-'}}</td>
+                          </tr>                          
+                        </tbody>
+                        {% endwith %}
+                      </table>                    
+                    </div>
+                  </div>
+                </div>
+                <div class="w-100 text-end">
+                  <b>Evaluación Realizada el {{evaluacion.fecha|default:'-'}} por el usuario '{{evaluacion.creado_por.get_full_name|default:'-'}}'.</b>
+                  {% if evaluacion.diseno_editado %}
+                  <br><b class="text-center">El intercambiador fue editado después de la evaluación ({{evaluacion.diseno_editado|default:'-'}}), lo cual podría generar inconsistencias en la comparación.</b>
+                  {% endif %}
+                  <br><b>ID de la Evaluación</b>: {{evaluacion.pk|default:'-'}}
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+          <a href="reporte/detalle/{{evaluacion.pk|default:'-'}}/?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+          {% if request.user.is_superuser or intercambiador.intercambiador.planta.pk in permisos.eliminar_evaluaciones %}
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" name="evaluacion" value="{{evaluacion.pk|default:'-'}}" onclick="return confirm('¿De verdad desea eliminar esta evaluación?');">Eliminar Evaluación</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+  canvas = document.getElementById('grafica_{{evaluacion.pk|default:'-'}}').getContext('2d');
+  datosGrafica = undefined;
+
+  $('#grafica_{{evaluacion.pk|default:'-'}}').removeAttr('hidden');
+
+  chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+              datasets: [
+                  {
+                      label: "Carcasa",
+                      data: {
+                        Inicial: Number('{{evaluacion.temp_ex_entrada|unlocalize|default:'-'}}'),
+                        Final: Number('{{evaluacion.temp_ex_salida|unlocalize|default:'-'}}')
+                      },
+                      backgroundColor: ['#E31E24'],
+                      borderColor: ['#E31E24']
+                  },
+                  {
+                      label: "Tubo",
+                      data: {
+                        Inicial: Number('{{evaluacion.temp_in_entrada|unlocalize|default:'-'}}'),
+                        Final: Number('{{evaluacion.temp_in_salida|unlocalize|default:'-'}}')
+                      },
+                      backgroundColor: ['#555'],
+                      borderColor: ['#555']
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Variación de las Temperaturas',
+                      position: 'top'
+                  },
+                  legend: {
+                      display: true
+                  }
+              }        
+          }
+  });
+</script>

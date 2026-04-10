@@ -1,0 +1,150 @@
+<tbody>
+    <tr>
+        <th class="table-dark">Eficiencia de la Caldera</th>
+        <td colspan="3">{{evaluacion.eficiencia|floatformat:2}} %</td>
+    </tr>
+    <tr>
+        <th class="table-dark" colspan="4">Balance de Materiales</th>
+    </tr>
+    {% with flujos=evaluacion.salida_flujos %}
+    <tr>
+        <th class="table-dark">Aire (Másico)</th>
+        <td>{{flujos.flujo_m_aire_entrada|floatformat:4}} Kg/h</td>
+        <th class="table-dark">Aire (Molar)</th>
+        <td>{{flujos.flujo_n_aire_entrada|floatformat:4}} kmol/h</td>
+    </tr>
+    <tr>
+        <th class="table-dark">Gas (Másico)</th>
+        <td>{{flujos.flujo_m_gas_entrada|floatformat:4}} Kg/h</td>
+        <th class="table-dark">Gas (Molar)</th>
+        <td>{{flujos.flujo_n_gas_entrada|floatformat:4}} kmol/h</td>
+    </tr>
+
+    <tr>
+        <th class="table-dark" colspan="4">Lado Combustión</th>
+    </tr>
+
+    <tr>
+        <th class="table-dark">Flujo de Combustión Volumétrico</th>
+        <td>{{flujos.flujo_combustion_vol|floatformat:4}} m³/h</td>
+        <th class="table-dark">Flujo de Combustión Molar</th>
+        <td>{{flujos.flujo_combustion|floatformat:4}} kmol/h</td>
+    </tr>
+    <tr>
+        <th class="table-dark">Oxígeno en Exceso</th>
+        <td colspan="3">{{flujos.porc_o2_exceso|floatformat:4}} %</td>
+    </tr>
+    {% endwith %}
+
+    <tr>
+        <th class="table-dark" colspan="4">Composiciones de Gas a la Salida</th>
+    </tr>
+    {% with fracciones=evaluacion.salida_fracciones %}
+    <tr>
+        <th class="table-dark">
+            H2O
+        </th>
+        <td>
+            {{fracciones.h2o|floatformat:4}}
+        </td>
+        <th class="table-dark">
+            CO2
+        </th>
+        <td>
+            {{fracciones.co2|floatformat:4}}
+        </td>
+    </tr>
+    <tr>
+        <th class="table-dark">
+            N2
+        </th>
+        <td>
+            {{fracciones.n2|floatformat:4}}
+        </td>
+        <th class="table-dark">
+            O2
+        </th>
+        <td>
+            {{fracciones.o2|floatformat:4}}
+        </td>
+    </tr>
+    <tr>
+        <th class="table-dark">
+            SO2
+        </th>
+        <td colspan="3">
+            {{fracciones.so2|floatformat:4}}
+        </td>
+    </tr>
+    {% endwith %}
+
+    {% with balances_energia=evaluacion.salida_balance_energia %}
+    <tr>
+        <th class="table-dark" colspan="4">Balances de Energía</th>
+    </tr>
+    <tr>
+        <th class="table-dark">
+            Energía Entrada Gas
+        </th>
+        <td>
+            {{balances_energia.energia_entrada_gas|floatformat:4}} kJ/h
+        </td>
+        <th class="table-dark">
+            Energía Entrada Aire
+        </th>
+        <td>
+            {{balances_energia.energia_entrada_aire|floatformat:4}} kJ/h
+        </td>
+    </tr>
+    <tr>
+        <th class="table-dark">
+            Energía Total Entrada
+        </th>
+        <td colspan="3">
+            {{balances_energia.energia_total_entrada|floatformat:4}} kJ/h
+        </td>
+    </tr>
+    <tr>
+        <th class="table-dark">
+            Energía Total Reacción
+        </th>
+        <td>
+            {{balances_energia.energia_total_reaccion|floatformat:4}} kJ/h
+        </td>
+        <th class="table-dark">
+            Energía Horno
+        </th>
+        <td>
+            {{balances_energia.energia_horno|floatformat:4}} kJ/h
+        </td>
+    </tr>
+    <tr>
+        <th class="table-dark">
+            Energía Total Salida
+        </th>
+        <td colspan="3">
+            {{balances_energia.energia_total_salida|floatformat:4}} kJ/h
+        </td>
+    </tr>                    
+    {% endwith %}
+
+    {% with lado_agua=evaluacion.salida_lado_agua %}
+    <tr>
+        <th class="table-dark" colspan="4">Lado Agua</th>
+    </tr>
+    <tr>
+        <th class="table-dark">
+            Flujo de Purga
+        </th>
+        <td>
+            {{lado_agua.flujo_purga|floatformat:4}} T/h                                
+        </td>
+        <th class="table-dark">
+            Energía de Vapor
+        </th>
+        <td>
+            {{lado_agua.energia_vapor|floatformat:4}} kJ/h                                
+        </td>
+    </tr>
+    {% endwith %}
+</tbody>

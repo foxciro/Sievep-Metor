@@ -1,0 +1,208 @@
+<table>
+    <tbody id="casos_{{compresor.pk}}">
+        <tr>
+            <th class="table-dark">Número de Impulsores</th>
+            <td>{{caso.numero_impulsores|default_if_none:'-'}}</td>
+            <th class="table-dark">Tipo de Lubricación</th>
+            <td>{{caso.tipo_lubricacion|default_if_none:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Material de Carcasa</th>
+            <td>{{caso.material_carcasa|default_if_none:'-'}}</td>
+            <th class="table-dark">Tipo de Sello</th>
+            <td>{{caso.tipo_sello|default_if_none:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Velocidad Máxima Continua ({{caso.unidad_velocidad}})</th>
+            <td>{{caso.velocidad_max_continua|default_if_none:'-'}}</td>
+            <th class="table-dark">Velocidad de Rotación ({{caso.unidad_velocidad}})</th>
+            <td>{{caso.velocidad_rotacion|default_if_none:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Potencia Requerida Total ({{caso.unidad_potencia}})</th>
+            <td>{{caso.potencia_requerida|default_if_none:'-'}}</td>
+            <th class="table-dark">Tipo de Lubricante (ROT)</th>
+            <td>{{caso.tipo_lubricante|default_if_none:'-'}}</td>
+        </tr>
+            
+        {% if caso.curva_caracteristica %}
+        <tr>
+            <th class="table-dark" colspan="4">Curva Característica</th>
+        </tr>
+    
+        <tr>
+            <td colspan="4">
+                <a href="{{ caso.curva_caracteristica.url }}" target="_blank">
+                    <img src="{{ caso.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                </a>
+            </td>
+        </tr>
+        {% endif %}
+    
+        <tr>
+            <th class="table-dark" colspan="4">ETAPAS</th>
+        </tr>
+        {% for etapa in caso.etapas.all %}
+        <tr>
+            <th class="table-dark" colspan="4">
+                Etapa {{etapa.numero}} <br>
+                {% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}
+                    <a href="{% url 'edicion_etapa' pk=etapa.pk %}" class="btn btn-danger btn-sm">Editar Información</a>
+                {% endif %}
+            </th>
+        </tr>
+        <tr>
+            <th class="table-dark">Nombre del Gas</th>
+            <td colspan="3">{{etapa.nombre_fluido.upper|default:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Flujo Másico ({{etapa.flujo_masico_unidad|default:'-'}})</th>
+            <td>{{etapa.flujo_masico|default:'-'}}</td>
+            <th class="table-dark">Flujo Molar ({{etapa.flujo_molar_unidad|default:'-'}})</th>
+            <td>{{etapa.flujo_molar|default:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Volumen Normal ({{etapa.volumen_unidad|default:'-'}})</th>
+            <td>{{etapa.volumen_normal|default:'-'}}</td>                              
+            <th class="table-dark">Volumen de Diseño ({{etapa.volumen_unidad|default:'-'}})</th>
+            <td>{{etapa.volumen_diseno|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Relación de Compresión</th>
+            <td>{{etapa.rel_compresion|default:'-'}}</td>    
+            <th class="table-dark">Potencia Nominal ({{etapa.potencia_unidad|default:'-'}})</th>
+            <td>{{etapa.potencia_nominal|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Potencia Requerida ({{etapa.potencia_unidad|default:'-'}})</th>
+            <td>{{etapa.potencia_req|default:'-'}}</td>    
+            <th class="table-dark">Eficiencia Isentrópica (%)</th>
+            <td>{{etapa.eficiencia_isentropica|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Eficiencia Politrópica (%)</th>
+            <td>{{etapa.eficiencia_politropica|default:'-'}}</td>    
+            <th class="table-dark">Cabezal Politrópico ({{etapa.cabezal_unidad|default:'-'}})</th>
+            <td>{{etapa.cabezal_politropico|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Densidad ({{etapa.densidad_unidad|default:'-'}})</th>
+            <td>{{etapa.densidad|default:'-'}}</td>  
+            <th class="table-dark">Humedad Relativa (%)</th>
+            <td>{{etapa.humedad_relativa|default:'-'}}</td>
+        </tr>
+
+        <tr>
+            <th class="table-dark">Flujo Surge ({{etapa.volumen_unidad|default:'-'}}) en RPM</th>
+            <td colspan="3">{{etapa.aumento_estimado|default:'-'}}</td>  
+        </tr>
+    
+        <tr>
+            <th class="table-dark" colspan="2"></th>
+            <th class="table-dark">Entrada</th>
+            <th class="table-dark">Salida</th>
+        </tr>
+        {% with entrada=etapa.lados.all.0 %}
+        {% with salida=etapa.lados.all.1 %}
+        <tr>
+            <th class="table-dark" colspan="2">Presión</th>
+            <td>
+                {{entrada.presion|default:'-'}} {{entrada.presion_unidad|default:'-'}}
+            </td>
+            <td>
+                {{salida.presion|default:'-'}} {{salida.presion_unidad|default:'-'}}
+            </td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Temperatura</th>
+            <td>
+                {{entrada.temp|default:'-'}} {{entrada.temp_unidad|default:'-'}}
+            </td>
+            <td>
+                {{salida.temp|default:'-'}} {{salida.temp_unidad|default:'-'}}
+            </td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Cp/Cv</th>
+            <td>
+                {{entrada.cp_cv|default:'-'}}
+            </td>
+            <td>
+                {{salida.cp_cv|default:'-'}}
+            </td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Compresibilidad</th>
+            <td>
+                {{entrada.compresibilidad|default:'-'}}
+            </td>
+            <td>
+                {{salida.compresibilidad|default:'-'}}
+            </td>
+        </tr>
+        {% endwith %}
+        {% endwith %}
+        {% if etapa.curva_caracteristica %}
+                        <tr>
+                            <th class="table-dark" colspan="4">Curva Característica</th>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <a href="{{ etapa.curva_caracteristica.url }}" target="_blank" rel="noopener noreferrer">
+                                    <img src="{{ etapa.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+        {% endfor %}
+    
+        {% if etapa.curva_caracteristica %}
+        <tr>
+            <th class="table-dark" colspan="4">Curva Característica</th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <a href="{{ etapa.curva_caracteristica.url }}" target="_blank" rel="noopener">
+                    <img src="{{ etapa.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                </a>
+            </td>
+        </tr>
+        {% endif %}
+    </tr>
+    </tbody>
+</table>
+
+{% with composiciones=caso.get_composicion_by_etapa %}
+{% if composiciones %}
+<table hx-swap-oob="true" id="composiciones_{{caso.compresor.pk}}" class="table table-bordered text-center">
+    <thead>
+        <tr class="table-dark">
+            <th>Composición (% mol)</th>
+            {% for etapa in caso.etapas.all %}
+            <th>Etapa {{ etapa.numero }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for gas,comps in composiciones.items %}
+        <tr>
+            <th class="table-dark">{{ gas }}</th>
+            {% for comp in comps %}
+            <td>{{ comp.porc_molar }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <th class="table-dark">Peso Molecular (gr/mol)</th>
+            {% for etapa in caso.etapas.all %}
+            <th>{{ etapa.pm|default_if_none:'-' }}</th>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+{% else %}
+<p hx-swap-oob="true" id="composiciones_{{caso.compresor.pk}}" class="text-center">No hay composiciones registradas para las etapas de este caso.</p>
+{% endif %}
+{% endwith %}
+<a hx-swap-oob="true" id="boton_edicion_caso" href="{% url 'edicion_caso' pk=caso.pk %}" class="btn btn-sm btn-secondary">+ Editar Caso</a>
+<a hx-swap-oob="true" href="{% url 'edicion_composicion' pk=caso.pk %}" class="btn btn-warning d-inline-flex" id="edicion-composicion-{{compresor.pk}}" style="color: black;">Editar Composición</a>

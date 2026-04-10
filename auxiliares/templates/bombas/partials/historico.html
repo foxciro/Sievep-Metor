@@ -1,0 +1,141 @@
+{% load static %}
+
+<div class="modal fade" id="grafica_historica" tabindex="-1" aria-labelledby="grafica_historicaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="grafica_historicaLabel">Gráficas Históricas de las Evaluaciones</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+            <div class="row">
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historica3"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historica2"></canvas>
+                </div>
+                <div class="col-12">
+                    <canvas width="100%" id="grafica_historica1"></canvas>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+    canvas = document.getElementById('grafica_historica1').getContext('2d');
+    let datosGraficaEfic = {}, datosGraficaCabezal = {}, datosGraficaNPSHa = {};
+    $.ajax({
+        url: '{% url "generar_historico_bomba" pk=equipo.pk %}',
+        data: {
+            desde: $('#desde').val(),
+            hasta: $('#hasta').val(),
+            usuario: $('#usuario').val(),
+            nombre: $('#nombre').val(),
+        },
+        success: (res) => {
+            for (let i = 0; i < res.length; i++) {
+                const element = res[i];
+                const fecha = new Date(Date.parse(element.fecha));
+                const fecha_str = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+                
+                datosGraficaEfic[fecha_str] = element.salida__eficiencia;
+                datosGraficaCabezal[fecha_str] = element.salida__cabezal_total;
+                datosGraficaNPSHa[fecha_str] = element.salida__npsha;
+            }
+
+            let canvas = document.getElementById('grafica_historica1').getContext('2d');
+            $('#grafica_historica1').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Eficiencia (%)",
+                            data: datosGraficaEfic,
+                            backgroundColor: ['#F00'],
+                            borderColor: ['#F44']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico de Eficiencia',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
+
+            canvas = document.getElementById('grafica_historica2').getContext('2d');
+            $('#grafica_historica2').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "NPSHa ({{bomba.condiciones_diseno.npsha_unidad}})",
+                            data: datosGraficaNPSHa,
+                            backgroundColor: ['#0F0'],
+                            borderColor: ['#4F4']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico de NPSHa',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
+
+            canvas = document.getElementById('grafica_historica3').getContext('2d');
+            $('#grafica_historica3').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Cabezal Total ({{bomba.especificaciones_bomba.cabezal_unidad}})",
+                            data: datosGraficaCabezal,
+                            backgroundColor: ['#00F'],
+                            borderColor: ['#44F']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico de Cabezal Total',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
+        }
+    });
+</script>

@@ -1,0 +1,141 @@
+{% load static %}
+
+<div class="modal fade" id="grafica_historica" tabindex="-1" aria-labelledby="grafica_historicaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="grafica_historicaLabel">Gráficas Históricas de las Evaluaciones</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+            <div class="row">
+                <div class="col-lg-6 col-md-12">
+                  <canvas width="100%" id="grafica_historico1"></canvas>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                  <canvas width="100%" id="grafica_historico3"></canvas>
+                </div>
+                <div class="col-12">
+                  <canvas width="100%" id="grafica_historico2"></canvas>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+    canvas = document.getElementById('grafica_historico1').getContext('2d');
+    let datosGraficaU = {}, datosGraficaEfectividad = {}, datosGraficaEnsuciamiento = {}, datosGraficaEficiencia = {};   
+    let datosGraficaCaidaPresionInterna = {}, datosGraficaCaidaPresionExterna = {};
+    $.ajax({
+        url: '{% url "grafica_precalentadores" pk=precalentador.pk %}',
+        data: {
+            desde: $('#desde').val(),
+            hasta: $('#hasta').val()
+        },
+        success: (res) => {
+            for (let i = 0; i < res.length; i++) {
+                const element = res[i];
+                const fecha = new Date(Date.parse(element.fecha));
+                const fecha_str = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+                
+                datosGraficaU[fecha_str] = element.u;
+                datosGraficaEnsuciamiento[fecha_str] = element.ensuciamiento;
+                datosGraficaEficiencia[fecha_str] = element.eficiencia;
+            }
+
+            let canvas = document.getElementById('grafica_historico1').getContext('2d');
+            $('#grafica_historico1').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "U",
+                            data: datosGraficaU,
+                            backgroundColor: ['#777'],
+                            borderColor: ['#777']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico de U',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
+
+            canvas = document.getElementById('grafica_historico2').getContext('2d');
+
+            chart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: "Eficiencia",
+                                data: datosGraficaEficiencia,
+                                backgroundColor: ['#E31E24'],
+                                borderColor: ['#E31E24']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Eficiencia',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            });
+
+            canvas = document.getElementById('grafica_historico3').getContext('2d');
+
+            $('#grafica_historico3').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: "Ensuciamiento",
+                                data: datosGraficaEnsuciamiento,
+                                backgroundColor: ['#006400'],
+                                borderColor: ['#006400']
+                                },
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Histórico de Ensuciamiento',
+                                    position: 'top'
+                                },
+                                legend: {
+                                    display: true
+                                }
+                            }        
+                        }
+                });
+            
+        }
+    });
+</script>

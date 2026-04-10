@@ -1,0 +1,31 @@
+<tbody>
+    {% with perdidas=evaluacion.perdidas_indirecto %}
+    <tr>
+        <th class="table-dark">Eficiencia de la Caldera</th>
+        <th>{{evaluacion.eficiencia|floatformat:2}}%</th>
+    </tr>
+    <tr>
+        <th class="table-dark" colspan="2">PÉRDIDAS CALCULADAS</th>
+    </tr>
+    <tr>
+        <th class="table-dark">Pérdida por Gases de Combustión Secos</th>
+        <td>{{perdidas.perdidas_gas_secos|floatformat:4}} %</td>
+    </tr>
+    <tr>
+        <th class="table-dark">Pérdidas por H2</th>
+        <td>{{perdidas.perdidas_h2|floatformat:4}} %</td>
+    </tr>
+    <tr>
+        <th class="table-dark">Pérdida de Calor debido a la Humedad presente en el Combustible</th>
+        <td>{{perdidas.perdidas_humedad_combustible|floatformat:4}} %</td>
+    </tr>
+    <tr>
+        <th class="table-dark">Pérdida de Calor debido a la Humedad presente en el Aire</th>
+        <td>{{perdidas.perdidas_humedad_aire|floatformat:4}} %</td>
+    </tr>
+    <tr>
+        <th class="table-dark">Pérdidas por Radiación y Convección</th>
+        <td>{{perdidas.perdidas_radiacion_conveccion|floatformat:4}} %</td>
+    </tr>
+    {% endwith %}
+</tbody>

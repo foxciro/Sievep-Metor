@@ -1,0 +1,175 @@
+{% load static %}
+{% load mathfilters %}
+
+<div class="modal fade" id="resultados_{{evaluacion.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk|default_if_none:'-'}}Label">Resultados de la Evaluación (ID: {{evaluacion.id}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-6 d-flex justify-content-center">
+              <table class="table table-bordered table-hover text-center">
+                <thead class="table-dark">
+                  <tr class="table-success">
+                    <th colspan="3">Datos de Entrada de la Evaluación</th>
+                  </tr>
+                  <tr>
+                    <th>Parámetro</th>
+                    <th>Tubo (Aire)</th>
+                    <th>Carcasa (Gas)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% with lado_aire=evaluacion.entrada_lado.first %}
+                  {% with lado_gas=evaluacion.entrada_lado.last %}
+                  <tr>                  
+                    <th class="table-dark">Flujo Másico</th>
+                    <td>{{lado_aire.flujo}} {{lado_aire.flujo_unidad}}</td>
+                    <td>{{lado_gas.flujo}} {{lado_gas.flujo_unidad}}</td>
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">Temp. Entrada</th>
+                    <td>{{lado_aire.temp_entrada}} {{lado_aire.temp_unidad}}</td>
+                    <td>{{lado_gas.temp_entrada}} {{lado_gas.temp_unidad}}</td>                
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">Temp. Salida</th>
+                    <td>{{lado_aire.temp_salida}} {{lado_aire.temp_unidad}}</td>
+                    <td>{{lado_gas.temp_salida}} {{lado_gas.temp_unidad}}</td>                
+                  </tr>
+                  {% endwith %}
+                  {% endwith %}
+                </tbody>
+              </table>
+            </div>
+            <div class="col-6">
+              <table class="table table-bordered table-hover text-center">
+                <thead class="table-dark">
+                  <tr class="table-secondary">
+                    <th colspan="3">Composición del Combustible</th>
+                  </tr>
+                  <tr>
+                    <th>Fluido</th>
+                    <th>% Volumen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% with lado_aire=evaluacion.entrada_lado.first %}
+                  {% with lado_gases=evaluacion.entrada_lado.last %}
+                  {{lado_aire.composiciones}}
+                  {% for composicion in lado_gases.composicion_combustible.all %}
+                  <tr>
+                    <th class="table-dark">{{composicion.fluido}}</th>
+                    <td>{{composicion.porcentaje}}</td>
+                  </tr>
+                  {% endfor %}
+                  <tr class="table-dark ext-bold">
+                    <th colspan="3">Composición del Aire</th>
+                  </tr>
+                  <tr class="table-dark ext-bold">
+                    <th>Fluido</th>
+                    <th>% Volumen</th>
+                  </tr>
+                  {% for composicion in lado_aire.composicion_combustible.all %}
+                  <tr>
+                    <th class="table-dark">{{composicion.fluido}}</th>
+                    <td>{{composicion.porcentaje}}</td>
+                  </tr>
+                  {% endfor %}
+                  {% endwith %}
+                  {% endwith %}
+                </tbody>
+              </table>            
+            </div>
+            <div class="col-12">
+              <table class="table table-bordered table-hover text-center">
+                <thead class="table-dark">
+                  <tr>
+                    <th colspan="3" class="table-danger">Datos de Salida de la Evaluación</th>
+                  </tr>
+                  <tr>
+                    <th>Parámetro</th>
+                    <th>Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>                  
+                    <th class="table-dark">Calor Aire (W)</th>
+                    <td>{{evaluacion.salida.calor_aire|floatformat:4}}</td>
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">Calor Gas (W)</th>
+                    <td>{{evaluacion.salida.calor_gas|floatformat:4}}</td>
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">Calor Perdido (W)</th>
+                    <td>{{evaluacion.salida.calor_perdido|floatformat:4}}</td>
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">LMTD (°C)</th>
+                    <td>{{evaluacion.salida.lmtd|floatformat:4}}</td>
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">Coeficiente Global de Transferencia Calc/Diseño (W/m²K)</th>
+                    <td>{{evaluacion.salida.u|floatformat:4}} / {{evaluacion.salida.u_diseno|default_if_none:"—"}}</td>
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">Ensuciamiento (m²K/W)</th>
+                    <td>{{evaluacion.salida.ensuciamiento|floatformat:4}} </td>
+                  </tr>
+                  <tr>                  
+                    <th class="table-dark">Eficiencia (%)</th>
+                    <td>{{evaluacion.salida.eficiencia|floatformat:4}} </td>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">NTU</th>
+                    <td>{{evaluacion.salida.ntu|floatformat:4}} </td>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">CP Aire Entrada (J/KgK)</th>
+                    <td>{{evaluacion.salida.cp_aire_entrada|floatformat:4}} </td>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">CP Aire Salida (J/KgK)</th>
+                    <td>{{evaluacion.salida.cp_aire_salida|floatformat:4}} </td>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">CP Gas Entrada (J/KgK)</th>
+                    <td>{{evaluacion.salida.cp_gas_entrada|floatformat:4}} </td>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">CP Gas Salida (J/KgK)</th>
+                    <td>{{evaluacion.salida.cp_gas_salida|floatformat:4}} </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+  
+            <div class="col-12 text-end">
+              <small>Evaluación creada por {{evaluacion.usuario.get_full_name}} al {{evaluacion.fecha}}.</small> 
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+            {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
+            {%endif%}
+
+            <form method="post" name="reporte">
+                {% csrf_token %}
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+            </form>
+        </div>
+      </div>
+    </div>
+</div>

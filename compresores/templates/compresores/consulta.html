@@ -1,0 +1,114 @@
+{% extends 'base_consultas.html' %}
+{% load static %}
+{% load templatetags %}
+
+{% block encabezado %}
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'bienvenida' %}">↶ Regresar</a></div>
+  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Compresores</h3></div>
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
+    {% if permisos.creacion and link_creacion %}
+    <a class="btn d-block btn-success" href="{% url 'creacion_compresor' %}">+ Nuevo</a>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block formulario_filtrado %}
+<div class="d-flex flex-column col">
+  <label class="form-label" for="tag">Tag:</label>
+  <input type="text" name="tag" id="tag" maxlength="20" class="form-control" value="{{tag}}" placeholder="Filtrar por Tag">
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="descripcion">Descripción:</label>
+    <input type="text" id="servicio" name="descripcion" class="form-control" value="{{descripcion}}" placeholder="Filtrar por Descripción/Servicio">
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="complejo">Complejo:</label>
+    <select name="complejo" id="complejo" class="form-select seleccion-filtrado">
+        <option value="">
+            ----------------------------
+        </option>
+        {% for complejo in complejos %}
+        <option value="{{complejo.pk}}" {% if complejo.pk == complejox %}selected{% endif %}>{{complejo}}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="planta">Planta:</label>
+    <select name="planta" id="planta" {% if not plantas %}disabled="disabled"{% endif %} class="form-select seleccion-filtrado" value="{{plantax}}">
+        <option value="">
+            ----------------------------
+        </option>
+        {% for planta in plantas %}
+        <option value="{{planta.pk}}" {% if planta.pk == plantax %}selected{% endif %}>{{planta}}</option>
+        {% endfor %}
+    </select>
+</div>
+<input type=submit hidden>
+{% endblock %}
+
+{% block tabla %}
+<thead class="text-center">
+  <tr>
+    <th scope="col">#</th>
+    <th scope="col">Tag</th>
+    <th scope="col">Planta</th>
+    <th scope="col">Complejo</th>
+    <th scope="col">Descripción</th>
+    <th scope="col">Evaluaciones</th>
+    <th scope="col">Ficha Técnica</th>
+  </tr>
+</thead>
+<tbody class="text-center" id="tabla-body">
+  {% if object_list %}
+  {% include 'compresores/partials/tabla.html' %}
+  {% else %}
+  <td colspan="7">No se encontraron equipos con los datos de filtrado proporcionados.</td>
+  {% endif %}
+</tbody>
+{% endblock %}
+
+{% block opciones %}
+<div>
+  {% if object_list %}
+  <form method="post">
+    {% csrf_token %}
+    <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
+    <button name="tipo" value="xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
+  </form>
+  {% endif %}
+</div>
+<footer aria-label="Page navigation example">
+    <ul class="pagination">
+      <li class="page-item">
+        {% if page_obj.has_previous %}
+        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% endif %}
+      </li>
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">{{ page_obj.number }}</a></li>
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.next_page_number %}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+</footer>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+  $('select').not('[name^="caso"]').change(() => {
+    $('#filtrado').submit();
+  });
+  
+  $('input').keyup((e) => {
+    if(e.keyCode === 13)
+      $('#filtrado').submit();
+  });
+</script>
+
+<script src="{% static 'js/htmx.min.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% load static %}
+
+<div class="modal fade" id="ficha_{{turbina.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{turbina.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ficha_{{turbina.pk|default_if_none:'-'}}Label">Ficha Técnica Turbina de Vapor ({{turbina.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                      <th class="table-dark">Tag</th>
+                      <td><span id="tag_ficha">{{turbina.tag|default_if_none:'-'}}</span></td>
+                      <td colspan="2" rowspan="5" style="background-color: lightgray;">
+                        <img src="/static/img/turbinas/turbina-vapor-ficha.png" style="max-width: 100%;" alt="">
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Complejo</th>
+                      <td>{{turbina.planta.complejo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Planta</th>
+                      <td>{{turbina.planta|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fabricante</th>
+                      <td>{{turbina.fabricante|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Modelo</th>
+                        <td>{{turbina.modelo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Descripción</th>
+                      <td colspan="3">{{turbina.descripcion|default_if_none:'-'}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="table table-light text-center table-bordered tabla_ficha mt-0">
+                  <tbody id="tabla_ficha_contenido_body">
+                    {% with especificaciones=turbina.especificaciones %}
+                    <tr>
+                      <th class="table-dark" colspan="6">
+                        <div class="d-inline-flex align-items-center text-uppercase">
+                          ESPECIFICACIONES TÉCNICAS DE LA TURBINA
+                        </div>
+                      </th>
+                    </tr>
+                    {% with potencia_unidad=especificaciones.potencia_unidad %}
+                    <tr>
+                        <th class="table-dark">Potencia ({{potencia_unidad}})</th>
+                        <td>{{especificaciones.potencia|default_if_none:'-'}}</td>
+                        <th class="table-dark">Potencia Máxima ({{potencia_unidad}})</th>
+                        <td>{{especificaciones.potencia_max|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    <tr>
+                      <th class="table-dark">Velocidad ({{especificaciones.velocidad_unidad}})</th>
+                      <td>{{especificaciones.velocidad|default_if_none:'-'}}</td>
+                      <th class="table-dark">Presión de Entrada ({{especificaciones.presion_entrada_unidad}}g)</th>
+                      <td>{{especificaciones.presion_entrada|default_if_none:'-'}}</td>
+                    </tr>
+
+                    <tr>
+                        <th class="table-dark">Temperatura de Entrada ({{especificaciones.temperatura_entrada_unidad}})</th>
+                        <td>{{especificaciones.temperatura_entrada|default_if_none:'-'}}</td>
+                        <th class="table-dark">Contra Presión ({{especificaciones.contra_presion_unidad}})</th>
+                        <td>{{especificaciones.contra_presion|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+
+                    {% with generador_electrico=turbina.generador_electrico %}
+                    <tr>
+                        <th class="table-dark text-uppercase" colspan="4">
+                          <div class="d-inline-flex align-items-center">
+                            ESPECIFICACIONES DEL GENERADOR ELÉCTRICO
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Polos</th>
+                        <td>{{generador_electrico.polos|default_if_none:'-'}}</td>
+                        <th class="table-dark">Ciclos ({{generador_electrico.ciclos_unidad}})</th>
+                        <td>{{generador_electrico.ciclos|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Potencia Real ({{generador_electrico.potencia_real_unidad}})</th>
+                      <td>{{generador_electrico.potencia_real|default_if_none:'-'}}</td>
+                      <th class="table-dark">Potencia Aparente ({{generador_electrico.potencia_aparente_unidad}})</th>
+                      <td>{{generador_electrico.potencia_aparente|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Velocidad ({{generador_electrico.velocidad_unidad}})</th>
+                      <td>{{generador_electrico.velocidad|default_if_none:'-'}}</td>
+                      <th class="table-dark">Corriente Eléctrica ({{generador_electrico.corriente_electrica_unidad}})</th>
+                      <td>{{generador_electrico.corriente_electrica|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fases</th>
+                      <td>{{generador_electrico.fases|default_if_none:'-'}}</td>                      
+                      <th class="table-dark">Voltaje ({{generador_electrico.voltaje_unidad}})</th>
+                      <td>{{generador_electrico.voltaje|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    
+                  <tr>
+                    <td colspan="6">Creado por el usuario <b>{{turbina.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{turbina.creado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% if turbina.editado_al %}
+                  <tr>
+                    <td colspan="6">Editado por <b>{{turbina.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{turbina.editado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% endif %}
+                  </tbody>
+                </table>
+
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th class="table-dark text-center" colspan="7">
+                                CORRIENTES CIRCULANTES POR LA TURBINA
+                            </th>                            
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% with datos_corrientes=turbina.datos_corrientes %}
+                        <tr>
+                            <th class="table-dark text-center">#</th>
+                            <th class="table-dark text-center">Descripción</th>
+                            <th class="table-dark text-center">Flujo ({{datos_corrientes.flujo_unidad}})</th>
+                            <th class="table-dark text-center">Entalpía ({{datos_corrientes.entalpia_unidad}})</th>
+                            <th class="table-dark text-center">Presión ({{datos_corrientes.presion_unidad}}g)</th>
+                            <th class="table-dark text-center">Temperatura ({{datos_corrientes.temperatura_unidad}})</th>
+                            <th class="table-dark text-center">Fase</th>
+                        </tr>
+                        {% for corriente in datos_corrientes.corrientes.all %}
+                        <tr class="{% if corriente.entrada %}table-success{% elif corriente.fase == 'S' %}table-warning{% endif %}">
+                            <th class="text-center">{{corriente.numero_corriente}}{% if corriente.entrada %}*{% endif %}</td>
+                            <td class="text-center">{{corriente.descripcion_corriente}}</td>
+                            <td class="text-center">{{corriente.flujo}}</td>
+                            <td class="text-center">{{corriente.entalpia|default_if_none:'-'}}</td>
+                            <td class="text-center">{{corriente.presion|default_if_none:'-'}}</td>
+                            <td class="text-center">{{corriente.temperatura|default_if_none:'-'}}</td>
+                            <td class="text-center">{{corriente.fase_largo}}</td>
+                        </tr>
+                        {% endfor %}
+                        {% endwith %}
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% if request.user.is_superuser or turbina.planta.pk in permisos.ediciones %}
+          <a href="{% url 'edicion_turbina_vapor' pk=turbina.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+          
+          {% if request.user.is_superuser or turbina.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_turbina_vapor' pk=turbina.pk %}" method="post" name="duplicacion">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {% endif %}
+
+          <form method="post" name="ficha_form">
+            {% csrf_token %}
+            <input type="hidden" name="ficha" value="{{turbina.pk}}">
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          </form>          
+        </div>
+      </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+<table>
+    <tbody>
+        {% for corriente in res.corrientes %}
+        <tr>
+            <td class="resultado text-center" hx-swap-oob="true" id="form-{{forloop.counter}}-flujo">
+                {{corriente.flujo|floatformat:4}}
+            </td>
+            <td class="resultado text-center" hx-swap-oob="true" id="form-{{forloop.counter}}-entalpia">
+                {{corriente.entalpia|floatformat:4}}
+            </td>
+            <td class="resultado text-center" hx-swap-oob="true" id="form-{{forloop.counter}}-fase">
+                {{corriente.fase.1}}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="resultados" class="resultado" hx-swap-oob="true">
+    <table hx-swap-oob="true" class="table table-hover">
+        <thead>
+            <tr class="table-dark">
+                <th colspan="2" class="text-center">Resultados de la Evaluación</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="table-dark w-50">Eficiencia (%)</th>
+                <td class="w-50">{{res.eficiencia|floatformat:4}}</td>
+            </tr>
+    
+            <tr>
+                <th class="table-dark w-50">Potencia Calculada ({{res.potencia_unidad}})</th>
+                <td class="w-50">{{res.potencia_calculada|floatformat:4}}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% for corriente in res.corrientes %}
+        {% if corriente.fase.0 != 'V' and corriente.fase.0 != 'S' %}
+            <div class="alert alert-danger text-dark" role="alert">
+                <b>Corriente {{corriente.corriente}}.</b>
+                Las condiciones de presión y temperatura da como resultado que la corriente está en fase líquida, siendo una condición de riesgo operacional de la turbina.
+                <b>Presión de Vapor Calculada a la temperatura provista: </b> {{corriente.pvapor|floatformat:2}} Pa. <b>Verifique los datos ingresados y solo almacene esta evaluación si está seguro.</b>
+            </div>
+        {% endif %}
+    {% empty %}
+    <p class="text-center">No se han encontrado observaciones.</p>
+    {% endfor %}
+</div>
+
+<button id="submit" type="submit" name="submit" value="almacenar" class="btn btn-danger" hx-swap-oob="true">
+    Almacenar Resultados
+</button>

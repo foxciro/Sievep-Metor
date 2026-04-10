@@ -1,0 +1,28 @@
+{% load static %}
+{% load mathfilters %}
+{% for intercambiador in object_list %}
+  <tr>
+    {% with generales=intercambiador.intercambiador %}
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{generales.tag}}</td>
+    <td>{{generales.planta}}</td>
+    <td>{{generales.planta.complejo}}</td>
+    <td>{{generales.servicio}}</td>
+    <td>
+      {% if request.user.is_superuser or generales.planta.pk in permisos.evaluaciones %}
+      <a class="btn btn-danger" href="{% url 'consulta_evaluaciones' pk=intercambiador.intercambiador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {%endif%}
+    </td>
+    <td>
+      {% include 'fichas/tubo_carcasa.html' %}
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
+    </td>
+    {% endwith %}
+  </tr>
+{% endfor %}

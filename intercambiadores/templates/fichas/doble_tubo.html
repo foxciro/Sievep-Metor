@@ -1,0 +1,301 @@
+{% load static %}
+{% load mathfilters %}
+<style>
+  .tabla_ficha {
+    width: 100% ;
+  }
+  #tabla_ficha_contenido_body > tr > td{
+    width: 16.66%;
+  }
+  #tabla_ficha_contenido_body > tr > th{
+    width: 33% !important;
+  }
+</style>
+
+<div class="modal fade" id="ficha_{{intercambiador.pk|default:'-'}}" tabindex="-1" aria-labelledby="ficha_{{intercambiador.pk|default:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ficha_{{intercambiador.pk|default:'-'}}Label">Ficha Técnica Doble Tubo {{generales.tag|default:'-'}} ({{generales.planta|default:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                      <th class="table-dark">Tag</th>
+                      <td colspan="2"><span id="tag_ficha">{{generales.tag.upper|default:'-'}}</span></td>
+                      <td colspan="3" rowspan="5" style="vertical-align: middle;">
+                        <div class="d-flex justify-content-center align-items-center">
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/doble_tubo.png" alt="Intercambiador de Doble Tubo">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Planta</th>
+                      <td colspan="2">{{generales.planta|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Tema</th>
+                      <td colspan="2">{{generales.tema|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fabricante</th>
+                      <td colspan="2">{{generales.fabricante|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Flujo</th>
+                      <td colspan="2">{{generales.flujo_largo|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Servicio</th>
+                      <td colspan="5" colspan="5">{{generales.servicio|default:'-'}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="table table-light text-center table-bordered tabla_ficha mt-0">
+                  <tbody id="tabla_ficha_contenido_body">
+                    <tr>
+                      <th class="table-dark" colspan="6">
+                        <div class="d-inline-flex align-items-center">
+                          Condiciones de Diseño
+                        </div>
+                      </th>
+                    </tr>
+                    <tr class="table-dark">
+                      <th class="table-dark" colspan="2"></th>
+                      <th class="table-dark" colspan="2">Tubo Externo</th>
+                      <th class="table-dark" colspan="2">Tubo Interno</th>
+                    </tr>
+                    {% with condiciones_tubo=intercambiador.condicion_interno %}
+                    {% with condiciones_carcasa=intercambiador.condicion_externo %}
+                    <tr class="table-dark">
+                      <td colspan="2"></td>
+                      <td>IN</td>
+                      <td>OUT</td>
+                      <td>IN</td>
+                      <td>OUT</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Fluido</th>
+                      <td colspan="2">
+                        {% if intercambiador.fluido_ex %}
+                          {{intercambiador.fluido_ex|default:'-'}}
+                        {% else %}
+                          {{condiciones_carcasa.fluido_etiqueta.upper|default:'-'}}
+                        {% endif %}
+                      </td>
+                      <td colspan="2">
+                        {% if intercambiador.fluido_in %}
+                          {{intercambiador.fluido_in|default:'-'}}
+                        {% else %}
+                          {{condiciones_tubo.fluido_etiqueta.upper|default:'-'}}
+                        {% endif %}                        
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Temperatura ({{condiciones_tubo.temperaturas_unidad|default:'-'}})</th>
+                      <td>{{condiciones_carcasa.temp_entrada|default:'-'}}</td>
+                      <td>{{condiciones_carcasa.temp_salida|default:'-'}}</td>
+                      <td>{{condiciones_tubo.temp_entrada|default:'-'}}</td>
+                      <td>{{condiciones_tubo.temp_salida|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Flujo Vapor ({{condiciones_carcasa.flujos_unidad|default:'-'}})</th>
+                      <td id="flujo_vapor_entrada_carcasa">{% if condiciones_carcasa.flujo_vapor_entrada %}{{condiciones_carcasa.flujo_vapor_entrada|default:'-'}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_carcasa.flujo_vapor_salida %}{{condiciones_carcasa.flujo_vapor_salida|default:'-'}}{% else %}-{% endif %}</td>
+                      <td id="flujo_vapor_entrada_tubo">{% if condiciones_tubo.flujo_vapor_entrada %}{{condiciones_tubo.flujo_vapor_entrada|default:'-'}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_tubo.flujo_vapor_salida %}{{condiciones_tubo.flujo_vapor_salida|default:'-'}}{% else %}-{% endif %}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Flujo Líquido ({{condiciones_carcasa.flujos_unidad|default:'-'}})</th>
+                      <td>{% if condiciones_carcasa.flujo_liquido_entrada %}{{condiciones_carcasa.flujo_liquido_entrada|default:'-'}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_carcasa.flujo_liquido_salida %}{{condiciones_carcasa.flujo_liquido_salida|default:'-'}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_tubo.flujo_liquido_entrada %}{{condiciones_tubo.flujo_liquido_entrada|default:'-'}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_tubo.flujo_liquido_salida %}{{condiciones_tubo.flujo_liquido_salida|default:'-'}}{% else %}-{% endif %}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Flujo Másico Total ({{condiciones_carcasa.flujos_unidad|default:'-'}})</th>
+                      <td colspan="2">{{condiciones_carcasa.flujo_masico|default:'-'}}</td>
+                      <td colspan="2">{{condiciones_tubo.flujo_masico|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Cap. Calorífica Vapor (<span id="unidad_cp_ficha">{{condiciones_tubo.unidad_cp|default:'-'}}</span>)</th>
+                      <td colspan="2" id="cp_vapor_ficha_carcasa">
+                          {% if condiciones_carcasa.fluido_cp_gas %}
+                          {{condiciones_carcasa.fluido_cp_gas|default:'-'}}
+                          {%else%}
+                          -
+                          {%endif%}               
+                      </td>
+                      <td colspan="2" id="cp_vapor_ficha_tubo">
+                        {% if condiciones_tubo.fluido_cp_gas %}
+                          {{condiciones_tubo.fluido_cp_gas|default:'-'}}
+                        {%else%}
+                        -
+                        {%endif%}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Cap. Calorífica Líquido ({{condiciones_tubo.unidad_cp|default:'-'}})</th>
+                      <td colspan="2" id="cp_liquido_ficha_carcasa">
+                        {% if condiciones_carcasa.fluido_cp_liquido %}
+                          {{condiciones_carcasa.fluido_cp_liquido|default:'-'}}
+                        {%else%}
+                        -
+                        {%endif%}         
+                      </td>
+                      <td colspan="2" id="cp_liquido_ficha_tubo">
+                        {% if condiciones_tubo.fluido_cp_liquido %}
+                          {{condiciones_tubo.fluido_cp_liquido|default:'-'}}
+                        {%else%}
+                        -
+                        {%endif%}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style="vertical-align: middle;" class="table-dark" colspan="2">Cambio de Fase</th>
+                      <td colspan="2">{{condiciones_carcasa.cambio_fase_largo|default:'-'}} 
+                        <span id="cambio_fase_ficha_carcasa" hidden>{{condiciones_carcasa.cambio_de_fase|default:'-'}}</span></td>
+                      <td colspan="2">{{condiciones_tubo.cambio_fase_largo|default:'-'}}
+                        <span id="cambio_fase_ficha_tubo" hidden>{{condiciones_tubo.cambio_de_fase|default:'-'}}</span>
+                      </td>
+                    </tr>
+                    {% if condiciones_carcasa.hvap or condiciones_tubo.hvap %}
+                    <tr>
+                      <th style="vertical-align: middle;" class="table-dark" colspan="2">Calor Latente de Vap. (J/Kg)</th>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_carcasa.hvap %}{{condiciones_carcasa.hvap|default:'-'}}{%else%}-{%endif%}</td>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_tubo.hvap %}{{condiciones_tubo.hvap|default:'-'}}{%else%}-{%endif%}</td>                 
+                    </tr>
+                    {%endif%}
+                    {% if condiciones_carcasa.tsat or condiciones_tubo.tsat %}
+                    <tr>
+                      <th style="vertical-align: middle;" class="table-dark" colspan="2">Temp. Saturación ({{condiciones_carcasa.temperaturas_unidad|default:'-'}})</th>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_carcasa.tsat %}{{condiciones_carcasa.tsat|default:'-'}}{%else%}-{%endif%}</td>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_tubo.tsat %}{{condiciones_tubo.tsat|default:'-'}}{%else%}-{%endif%}</td>                 
+                    </tr>
+                    {%endif%}
+                    <tr>
+                      <th class="table-dark" colspan="2">Presión Entrada (<span id="unidad_presion_ficha">{{condiciones_carcasa.unidad_presion|default:'-'}}</span>)</th>
+                      <td colspan="2"><span id="presion_entrada_carcasa_ficha">{{condiciones_carcasa.presion_entrada|default:'-'}}</span></td>
+                      <td colspan="2"><span id="presion_entrada_tubo_ficha">{{condiciones_tubo.presion_entrada|default:'-'}}</span></td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Caída Presión Máxima ({{condiciones_carcasa.unidad_presion|default:'-'}})</th>
+                      <td colspan="2">{{condiciones_carcasa.caida_presion_max|default:'-'}}</td>
+                      <td colspan="2">{{condiciones_tubo.caida_presion_max|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Caída Presión Mínima ({{condiciones_carcasa.unidad_presion|default:'-'}})</th>
+                      <td colspan="2">{{condiciones_carcasa.caida_presion_min|default:'-'}}</td>
+                      <td colspan="2">{{condiciones_tubo.caida_presion_min|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Fouling ({{intercambiador.ensuciamiento_unidad|default:'-'}})</th>
+                      <td colspan="2">{{condiciones_carcasa.fouling|default:'-'}}</td>
+                      <td colspan="2">{{condiciones_tubo.fouling|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Conexiones de Entrada</th>
+                      <td colspan="2">{{intercambiador.conexiones_entrada_ex|default:'-'}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_entrada_in|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Conexiones de Salida</th>
+                      <td colspan="2">{{intercambiador.conexiones_salida_ex|default:'-'}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_salida_in|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Arreglos en Serie</th>
+                      <td colspan="2">{{intercambiador.arreglo_serie_ex|default:'-'}}</td>
+                      <td colspan="2">{{intercambiador.arreglo_serie_in|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Arreglos en Paralelo</th>
+                        <td colspan="2">{{intercambiador.arreglo_paralelo_ex|default:'-'}}</td>
+                        <td colspan="2">{{intercambiador.arreglo_paralelo_in|default:'-'}}</td>
+                      </tr>
+                    {% endwith %}
+                    {% endwith %}
+                    <tr>
+                      <th class="table-dark" colspan="6">Parámetros de Diseño</th>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Calor ({{intercambiador.q_unidad|default:'-'}})</th>
+                      <td>{{intercambiador.q|default:'-'}}</td>
+                      <th colspan="2" class="table-dark">U ({{intercambiador.u_unidad|default:'-'}})</th>
+                      <td>{{intercambiador.u|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Ensuciamiento ({{intercambiador.ensuciamiento_unidad|default:'-'}})</th>
+                      <td>{% if intercambiador.ensuciamiento %}{{intercambiador.ensuciamiento|default:'-'}}{%else%}-{%endif%}</td>
+                      <th colspan="2" class="table-dark">Área ({{intercambiador.area_unidad|default:'-'}})</th>
+                      <td>{{intercambiador.area|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">No. Tubos</th>
+                      <td>{{intercambiador.numero_tubos|default:'-'}}</td>
+                      <th colspan="2" class="table-dark">Long. Tubos ({{intercambiador.longitud_tubos_unidad|default:'-'}})</th>
+                      <td>{{intercambiador.longitud_tubos|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">OD Tubo Ext. ({{intercambiador.diametro_tubos_unidad|default:'-'}})</th>
+                      <td>{{intercambiador.diametro_externo_ex|default:'-'}}</td>
+                      <th colspan="2" class="table-dark">OD Tubo Int. ({{intercambiador.diametro_tubos_unidad|default:'-'}})</th>
+                      <td>{{intercambiador.diametro_externo_in|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Material Tubo Ext.</th>
+                      <td>{{intercambiador.material_ex|default:'-'}}</td>
+                      <th colspan="2" colspan="1" class="table-dark">Material Tubo Int.</th>
+                      <td>{{intercambiador.material_in|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Criticidad</th>
+                      <td>{{intercambiador.criticidad_larga|default:'-'}}</td>
+                      <th colspan="2" class="table-dark">Tipo Tubo</th>
+                      <td>{{intercambiador.tipo_tubo|default:'-'}}</td>    
+                    </tr>
+                    {% if intercambiador.numero_aletas %}
+                    <tr>
+                      <th colspan="2" class="table-dark">Número de Aletas</th>
+                      <td>{{intercambiador.numero_aletas|default:'-'}}</td>
+                      <th colspan="2" class="table-dark">Altura Aletas ({{intercambiador.diametro_tubos_unidad|default:'-'}})</th>
+                      <td>{{intercambiador.altura_aletas|default:'-'}}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                      <td colspan="6">Creado por el usuario <b>{{generales.creado_por.get_full_name|default:'-'}}</b> el día <b>{{generales.creado_al|default:'-'}}</b>.</td>
+                    </tr>
+                    {% if generales.editado_al %}
+                    <tr>
+                      <td colspan="6">Editado por <b>{{generales.editado_por.get_full_name|default:'-'}}</b> el día <b>{{generales.editado_al|default:'-'}}</b>.</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% if request.user.is_superuser or generales.planta.pk in permisos.ediciones %}
+          <a href="{% url 'editar_doble_tubo' pk=intercambiador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+
+          {% if request.user.is_superuser or generales.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_intercambiador' pk=intercambiador.intercambiador.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {% endif %}
+
+          <a name="pdf" target="_blank" href="{% url 'reporte_ficha_tecnica_doble_tubo' pk=generales.pk %}?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+          <a name="xlsx" target="_blank" href="{% url 'reporte_ficha_tecnica_doble_tubo' pk=generales.pk %}?tipo=xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
+        </div>
+      </div>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+{% load static %}
+{% load mathfilters %}
+{% for encuesta in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{encuesta.usuario.get_full_name}}</td>
+    <td>{{encuesta.fecha}}</td>
+    <td>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#respuestas{{encuesta.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Resultados de este envío"></button>
+        {% include 'modals/encuesta.html' %}
+    </td>
+  </tr>
+{% endfor %}

@@ -1,0 +1,26 @@
+{% load static %}
+{% load mathfilters %}
+{% for bomba in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{bomba.tag}}</td>
+    <td>{{bomba.planta}}</td>
+    <td>{{bomba.planta.complejo}}</td>
+    <td>{{bomba.descripcion}}</td>
+    <td>
+      {% if request.user.is_superuser or bomba.planta.pk in permisos.evaluaciones %}
+      <a class="btn btn-danger" href="{% url 'evaluacion_bomba' pk=bomba.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {% endif %}
+    </td>
+    <td>
+        {% include 'bombas/ficha.html' %}
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{bomba.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
+    </td>
+  </tr>
+{% endfor %}

@@ -1,0 +1,16 @@
+empresa;complejo;planta;tag;descripcion;fabricante;modelo;tipo_precalentador;material;espesor;diametro;altura;superficie_calentamiento;temperatura_operacion;presion_operacion;temp_entrada_aire;temp_salida_aire;presion_entrada_aire;presion_salida_aire;temp_entrada_gases;temp_salida_gases;presion_entrada_gases;presion_salida_gases;caida_presion_aire;caida_presion_gases;area_total_transferencia
+PQV;AMC;Servicios industriales;E-03;Precalentadores;;;LUNGSTRON;Acero de baja aleación;0.004762;3.3528;2.4384;1.486;;;26.6667;270;;;368.33;150.556;;;721.636;985.4064;
+PQV;AMC;Servicios industriales;E-04;Precalentadores;;;LUNGSTRON;Acero de baja aleación;0.004762;3.3528;2.4384;1.486;;;26.6667;270;;;368.33;150.556;;;721.636;985.4064;
+PQV;AMC;Servicios industriales;E-05;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-06;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-07;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-08;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-09;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-10;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-11;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-12;Precalentadores;;;;;;;;;;;;;;;;;;;;;
+PQV;AMC;Servicios industriales;E-13;Precalentadores;;;;;;;;;;;130;617819.08;;;;;;;;;297.28
+PQV;AMC;Servicios industriales;E-14;Precalentadores;;;;;;;;;;;130;617819.08;;;;;;;;;297.28
+PQV;AMC;Servicios industriales;E-15;Precalentadores;;;;;;;;;;;130;617819.08;;;;;;;;;297.28
+PQV;AMC;Servicios industriales;E-16;Precalentadores;;;;;;;;;;;130;617819.08;;;;;;;;;297.28
+PQV;AMC;Servicios industriales;E-17;Precalentadores;;;;;;;;;;;;;;;;;;;;;

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block contenido %}
+<form method="post">
+    {{forms_instalacion.management_form}}   
+    {{forms_tuberia_descarga.management_form}}   
+    {{forms_tuberia_succion.management_form}}   
+    {% for field in forms_instalacion.hidden_fields %}
+        {{ field }}
+    {% endfor %}
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_bombas' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Edición de Detalles de Instalación de la Bomba {{bomba.tag}}</h3></div>
+        <div class="col-md-3 col-lg-2">
+            <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#tabla-diametro-nominal" >Tabla de Diámetro Nominal</a>
+            {% include 'tablas/tabla-diametro-nominal.html' %}
+        </div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <hr>
+    {% endif %}
+
+    <div class="row">
+        {% for form_instalacion in forms_instalacion.forms %}
+        {{ form_instalacion.id }}
+        <div class="col-6  {% if forloop.counter == 1 %}border-end border-dark{% endif %}">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center">{% if forloop.counter == 1 %} Succión {% else %} Descarga {% endif %}</h3>
+                    <hr>
+                </div>
+                <div class="col-12">
+                    <label for="id_elevacion">{{form_instalacion.elevacion.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_instalacion.elevacion class="form-control" %}
+                        <select class="form-select" name="formset-instalaciones-{{forloop.counter0}}-elevacion_unidad" id="id_formset-instalaciones-{{forloop.counter0}}-elevacion_unidad">
+                            {% include 'unidades.html' with tipo='L' pk_selected=form_instalacion.instance.elevacion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_instalacion.elevacion.errors}}</small>
+                </div>
+
+                <div class="col-12" id="{% if forloop.counter == 1 %}forms-succion{% else %}forms-descarga{% endif %}">
+                    <hr>
+                    <h3 class="text-center">Tramos de Tuberías</h3>
+                    <h5 class="text-center">Colocar en orden</h5>
+                    {% if forloop.counter == 1 %}
+                    {% for form in forms_tuberia_succion %}
+                    <div class="row succion-form">
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <div class="col-4">
+                            <label>{{form.longitud_tuberia.label_tag}}</label>
+                            <div class="input-group mb-1">
+                                {% render_field form.longitud_tuberia min="0.0001" class="form-control" %}
+                                <select class="form-select" name="formset-succion-{{forloop.counter0}}-longitud_tuberia_unidad" id="id_formset-succion-{{forloop.counter0}}-longitud_tuberia_unidad">
+                                    {% include 'unidades.html' with tipo='L' pk_selected=form.instance.longitud_tuberia_unidad.pk %}
+                                </select>
+                            </div>
+                            <small>{{form.longitud_tuberia.errors}}</small>
+                        </div>
+                        <div class="col-4">
+                            <label>{{form.diametro_tuberia.label_tag}}</label>
+                            <div class="input-group mb-1">
+                                {% render_field form.diametro_tuberia min="0.0001" class="form-control" %}
+                                <select class="form-select" name="formset-succion-{{forloop.counter0}}-diametro_tuberia_unidad" id="id_formset-succion-{{forloop.counter0}}-diametro_tuberia_unidad">
+                                    {% include 'unidades.html' with tipo='L' pk_selected=form.instance.diametro_tuberia_unidad.pk %}
+                                </select>
+                            </div>
+                            <small>{{form.diametro_tuberia.errors}}</small>
+                        </div>
+                        <div class="col-2">
+                            <label>{{form.material_tuberia.label_tag}}</label>
+                            <select class="form-select" name="formset-succion-{{forloop.counter0}}-material_tuberia" id="id_formset-descarga-{{forloop.counter0}}-material_tuberia">
+                                <option value="">------------------</option>
+                                {% for material in materiales %}
+                                    <option value="{{material.pk}}" {% if material.pk == form.instance.material_tuberia.pk %} selected {% endif %} >{{material.nombre.upper}}</option>
+                                {% endfor %}
+                            </select>
+                            <small>{{form.material_tuberia.errors}}</small>
+                        </div>
+                        <div class="col-1 fs-5 d-flex align-items-end">
+                            <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#{{form.prefix}}-accesorios" >Acc.</a>
+                        </div>
+                        <div class="col-1 fs-5 d-flex align-items-end">
+                            {% if forloop.first %}
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success anadir">+</a>
+                            {% else %}
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger eliminar">-</a>
+                            {% endif %}
+                        </div>
+                        {% include 'bombas/partials/modal-accesorios.html' %}
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                        {% for form in forms_tuberia_descarga %}
+                        <div class="row p-0 descarga-form">
+                            {% for field in form.hidden_fields %}
+                                {{ field }}
+                            {% endfor %}
+                            <div class="col-4">
+                                <label>{{form.longitud_tuberia.label_tag}}</label>
+                                <div class="input-group mb-1">
+                                    {% render_field form.longitud_tuberia min="0" class="form-control" %}
+                                    <select class="form-select" name="formset-descarga-{{forloop.counter0}}-longitud_tuberia_unidad" id="id_formset-descarga-{{forloop.counter0}}-longitud_tuberia_unidad">
+                                        {% include 'unidades.html' with tipo='L' pk_selected=form.instance.longitud_tuberia_unidad.pk %}
+                                    </select>
+                                </div>
+                                <small>{{form.longitud_tuberia.errors}}</small>
+                            </div>
+                            <div class="col-4">
+                                <label>{{form.diametro_tuberia.label_tag}}</label>
+                                <div class="input-group mb-1">
+                                    {% render_field form.diametro_tuberia min="0" class="form-control" %}
+                                    <select class="form-select" name="formset-descarga-{{forloop.counter0}}-diametro_tuberia_unidad" id="id_formset-descarga-{{forloop.counter0}}-diametro_tuberia_unidad">
+                                        {% include 'unidades.html' with tipo='L' pk_selected=form.instance.diametro_tuberia_unidad.pk %}
+                                    </select>
+                                </div>
+                                <small>{{form.diametro_tuberia.errors}}</small>
+                            </div>
+                            <div class="col-2">
+                                <label>{{form.material_tuberia.label_tag}}</label>
+                                <select class="form-select" name="formset-descarga-{{forloop.counter0}}-material_tuberia" id="id_formset-descarga-{{forloop.counter0}}-material_tuberia">
+                                    <option value="">------------------</option>
+                                    {% for material in materiales %}
+                                        <option value="{{material.pk}}" {% if material.pk == form.instance.material_tuberia.pk %} selected {% endif %} >{{material.nombre.upper}}</option>
+                                    {% endfor %}
+                                </select>
+                                <small>{{form.material_tuberia.errors}}</small>
+                            </div>
+                            <div class="col-1 fs-5 d-flex align-items-end">
+                                <a href="#" data-bs-target="#{{form.prefix}}-accesorios" data-bs-toggle="modal" class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-primary">Acc.</a>
+                            </div>
+                            <div class="col-1 fs-5 d-flex align-items-end">
+                                {% if forloop.first %}
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success anadir">+</a>
+                                {% else %}
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger eliminar">-</a>
+                                {% endif %}
+                            </div>
+                            {% include 'bombas/partials/modal-accesorios.html' %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-12 mt-3">
+        <div class="d-flex w-100 justify-content-center mb-3">
+            <button type="submit" class="btn btn-danger">Enviar Formulario</button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/bombas/instalacion.js"></script>
+{% endblock %}

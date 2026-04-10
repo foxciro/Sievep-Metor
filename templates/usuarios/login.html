@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+ <link rel="stylesheet" href="{% static 'css/bienvenida/index.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="row g-5" style="height: 90vh !important;">
+    <div class="col-4 d-flex justify-content-center align-items-center">
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            <img src="{% static 'img/logo.png' %}" width="auto" style="max-width: 500px;" alt="Logo de Pequiven" id="logo_principal">
+            <hr style="width: 100%;">
+            <img src="{% static 'img/logo_indesca.svg' %}" width="auto" style="max-width: 500px;" height="80px" alt="Logo de Pequiven" id="logo_principal">
+            <hr style="width: 100%;">
+            <h2 class="text-center" style="color: #e31e24;">SIEVEP</h2>
+            <h5 class="text-center" style="color: #e31e24;">Sistema Integrado de Evaluación de Equipos de Procesos</h5>
+        </div>
+    </div>
+
+    <div class="col-8 d-flex justify-content-center align-items-center flex-column">
+        <h3>Inicio de Sesión</h3>
+        {% if messages %}
+        <div class="alert alert-danger w-75" role="alert">
+            {% for message in messages %}
+            {{message}}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="row">
+            {% csrf_token %}
+            <div class="col-12 d-flex flex-column g-2">
+                <label class="text-start" for="email">Usuario:</label>
+                {% render_field form.username class="form-control" %}
+            </div>
+    
+            <div class="col-12 d-flex flex-column g-2">
+                <label class="text-start" for="password">Contraseña:</label>
+                {% render_field form.password class="form-control" %}
+            </div>
+    
+            <div class="col-12 d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-danger">Iniciar Sesión</button>
+            </div>
+                
+        </form>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{%  block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {{form_etapa.management_form}}
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_compresores' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Edición de la Etapa {{etapa.numero}} del Compresor {{compresor.tag}}</h3></div>
+        <div class="col-md-3 col-lg-2"></div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <hr>
+    {% endif %}
+
+    <h4 class="text-center" style="color: #e31e24;">Datos de la Etapa {{form_etapa.instance.numero}}</h4>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_etapa.nombre_fluido.label_tag}}
+            {% render_field form_etapa.nombre_fluido class="form-control" placeholder="Nombre del Fluido" %}
+            <small>{{form_etapa.nombre_fluido.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.flujo_masico.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.flujo_masico min="0.0001" class="form-control" %}
+                <select name="flujo_masico_unidad" id="id_flujo_masico_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_etapa.instance.flujo_masico_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.flujo_masico.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.flujo_molar.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.flujo_molar min="0.0001" class="form-control" %}
+                <select name="flujo_molar_unidad" id="id_flujo_molar_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='M' pk_selected=form_etapa.instance.flujo_molar_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.flujo_molar.errors}}</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_etapa.densidad.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.densidad min="0.0001" class="form-control" %}
+                <select name="densidad_unidad" id="id_densidad_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='D' pk_selected=form_etapa.instance.densidad_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.densidad.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.volumen_diseno.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.volumen_diseno min="0.0001" class="form-control" %}
+                <select name="volumen_unidad" id="id_volumen_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=form_etapa.instance.volumen_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.volumen_diseno.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.volumen_normal.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.volumen_normal min="0.0001" class="form-control" %}
+                <select name="volumen_unidad" id="id_volumen_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=form_etapa.instance.volumen_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.volumen_normal.errors}}</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_etapa.aumento_estimado.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.aumento_estimado min="0" class="form-control" %}
+                <select name="volumen_unidad" id="id_volumen_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=form_etapa.instance.volumen_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.aumento_estimado.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.rel_compresion.label_tag}}
+            {% render_field form_etapa.rel_compresion min="0" class="form-control" %}
+            <small>{{form_etapa.rel_compresion.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.potencia_nominal.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.potencia_nominal min="0.0001" class="form-control" %}
+                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='B' pk_selected=form_etapa.instance.potencia_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.potencia_nominal.errors}}</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_etapa.potencia_req.label_tag}}
+            <div class="input-group">
+                {% render_field form_etapa.potencia_req min="0.0001" class="form-control" %}
+                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with unidades=unidades tipo='B' pk_selected=form_etapa.instance.potencia_unidad.pk %}
+                </select>
+            </div>
+            <small>{{form_etapa.potencia_req.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.eficiencia_isentropica.label_tag}}
+            {% render_field form_etapa.eficiencia_isentropica min="0" class="form-control" %}
+            <small>{{form_etapa.eficiencia_isentropica.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.eficiencia_politropica.label_tag}}
+            {% render_field form_etapa.eficiencia_politropica min="0" class="form-control" %}
+            <small>{{form_etapa.eficiencia_politropica.errors}}</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_etapa.cabezal_politropico.label_tag}}
+            {% render_field form_etapa.cabezal_politropico min="0.0001" class="form-control" placeholder="Cabezal Politrópico" %}
+            <small>{{form_etapa.cabezal_politropico.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.humedad_relativa.label_tag}}
+            {% render_field form_etapa.humedad_relativa min="0" max="100" class="form-control" placeholder="Humedad Relativa" %}
+            <small>{{form_etapa.humedad_relativa.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_etapa.curva_caracteristica.label_tag}} <br>
+            {% render_field form_etapa.curva_caracteristica class="form-control" placeholder="Curva Característica" accept=".png, .jpg" %}
+            <small>{{form_etapa.curva_caracteristica.errors}}</small>
+        </div>
+    </div>
+
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Entrada y Salida</h4>
+
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr class="table-dark">
+                <th>Nombre</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Presión</td>
+                <td>
+                    <div class="input-group">
+                        {% render_field form_entrada.presion min="0.0001" class="form-control" placeholder="Presión de Entrada" %}
+                        <select name="entrada-presion_unidad" id="id_entrada-presion_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='P' pk_selected=form_entrada.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_entrada.presion.errors}}</small>
+                </td>
+                <td>
+                    <div class="input-group">
+                        {% render_field form_salida.presion min="0.0001" class="form-control" placeholder="Presión de Salida" %}
+                        <select name="salida-presion_unidad" id="id_salida-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo='P' pk_selected=form_salida.instance.presion_unidad.pk %}
+                        </select>
+                        <select name="salida-presion_unidad" id="id_salida-presion_unidad" class="form-select" hidden>
+                            {% include 'unidades.html' with tipo='P' pk_selected=form_salida.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_salida.presion.errors}}</small>
+                </td>
+            </tr>
+            <tr>
+                <td>Temperatura</td>
+                <td>
+                    <div class="input-group">
+                        {% render_field form_entrada.temp min="-273.15" class="form-control" placeholder="Temperatura de Entrada" %}
+                        <select name="entrada-temp_unidad" id="id_entrada-temp_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='T' pk_selected=form_entrada.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_entrada.temp.errors}}</small>
+                </td>
+                <td>
+                    <div class="input-group">
+                        {% render_field form_salida.temp min="-273.15" class="form-control" placeholder="Temperatura de Salida" %}
+                        <select name="salida-temp_unidad" id="id_salida-temp_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo='T' pk_selected=form_salida.instance.temp_unidad.pk %}
+                        </select>
+                        <select name="salida-temp_unidad" id="id_salida-temp_unidad" class="form-select" hidden>
+                            {% include 'unidades.html' with tipo='T' pk_selected=form_salida.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_salida.temp.errors}}</small>
+                </td>
+            </tr>
+            <tr>
+                <td>Cp/Cv</td>
+                <td>
+                    {% render_field form_entrada.cp_cv min="0" class="form-control" placeholder="Cp/Cv de Entrada" %}
+                    <small>{{form_entrada.cp_cv.errors}}</small>
+                </td>
+                <td>
+                    {% render_field form_salida.cp_cv min="0" class="form-control" placeholder="Cp/Cv de Salida" %}
+                    <small>{{form_salida.cp_cv.errors}}</small>
+                </td>
+            </tr>
+            <tr>
+                <td>Compresibilidad</td>
+                <td>
+                    {% render_field form_entrada.compresibilidad min="0" class="form-control" placeholder="Compresibilidad de Entrada" %}
+                    <small>{{form_entrada.compresibilidad.errors}}</small>
+                </td>
+                <td>
+                    {% render_field form_salida.compresibilidad min="0" class="form-control" placeholder="Compresibilidad de Salida" %}
+                    <small>{{form_salida.compresibilidad.errors}}</small>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <div class="d-flex justify-content-center mb-3">
+        <button type="submit" class="btn btn-danger">Editar Etapa</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/compresores/edicion_etapa.js' %}"></script>
+{% endblock %}

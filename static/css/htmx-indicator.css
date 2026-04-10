@@ -1,0 +1,13 @@
+small{
+    color: #e31e24;
+    font-weight: bold;
+}
+
+.indicator-style {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 1000;
+    margin-left: -50px;
+    margin-top: -50px;
+}

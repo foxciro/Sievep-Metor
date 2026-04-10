@@ -1,0 +1,42 @@
+{% load static %}
+{% load pwa %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{titulo}}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/chart.umd.min.js' %}"></script>
+
+    {% progressive_web_app_meta %}
+
+    {% block head %}
+    {% endblock %}
+</head>
+<body class="d-flex flex-column d-flex flex-column" style="min-height: 100vh !important;">
+
+    {% include 'navbar.html' %}
+
+    <main class="container-fluid mt-3 ps-5 pe-5 pb-2 pt-2">
+        {% block contenido %}
+        {% endblock %}
+    </main>
+
+    {% include 'footer.html' %}
+    
+    
+    {% block extra_javascript %}
+    {% endblock %}
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script>
+        $('.alert').delay(2000, async () => {
+            await new Promise(resolve => setTimeout(resolve, 4500));
+            $('.alert-hr').remove();
+            $('.alert').remove();            
+        });
+    </script>
+</body>
+</html>

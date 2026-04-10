@@ -1,0 +1,209 @@
+{% load static %}
+
+<div class="modal fade" id="ficha_{{precalentador.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{precalentador.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ficha_{{precalentador.pk|default_if_none:'-'}}Label">Ficha Técnica Precalentador de Aire ({{precalentador.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                      <th class="table-dark">Tag</th>
+                      <td><span id="tag_ficha">{{precalentador.tag|default_if_none:'-'}}</span></td>
+                      <td colspan="3" rowspan="5" style="background-color: lightgray;">
+                        <img src="/static/img/equipos_aux/prec_aire.png" style="max-width: 100%;" alt="">
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Complejo</th>
+                      <td>{{precalentador.planta.complejo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Planta</th>
+                      <td>{{precalentador.planta|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Tipo</th>
+                      <td>{{precalentador.tipo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fabricante</th>
+                      <td >{{precalentador.fabricante|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Descripción</th>
+                      <td colspan="4">{{precalentador.descripcion|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with seccion_aire=precalentador.condicion_fluido.all.0 %}
+                    {% with seccion_gases=precalentador.condicion_fluido.all.1 %}
+                    <tr>
+                      <th class="table-dark"></th>
+                      <th class="table-dark" colspan="2">AIRE</th>
+                      <th class="table-dark" colspan="2">GASES</th>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Flujo Másico</th>
+                      <td colspan="2">{{seccion_aire.flujo|default:'-'}} {{seccion_aire.flujo_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.flujo|default:'-'}} {{seccion_gases.flujo_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Temperatura de Entrada</th>
+                      <td colspan="2">{{seccion_aire.temp_entrada|default:'-'}} {{seccion_aire.temp_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.temp_entrada|default:'-'}} {{seccion_gases.temp_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Temperatura de Salida</th>
+                      <td colspan="2">{{seccion_aire.temp_salida|default:'-'}} {{seccion_aire.temp_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.temp_salida|default:'-'}} {{seccion_gases.temp_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Presión de Entrada</th>
+                      <td colspan="2">{{seccion_aire.presion_entrada|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.presion_entrada|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Presión de Salida</th>
+                        <td colspan="2">{{seccion_aire.presion_salida|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}</td>
+                        <td colspan="2">{{seccion_gases.presion_salida|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
+                      </tr>
+                    <tr>
+                      <th class="table-dark">Caída de Presión</th>
+                      <td colspan="2">{{seccion_aire.caida_presion|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.caida_presion|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="4" class="table-dark">
+                        ESPECIFICACIONES DEL PRECALENTADOR DE AIRE
+                      </th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="table-dark">Material</td>
+                        <th colspan="3">{{precalentador.especificaciones.material|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="table-dark">Espesor ({{precalentador.especificaciones.longitud_unidad}})</td>
+                        <th colspan="3">{{precalentador.especificaciones.espesor|default_if_none:'-'}}</td>
+                    </tr>                    
+                    <tr>
+                        <th colspan="2" class="table-dark">Diámetro ({{precalentador.especificaciones.longitud_unidad}})</td>
+                        <th colspan="3">{{precalentador.especificaciones.diametro|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="table-dark">Altura ({{precalentador.especificaciones.longitud_unidad}})</td>
+                        <th colspan="3">{{precalentador.especificaciones.altura|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="table-dark">Superficie de Calentamiento ({{precalentador.especificaciones.area_unidad}})</td>
+                        <th colspan="3">{{precalentador.especificaciones.superficie_calentamiento|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="table-dark">Área de Transferencia ({{precalentador.especificaciones.area_unidad}})</td>
+                        <th colspan="3">{{precalentador.especificaciones.area_transferencia|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Coeficiente Global de Transferencia por Balance General ({{precalentador.especificaciones.u_unidad}})</td>
+                      <th colspan="3">{{precalentador.especificaciones.u|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Temp. Operación ({{precalentador.especificaciones.temp_unidad}})</td>
+                      <th colspan="3">{{precalentador.especificaciones.temp_operacion|default_if_none:'-'}}</td>
+                  </tr>
+                  <tr>
+                    <th colspan="2" class="table-dark">Presión Operación ({{precalentador.especificaciones.presion_unidad}})</td>
+                    <th colspan="3">{{precalentador.especificaciones.u|default_if_none:'-'}}</td>
+                  </tr>
+                    <tr>
+                      <td colspan="5">Precalentador de Aire registrado por {{precalentador.creado_por.get_full_name}} al {{precalentador.creado_al}}.</td>
+                    </tr>
+                    {% if precalentador.editado_por %}
+                    <tr>
+                      <td colspan="5">Precalentador editado por {{precalentador.editado_por.get_full_name}} al {{precalentador.editado_al}}.</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+
+                <small>
+                  <table class="table text-center table-hover">
+                    <thead class="table-dark">
+                      <tr>
+                        <th colspan="10" class="table-dark">COMPOSICIÓN DEL AIRE</th>
+                      </tr>
+                      <tr>
+                        <th>#</th>
+                        <th>FLUIDO</th>
+                        <th>% VOLUMEN</th>              
+                      </tr>
+                    </thead> 
+                    
+                    <tbody>
+                      {% for fluido in seccion_aire.composiciones.all %}
+                      <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{fluido.fluido}}</td>
+                        <td>{{fluido.porcentaje}}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </small>
+
+                <small>
+                    <table class="table text-center table-hover">
+                      <thead class="table-dark">
+                        <tr>
+                          <th colspan="10" class="table-dark">COMPOSICIÓN DE LOS GASES</th>
+                        </tr>
+                        <tr>
+                          <th>#</th>
+                          <th>FLUIDO</th>
+                          <th>% VOLUMEN</th>              
+                        </tr>
+                      </thead> 
+                      
+                      <tbody>
+                        {% for fluido in seccion_gases.composiciones.all %}
+                        <tr>
+                          <td>{{forloop.counter}}</td>
+                          <td>{{fluido.fluido}}</td>
+                          <td>{{fluido.porcentaje}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </small>
+                {% endwith %}
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% if request.user.is_superuser or precalentador.planta.pk in permisos.ediciones %}
+          <a href="{% url 'edicion_precalentador_aire' pk=precalentador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+
+          {% if request.user.is_superuser or precalentador.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_precalentador_aire' pk=precalentador.pk %}" method="post" name="duplicacion">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {% endif %}
+
+          <form method="post" name="ficha_form">
+            {% csrf_token %}
+            <input type="hidden" name="ficha" value="{{precalentador.pk}}">
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          </form>
+          
+        </div>
+      </div>
+    </div>
+</div>

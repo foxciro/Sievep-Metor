@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="{% static 'js/htmx.min.js' %}"></script>
+{% endblock %}
+
+{% block contenido %}
+<div class="row">
+    <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+        <a class="btn d-block btn-secondary" href="{% url 'consulta_calderas' %}">↶ Regresar</a>
+    </div>
+    <div class="col-md-6 col-lg-8">
+        <h3 class="text-center" style="color: #e31e24;">Datos Adicionales de la Caldera {{caldera.tag}}</h3>
+    </div>
+    <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+        <button type="button" class="btn btn-success text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{caldera.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
+        {% include 'calderas/partials/ficha.html' %}
+    </div>
+</div>
+
+<hr>
+
+{% if error %}
+<h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+<hr>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" id="form">
+    {% csrf_token %}
+    <h4 class="text-center" style="color: #e31e24;">Corrientes de la Caldera</h4>
+    <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>TIPO</th>
+                <th>NOMBRE</th>                
+                <th>FLUJO MÁSICO</th>
+                <th>DENSIDAD</th>
+                <th>TEMP. OPERACIÓN</th>
+                <th>PRESIÓN</th>
+                <th>ESTADO</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for form in forms_corrientes %}
+            <tr>
+                <td>
+                    {% render_field form.numero class="form-control numero" placeholder="Número de la Corriente" %}
+                    <small>{{form.numero.errors}}</small>
+                </td>                
+                <td>
+                    {% render_field form.tipo class="form-control" disabled="" %}
+                    {% render_field form.tipo class="form-control" hidden="" %}
+                    <small>{{form.tipo.errors}}</small>
+                </td>
+                <td>
+                    {% render_field form.nombre class="form-control" placeholder="Nombre de la Corriente" %}
+                    <small>{{form.nombre.errors}}</small>
+                </td>
+                <td>  
+                    <div class="input-group mb-1">
+                        {% render_field form.flujo_masico min="0.0001" class="form-control" placeholder="Flujo Másico" %}
+                        <select name="corriente-{{forloop.counter0}}-flujo_masico_unidad" id="id_corriente-{{forloop.counter0}}-flujo_masico_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'F' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.flujo_masico_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small>{{form.flujo_masico.errors}}</small>
+                    </div>                 
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.densidad min="0.0001" class="form-control" placeholder="Densidad" %}
+                        <select name="corriente-{{forloop.counter0}}-densidad_unidad" id="id_corriente-{{forloop.counter0}}-densidad_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'D' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.densidad_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small>{{form.densidad.errors}}</small>
+                    </div>      
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.temp_operacion min="0.0001" class="form-control" placeholder="Temp. de Operación" %}
+                        <select name="corriente-{{forloop.counter0}}-temp_operacion_unidad" id="id_corriente-{{forloop.counter0}}-temp_operacion_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'T' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.temp_operacion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small>{{form.temp_operacion.errors}}</small>
+                    </div>      
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.presion min="0.0001" class="form-control" placeholder="Presión (abs.)" %}
+                        <select name="corriente-{{forloop.counter0}}-presion_unidad" id="id_corriente-{{forloop.counter0}}-presion_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'P' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.presion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small>{{form.presion.errors}}</small>
+                    </div>              
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.estado class="form-select" %}
+                        <small>{{form.estado.errors}}</small>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>  
+
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Características Adicionales</h4>
+    {{forms_caracteristicas.management_form}}
+    <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>NOMBRE</th>
+                <th>TIPO UNIDAD</th>
+                <th>25%</th>
+                <th>50%</th>
+                <th>75%</th>
+                <th>100%</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody id="id-forms-container">
+            {% for form in forms_caracteristicas %}
+            {{form.id}}
+            <tr class="form">
+                <td>
+                    {% render_field form.nombre class="form-control nombre-caracteristica" placeholder="Nombre" %}
+                    <small>{{form.nombre.errors}}</small>
+                </td>
+                <td>
+                    <select name="form-{{forloop.counter0}}-tipo_unidad" class="form-select" 
+                    id="id_form-{{forloop.counter0}}-tipo_unidad"
+                    hx-target="#id_form-{{forloop.counter0}}-unidad" hx-swap="innerHTML" 
+                    hx-get="{% url 'unidades_por_clase' %}" hx-trigger="change"
+                    hx-vals="js:{clase: document.getElementById('id_form-{{forloop.counter0}}-tipo_unidad').value, form: {{forloop.counter0}}}">
+                        <option value="">ADIMENSIONAL / PORCENTUAL</option>
+                        {% with tipo_unidad_usada=form.instance.tipo_unidad.pk %}
+                        {% for tipo_unidad in tipo_unidades %}
+                            <option value="{{tipo_unidad.pk}}" {% if tipo_unidad.pk == tipo_unidad_usada %}selected{% endif %}>{{tipo_unidad.nombre}}</option>
+                        {% endfor %}
+                        {% endwith %}
+                    </select>
+                    <small>{{form.tipo_unidad.errors}}</small>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_25 class="form-control" placeholder="Valor al 25%" %}
+                        <select name="form-{{forloop.counter0}}-unidad" id="id_form-{{forloop.counter0}}-unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == form.instance.tipo_unidad.pk %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <small>{{form.carga_25.errors}}</small>                                       
+                </td>
+                {% with unidad=form.instance.unidad.simbolo %}
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_50 class="form-control" placeholder="Valor al 50%" %}
+                        <select class="form-select form-{{forloop.counter0}}-unidad" disabled>
+                            <option>{{unidad}}</option>
+                        </select>
+                    </div>
+                    <small>{{form.carga_50.errors}}</small>                                        
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_75 class="form-control" placeholder="Valor al 75%" %}
+                        <select class="form-select form-{{forloop.counter0}}-unidad" disabled>
+                            <option>{{unidad}}</option>
+                        </select>
+                    </div>
+                    <small>{{form.carga_75.errors}}</small>                                        
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_100 class="form-control" placeholder="Valor al 100%" %}
+                        <select class="form-select form-{{forloop.counter0}}-unidad" disabled>
+                            <option>{{unidad}}</option>
+                        </select>
+                    </div>
+                    <small>{{form.carga_100.errors}}</small>                                        
+                </td>
+                {% endwith %}
+                <td>
+                    <button type="button" class="btn btn-{% if forloop.first %}success anadir{% else %}danger eliminar{% endif %}">
+                    {% if forloop.first %}
+                        +
+                    {% else %}
+                        -
+                    {% endif %}
+                    </a>
+                </td>
+
+                <script>
+                    $("select[name='form-{{forloop.counter0}}-unidad']").change(function(e) {
+                        $(".form-{{forloop.counter0}}-unidad").html(`<option selected>${$(this).find("option:selected").text()}</option>`);
+                    });
+                </script>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>  
+    
+    <hr>
+
+    <div class="w-100 d-flex justify-content-center align-items-center">
+        <button id="submit" type="submit" class="btn btn-danger p-2">Registrar Cambios</button>
+    </div>    
+</form>
+
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/calderas/creacion-adicionales.js' %}"></script>
+{% endblock %}

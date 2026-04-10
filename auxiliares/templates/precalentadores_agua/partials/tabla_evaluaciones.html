@@ -1,0 +1,20 @@
+{% load static %}
+{% load mathfilters %}
+{% for evaluacion in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{evaluacion.fecha}}</td>
+    <td>{{evaluacion.nombre}}</td>
+    <td>{{evaluacion.usuario.get_full_name}}</td>
+    <td>
+      <button data-bs-toggle="modal" id="boton_resultados_{{evaluacion.pk}}" data-bs-target="#resultados_{{evaluacion.pk}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
+      {% include 'precalentadores_agua/partials/modal_resultados.html' %}
+    </td>
+  </tr>
+{% endfor %}

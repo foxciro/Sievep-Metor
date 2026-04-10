@@ -1,0 +1,602 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_bombas' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8">
+            {% if not edicion %}
+            <h3 class="text-center" style="color: #e31e24;">Nueva Bomba Centrífuga</h3>
+            {% else %}
+            <h3 class="text-center" style="color: #e31e24;">Edición de Bomba Centrífuga</h3>
+            {% endif %}
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <hr>
+    {% endif %}
+
+    <input type="hidden" name="creado_por" value="{{ request.user.pk }}">
+    
+    <h4 class="text-center" style="color: #e31e24;">Identificación de la Bomba</h2>
+
+    <div class="row">
+        <div class="col-3">
+            <label for="id_tag">{{form_bomba.tag.label_tag}}</label>
+            {% render_field form_bomba.tag class="form-control" placeholder="Tag de la Bomba" %}
+            <small>{{form_bomba.tag.errors}}</small>
+        </div>
+        <div class="col-3">
+            <label for="id_complejo">{{form_bomba.complejo.label_tag}}</label>
+            {% render_field form_bomba.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            <small>{{form_bomba.complejo.errors}}</small>
+        </div>
+        <div class="col-3">
+            <label for="id_planta">{{form_bomba.planta.label_tag}}</label>
+            {% render_field form_bomba.planta class="form-select" %}
+            <small>{{form_bomba.planta.errors}}</small>
+        </div>
+        <div class="col-3">
+            <label for="id_fabricante">{{form_bomba.fabricante.label_tag}}</label>
+            {% render_field form_bomba.fabricante class="form-control" placeholder="Fabricante de la Bomba" %}
+            <small>{{form_bomba.fabricante.errors}}</small>
+        </div>
+
+        <div class="col-3">
+            <label for="id_modelo">{{form_bomba.modelo.label_tag}}</label>
+            {% render_field form_bomba.modelo class="form-control" placeholder="Modelo de la Bomba" %}
+            <small>{{form_bomba.modelo.errors}}</small>
+        </div>
+        <div class="col-3">
+            <label for="id_tipo_bomba">{{form_bomba.tipo_bomba.label_tag}}</label>
+            {% render_field form_bomba.tipo_bomba class="form-select" %}
+            <small>{{form_bomba.tipo_bomba.errors}}</small>
+        </div>
+        <div class="col-6">
+            <label for="id_grafica">{{form_bomba.grafica.label_tag}}</label>
+            {% render_field form_bomba.grafica class="form-control" %}
+            <small>{{form_bomba.grafica.errors}}</small>
+        </div>
+        <div class="col-12">
+            <label for="id_descripcion">{{form_bomba.descripcion.label_tag}}</label>
+            {% render_field form_bomba.descripcion class="form-control" placeholder="Descripción de la bomba y su servicio" %}
+            <small>{{form_bomba.descripcion.errors}}</small>
+        </div>
+    </div>
+
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Especificaciones Técnicas de la Bomba</h2>
+
+    <div class="row">
+        <div class="col-4">
+            <label for="id_velocidad">{{form_especificaciones.velocidad.label_tag}}</label>
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" placeholder="Velocidad de la bomba" %}
+                <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select">
+                    {% for unidad in unidades %}
+                    {% if unidad.tipo == 'O' %}
+                    <option value="{{unidad.pk}}" {% if unidad.pk == form_especificaciones.instance.velocidad_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.velocidad.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_potencia">{{form_especificaciones.potencia_maxima.label_tag}}</label>
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.potencia_maxima min="0.0001" class="form-control" placeholder="Potencia Máxima" %}
+                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select">
+                    {% for unidad in unidades %}
+                    {% if unidad.tipo == 'B' %}
+                    <option value="{{unidad.pk}}" {% if unidad.pk == form_especificaciones.instance.potencia_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.potencia_maxima.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_npshr">{{form_especificaciones.npshr.label_tag}}</label>
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.npshr min="0.0001" class="form-control" placeholder="Cap. de Succión Req." %}
+                <select name="npshr_unidad" id="id_npshr_unidad" class="form-select">
+                    {% for unidad in unidades %}
+                    {% if unidad.tipo == 'L' %}
+                    <option value="{{unidad.pk}}" {% if unidad.pk == form_especificaciones.instance.npshr_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.npshr.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_cabezal_total">{{form_especificaciones.cabezal_total.label_tag}}</label>
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.cabezal_total min="0.0001" class="form-control" placeholder="Cabezal Total" %}
+                <select name="cabezal_unidad" id="id_cabezal_unidad" class="form-select">
+                    {% for unidad in unidades %}
+                    {% if unidad.tipo == 'L' %}
+                    <option value="{{unidad.pk}}" {% if unidad.pk == form_especificaciones.instance.cabezal_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.cabezal_total.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_succion_id">{{form_especificaciones.succion_id.label_tag}}</label>
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.succion_id min="0.0001" placeholder="Diám. Int. Succión" class="form-control" %}
+                <select name="id_unidad" id="id_id_unidad" class="form-select">
+                    {% for unidad in unidades %}
+                    {% if unidad.tipo == 'L' %}
+                    <option value="{{unidad.pk}}" {% if unidad.pk == form_especificaciones.instance.id_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <small>{{form_especificaciones.succion_id.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_descarga_id">{{form_especificaciones.descarga_id.label_tag}}</label>
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.descarga_id min="0.0001" class="form-control" placeholder="Diám. Int. Desc." %}
+                <select name="id_unidad" id="id_id_unidad" class="form-select" disabled>
+                    {% for unidad in unidades %}
+                    {% if unidad.tipo == 'L' %}
+                    <option value="{{unidad.pk}}" {% if unidad.pk == form_especificaciones.instance.id_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <small>{{form_especificaciones.descarga_id.errors}}</small>
+
+        </div>
+
+        <div class="col-4">
+            <label for="id_numero_etapas">{{form_especificaciones.numero_etapas.label_tag}}</label>
+            {% render_field form_especificaciones.numero_etapas min="1" class="form-control" placeholder="Etapas de la bomba" %}        
+            <small>{{form_especificaciones.numero_etapas.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_eficiencia">{{form_especificaciones.eficiencia.label_tag}}</label>
+            {% render_field form_especificaciones.eficiencia min="0" class="form-control" placeholder="Eficiencia por Diseño" %}
+            <small>{{form_especificaciones.eficiencia.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_numero_curva">{{form_especificaciones.numero_curva.label_tag}}</label>
+            {% render_field form_especificaciones.numero_curva min="0" class="form-control" placeholder="Número de Curva" %}
+            <small>{{form_especificaciones.numero_curva.errors}}</small>
+        </div>
+    </div>
+    
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Condiciones de Diseño de la bomba</h2>
+
+        <div class="row">
+            <div class="col-4">
+                <label for="id_capacidad">{{form_condiciones_diseno.capacidad.label_tag}}</label>
+                <div class="input-group mb-1">
+                    {% render_field form_condiciones_diseno.capacidad min="0.0001" class="form-control" placeholder="(Volumétrica)" %}
+                    <select name="capacidad_unidad" id="id_capacidad_unidad" class="form-select">
+                        {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=form_condiciones_diseno.instance.capacidad_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_condiciones_diseno.capacidad.errors}}</small>
+            </div>
+
+            <div class="col-4"></div>
+
+            <div class="col-4">
+                <label for="id_npsha">{{form_condiciones_diseno.npsha.label_tag}}</label>
+                <div class="input-group mb-1">
+                    {% render_field form_condiciones_diseno.npsha min="0.0001" class="form-control" placeholder="Cap. de succión disp." %}
+                    <select name="npsha_unidad" id="id_npsha_unidad" class="form-select">
+                        {% include 'unidades.html' with unidades=unidades tipo='L' pk_selected=form_condiciones_diseno.instance.npsha_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_condiciones_diseno.npsha.errors}}</small>
+            </div>
+    
+            <div class="col-4">
+                <label for="id_presion_succion">{{form_condiciones_diseno.presion_succion.label_tag}}</label>
+                <div class="input-group mb-1">
+                    {% render_field form_condiciones_diseno.presion_succion min="0.0001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" placeholder="Presión (abs.) Succión" %}
+                    <select name="presion_unidad" id="id_presion_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+                        {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_condiciones_diseno.instance.presion_unidad.pk %}
+                    </select>                    
+                </div>
+                <small>{{form_condiciones_diseno.presion_succion.errors}}</small>
+            </div>
+    
+            <div class="col-4">
+                <label for="id_presion_descarga">{{form_condiciones_diseno.presion_descarga.label_tag}}</label>
+                <div class="input-group mb-1">
+                    {% render_field form_condiciones_diseno.presion_descarga min="0.0001" class="form-control" placeholder="Presión (abs.) Desc." %}
+                    <select name="presion_unidad" id="id_presion_unidad" class="form-select" disabled>
+                        {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_condiciones_diseno.instance.presion_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_condiciones_diseno.presion_descarga.errors}}</small>
+            </div>
+
+            <div class="col-4">
+                <label for="id_presion_diferencial">{{form_condiciones_diseno.presion_diferencial.label_tag}}</label>
+                <div class="input-group mb-1">
+                    {% render_field form_condiciones_diseno.presion_diferencial min="0.0001" class="form-control" placeholder="Presión (abs.) Dif." %}
+                    <select name="presion_unidad" id="id_presion_unidad" class="form-select" disabled>
+                        {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_condiciones_diseno.instance.presion_unidad.pk %}
+                    </select>
+                </div>
+                <small>{{form_condiciones_diseno.presion_diferencial.errors}}</small>
+            </div>
+        </div>
+        
+        <hr>
+
+        <h4 class="text-center" style="color: #e31e24;">Condiciones del Fluido</h2>
+
+            <div class="row">
+                <div class="col-3">
+                    <label for="id_temperatura_operacion">{{form_condiciones_fluido.temperatura_operacion.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_condiciones_fluido.temperatura_operacion min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" placeholder="Temp. Operación" %}
+                        <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_condiciones_fluido.instance.temperatura_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_condiciones_fluido.temperatura_operacion.errors}}</small>
+                </div>
+
+                <div class="col-3">
+                    <label for="id_temperatura_presion_vapor">{{form_condiciones_fluido.temperatura_presion_vapor.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_condiciones_fluido.temperatura_presion_vapor min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" placeholder="Temp. Pres. Vapor" %}
+                        <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_condiciones_fluido.instance.temperatura_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_condiciones_fluido.temperatura_presion_vapor.errors}}</small>
+                </div>
+
+                <div class="col-3">
+                    <label for="id_fluido">{{form_condiciones_fluido.fluido.label_tag}}</label>
+                    <div class="d-flex w-100">
+                        {% render_field form_condiciones_fluido.fluido class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        <a href="#fluido-nuevo" data-bs-toggle="modal" data-bs-target="#anadir_fluido_no_registrado" class="btn btn-danger">+</a>
+                    </div>                    
+                    <small>{{form_condiciones_fluido.fluido.errors}}</small>
+                </div>
+    
+                <div class="col-3">
+                    <label for="id_calculo_propiedades">{{form_condiciones_fluido.calculo_propiedades.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% if form_condiciones_fluido.instance.fluido %}
+                        {% render_field form_condiciones_fluido.calculo_propiedades class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% else %}
+                        <select name="calculo_propiedades" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" min="0.0001" id="id_calculo_propiedades">
+                            <option value="M">Manual</option>
+                          </select>
+                        {% endif %}                        
+                        <small>{{form_condiciones_fluido.calculo_propiedades.errors}}</small>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <label for="id_presion_vapor">{{form_condiciones_fluido.presion_vapor.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_condiciones_fluido.presion_vapor min="0.0001" class="form-control" placeholder="Pres. (abs.) Vapor" %}
+                        <select name="presion_vapor_unidad" id="id_presion_vapor_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_condiciones_fluido.instance.presion_vapor_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_condiciones_fluido.presion_vapor.errors}}</small>
+                </div>
+        
+                <div class="col-4">
+                    <label for="id_viscosidad">{{form_condiciones_fluido.viscosidad.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_condiciones_fluido.viscosidad min="0.0001" class="form-control" placeholder="Viscosidad Fluido" %}
+                        <select name="viscosidad_unidad" id="id_viscosidad_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+                            {% include 'unidades.html' with unidades=unidades tipo='V' pk_selected=form_condiciones_fluido.instance.viscosidad_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_condiciones_fluido.viscosidad.errors}}</small>
+                </div>
+        
+                <div class="col-4">
+                    <label for="id_densidad">{{form_condiciones_fluido.densidad.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_condiciones_fluido.densidad min="0.0001" class="form-control" placeholder="Densidad Fluido" %}
+                        <select name="densidad_unidad" id="id_densidad_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+                            <option value="">------------------</option>
+                            {% include 'unidades.html' with unidades=unidades tipo='D' pk_selected=form_condiciones_fluido.instance.densidad_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_condiciones_fluido.densidad.errors}}</small>
+                </div>
+
+                <div class="col-12 p-2 text-center">
+                    <small id="aviso"></small>
+                </div>
+
+                <div class="col-2">
+                    <label for="id_peligroso">{{form_condiciones_fluido.peligroso.label_tag}}</label>
+                    {% render_field form_condiciones_fluido.peligroso class="form-control" %}
+                    <small>{{form_condiciones_fluido.peligroso.errors}}</small>
+                </div>
+    
+                <div class="col-2">
+                    <label for="id_inflamable">{{form_condiciones_fluido.inflamable.label_tag}}</label>
+                    {% render_field form_condiciones_fluido.inflamable class="form-control" %}
+                    <small>{{form_condiciones_fluido.inflamable.errors}}</small>
+                </div>
+
+                <div class="col-2">
+                    <label for="id_corrosividad">{{form_condiciones_fluido.corrosividad.label_tag}}</label>
+                    {% render_field form_condiciones_fluido.corrosividad class="form-control" %}
+                    <small>{{form_condiciones_fluido.corrosividad.errors}}</small>
+                </div>
+    
+                <div class="col-3">
+                    <label for="id_concentracion_h2s">{{form_condiciones_fluido.concentracion_h2s.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_condiciones_fluido.concentracion_h2s min="0" class="form-control" placeholder="Conc. H₂S" %}
+                        <select name="concentracion_unidad" id="id_concentracion_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='%' pk_selected=form_condiciones_fluido.instance.concentracion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_condiciones_fluido.concentracion_h2s.errors}}</small>
+                </div>
+    
+                <div class="col-3">
+                    <label for="id_concentracion_cloro">{{form_condiciones_fluido.concentracion_cloro.label_tag}}</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_condiciones_fluido.concentracion_cloro min="0" class="form-control" placeholder="Conc. Cl" %}
+                        <select name="concentracion_unidad" id="id_concentracion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='%' pk_selected=form_condiciones_fluido.instance.concentracion_unidad.pk %}
+                        </select>
+                    </div>
+                    <small>{{form_condiciones_fluido.concentracion_cloro.errors}}</small>
+                </div>
+
+                <input type="hidden" name="nombre_fluido" id="id_nombre_fluido" value="{{request.POST.nombre_fluido|default:form_condiciones_fluido.instance.nombre_fluido}}">
+            </div>
+            
+            <hr>
+
+            <h4 class="text-center" style="color: #e31e24;">Detalles de Construcción</h2>
+
+                <div class="row">
+                    <div class="col-3">
+                        <label for="id_conexion_succion">{{form_detalles_construccion.conexion_succion.label_tag}}</label>
+                        {% render_field form_detalles_construccion.conexion_succion min="0" class="form-control" placeholder="Conex. Succión" %}
+                        <small>{{form_detalles_construccion.conexion_succion.errors}}</small>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_tamano_rating_succion">{{form_detalles_construccion.tamano_rating_succion.label_tag}}</label>
+                        {% render_field form_detalles_construccion.tamano_rating_succion min="0" class="form-control" placeholder="Tamaño Rating" %}
+                        <small>{{form_detalles_construccion.tamano_rating_succion.errors}}</small>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_conexion_descarga">{{form_detalles_construccion.conexion_descarga.label_tag}}</label>
+                        {% render_field form_detalles_construccion.conexion_descarga min="0" class="form-control" placeholder="Conex. Descarga" %}
+                        <small>{{form_detalles_construccion.conexion_descarga.errors}}</small>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_tamano_rating_descarga">{{form_detalles_construccion.tamano_rating_descarga.label_tag}}</label>
+                        {% render_field form_detalles_construccion.tamano_rating_descarga min="0" class="form-control" placeholder="Tamaño Rating" %}
+                        <small>{{form_detalles_construccion.tamano_rating_descarga.errors}}</small>
+                    </div>
+
+                    <div class="col-4">
+                        <label for="id_tipo">{{form_detalles_construccion.tipo.label_tag}}</label>
+                        {% render_field form_detalles_construccion.tipo class="form-select" %}
+                        <small>{{form_detalles_construccion.tipo.errors}}</small>
+                    </div>
+                    <div class="col-4">
+                        <label for="id_dividida">{{form_detalles_construccion.carcasa_dividida.label_tag}}</label>
+                        {% render_field form_detalles_construccion.carcasa_dividida class="form-select" %}
+                        <small>{{form_detalles_construccion.carcasa_dividida.errors}}</small>
+                    </div>
+                    <div class="col-4">
+                        <label for="id_modelo_construccion">{{form_detalles_construccion.modelo_construccion.label_tag}}</label>
+                        {% render_field form_detalles_construccion.modelo_construccion class="form-control" placeholder="Modelo de Construcción" %}
+                        <small>{{form_detalles_construccion.modelo_construccion.errors}}</small>
+                    </div>
+
+                    <div class="col-4">
+                        <label for="id_fabricante_sello">{{form_detalles_construccion.fabricante_sello.label_tag}}</label>
+                        {% render_field form_detalles_construccion.fabricante_sello class="form-control" placeholder="Fabricante de Sello" %}
+                        <small>{{form_detalles_construccion.fabricante_sello.errors}}</small>
+                    </div>
+                    <div class="col-4">
+                        <label for="id_tipo_carcasa1">{{form_detalles_construccion.tipo_carcasa1.label_tag}}</label>
+                        {% render_field form_detalles_construccion.tipo_carcasa1 class="form-select" %}
+                        <small>{{form_detalles_construccion.tipo_carcasa1.errors}}</small>
+                    </div>
+                    <div class="col-4">
+                        <label for="id_tipo_carcasa2">{{form_detalles_construccion.tipo_carcasa2.label_tag}}</label>
+                        {% render_field form_detalles_construccion.tipo_carcasa2 class="form-select" disabled="disabled" %}
+                        <small>{{form_detalles_construccion.tipo_carcasa2.errors}}</small>
+                    </div>
+                </div>
+                
+            <hr>
+
+            <h4 class="text-center" style="color: #e31e24;">Detalles del Motor</h2>
+
+                <div class="row">
+                    <div class="col-3">
+                        <label for="id_potencia">{{form_detalles_motor.potencia_motor.label_tag}}</label>
+                        <div class="input-group mb-1">
+                            {% render_field form_detalles_motor.potencia_motor min="0.0001" class="form-control" placeholder="Potencia del Motor" %}
+                            <select name="potencia_motor_unidad" id="id_potencia_motor_unidad" class="form-select">
+                                {% include 'unidades.html' with unidades=unidades tipo='B' pk_selected=form_detalles_motor.instance.potencia_motor_unidad.pk %}
+                            </select>
+                        </div>
+                        <small>{{form_detalles_motor.potencia_motor.errors}}</small>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_velocidad">{{form_detalles_motor.velocidad_motor.label_tag}}</label>
+                        <div class="input-group mb-1">
+                            {% render_field form_detalles_motor.velocidad_motor min="0.0001" class="form-control" placeholder="Veloc. del Motor" %}
+                            <select name="velocidad_motor_unidad" id="id_velocidad_motor_unidad" class="form-select">
+                                {% include 'unidades.html' with unidades=unidades tipo='O' pk_selected=form_detalles_motor.instance.velocidad_motor_unidad.pk %}
+                            </select>
+                        </div>
+                        <small>{{form_detalles_motor.velocidad_motor.errors}}</small>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_voltaje">{{form_detalles_motor.voltaje.label_tag}}</label>
+                        <div class="input-group mb-1">
+                            {% render_field form_detalles_motor.voltaje min="0.0001" class="form-control" placeholder="Voltaje del Motor" %}
+                            <select name="voltaje_unidad" id="id_voltaje_unidad" class="form-select">
+                                {% include 'unidades.html' with unidades=unidades tipo='X' pk_selected=form_detalles_motor.instance.voltaje_unidad.pk %}
+                            </select>
+                        </div>
+                        <small>{{form_detalles_motor.voltaje.errors}}</small>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_frecuencia">{{form_detalles_motor.frecuencia.label_tag}}</label>
+                        <div class="input-group mb-1">
+                            {% render_field form_detalles_motor.frecuencia min="0.0001" class="form-control" placeholder="Frecuencia" %}
+                            <select name="frecuencia_unidad" id="id_frecuencia_unidad" class="form-select">
+                                {% include 'unidades.html' with unidades=unidades tipo='H' pk_selected=form_detalles_motor.instance.frecuencia_unidad.pk %}
+                            </select>
+                        </div>
+                        <small>{{form_detalles_motor.frecuencia.errors}}</small>
+                    </div>
+
+                    <div class="col-3">
+                        <label for="id_factor_de_servicio">{{form_detalles_motor.factor_de_servicio.label_tag}}</label>
+                        {% render_field form_detalles_motor.factor_de_servicio min="0" class="form-control" placeholder="Factor de Servicio" %}
+                        <small>{{form_detalles_motor.factor_de_servicio.errors}}</small>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_posicion">{{form_detalles_motor.posicion.label_tag}}</label>
+                        {% render_field form_detalles_motor.posicion class="form-select" %}
+                        <small>{{form_detalles_motor.posicion.errors}}</small>
+                    </div>
+                    <div class="col-2">
+                        <label for="id_fases">{{form_detalles_motor.fases.label_tag}}</label>
+                        {% render_field form_detalles_motor.fases min="0" class="form-control" placeholder="Fases" %}
+                        <small>{{form_detalles_motor.fases.errors}}</small>
+                    </div>
+                    <div class="col-2">
+                        <label for="id_aislamiento">{{form_detalles_motor.aislamiento.label_tag}}</label>
+                        {% render_field form_detalles_motor.aislamiento class="form-control" placeholder="Clase de Aislamiento" %}
+                        <small>{{form_detalles_motor.aislamiento.errors}}</small>
+                    </div>
+                    <div class="col-2">
+                        <label for="id_arranque">{{form_detalles_motor.arranque.label_tag}}</label>
+                        {% render_field form_detalles_motor.arranque class="form-control" placeholder="Tipo de Arranque" %}
+                        <small>{{form_detalles_motor.arranque.errors}}</small>
+                    </div>
+                </div>
+                
+            <hr>
+
+            <div class="d-flex w-100 justify-content-center mb-3">
+                <button id="submit" type="submit" class="btn btn-danger" {% if not edicion %} disabled {% endif %}>Enviar Formulario</button>
+            </div>
+
+            
+<div class="modal fade" id="anadir_fluido_no_registrado" tabindex="-1" aria-labelledby="anadir_fluido_no_registradoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Registrar Fluido No Registrado</h5>
+          <button id="anadir_fluido_no_registradoClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <h3 style="color: #e31e24;" class="text-center">Mezcla o Fluido Sin CAS</h3>
+            <div class="row">
+                <div class="col-5">
+                    <label for="etiqueta">Nombre del Compuesto:</label>
+                    <input class="form-control" id="nombre_compuesto" type="text" maxlength="25">
+                </div>
+                <div class="col-2 offset-5 d-flex justify-content-center align-items-end">
+                    <button id="guardar-desconocido" class="no-submit btn btn-danger w-100" disabled>Enviar</a>
+                </div>
+            </div>
+          <hr>
+          <h3 style="color: #e31e24;" class="text-center">Fluido Puro por Código CAS</h3>
+            <div class="row">
+                <div class="col-5">
+                    <label for="etiqueta">Código CAS:</label>
+                    <input class="form-control" id="cas_compuesto" type="text" maxlength="25">
+                </div>
+                <div class="col-5">
+                    <label for="etiqueta">Nombre:</label>
+                    <input class="form-control" id="nombre_compuesto_cas" type="text" maxlength="25">
+                </div>
+                <div class="col-2 d-flex justify-content-center align-items-end">
+                    <button id="guardar-cas" class="no-submit btn btn-danger w-100" disabled>Enviar</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+</form>
+
+{% if edicion %}
+<div class="hidden" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+</div>
+{% endif %}
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/bombas/creacion.js"></script>
+
+{% if form_condiciones_fluido.instance.nombre_fluido %}
+<script>
+    $('#id_fluido').html($('#id_fluido').html() + `<option value selected>{{form_condiciones_fluido.instance.nombre_fluido}}</option>`);
+</script>
+{% endif %}
+
+{% if form_condiciones_fluido.instance.calculo_propiedades == 'A' %}
+<script>
+    $('#id_densidad').attr('disabled', 'diisabled');
+    $('#id_viscosidad').attr('disabled', 'diisabled');
+    $('#id_presion_vapor').attr('disabled', 'diisabled');
+</script>
+{% endif %}
+
+{% if form_detalles_construccion.instance.tipo_carcasa1 %}
+<script>
+    $('#id_tipo_carcasa2').removeAttr('disabled');
+</script>
+{% endif %}
+{% endblock %}

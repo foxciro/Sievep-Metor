@@ -1,0 +1,250 @@
+{% load static %}
+
+<div class="modal fade" id="ficha_{{ventilador.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{ventilador.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ficha_{{ventilador.pk|default_if_none:'-'}}Label">Ficha Técnica Ventilador ({{ventilador.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                      <th class="table-dark">Tag</th>
+                      <td><span id="tag_ficha">{{ventilador.tag|default_if_none:'-'}}</span></td>
+                      <td colspan="2" rowspan="6" style="background-color: lightgray;">
+                        <img src="/static/img/equipos_aux/ventilador.png" style="max-width: 100%;" alt="">
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Complejo</th>
+                      <td>{{ventilador.planta.complejo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Planta</th>
+                      <td>{{ventilador.planta|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Tipo</th>
+                      <td>{{ventilador.tipo_ventilador|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fabricante</th>
+                      <td>{{ventilador.fabricante|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Modelo</th>
+                        <td>{{ventilador.modelo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Descripción</th>
+                      <td colspan="3">{{ventilador.descripcion|default_if_none:'-'}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="table table-light text-center table-bordered tabla_ficha mt-0">
+                  <tbody id="tabla_ficha_contenido_body">
+                    {% with condiciones_generales=ventilador.condiciones_generales %}
+                    <tr>
+                      <th class="table-dark" colspan="6">
+                        <div class="d-inline-flex align-items-center text-uppercase">
+                          CONDICIONES GENERALES DEL VENTILADOR
+                        </div>
+                      </th>
+                    </tr>
+                    {% with presion_unidad=condiciones_generales.presion_barometrica_unidad.simbolo %}
+                    {% with temp_unidad=condiciones_generales.temp_ambiente_unidad.simbolo %}
+                    <tr>
+                        <th class="table-dark">Presión Barométrica ({{presion_unidad}})</th>
+                        <td colspan="3">{{condiciones_generales.presion_barometrica|default_if_none:'-'}}</td>                        
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Temp. Ambiente ({{temp_unidad}})</th>
+                      <td>{{condiciones_generales.temp_ambiente|default_if_none:'-'}}</td>
+                      <th class="table-dark">Velocidad de Diseño ({{condiciones_generales.velocidad_diseno_unidad}})</th>
+                      <td>{{condiciones_generales.velocidad_diseno|default_if_none:'-'}}</td>
+                    </tr>
+
+                    <tr>
+                        <th class="table-dark">Temp. Diseño ({{temp_unidad}})</th>
+                        <td>{{condiciones_generales.temp_diseno|default_if_none:'-'}}</td>
+                        <th class="table-dark">Presión Diseño ({{presion_unidad}})</th>
+                        <td>{{condiciones_generales.presion_diseno|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+
+                    {% with condiciones_trabajo=ventilador.condiciones_trabajo %}
+                    <tr>
+                        <th class="table-dark text-uppercase" colspan="4">
+                          <div class="d-inline-flex align-items-center">
+                            CONDICIONES DE TRABAJO
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">
+                            Flujo {% if condiciones_trabajo.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %}
+                            ({{condiciones_trabajo.flujo_unidad}})
+                        </th>
+                        <td>
+                            {{condiciones_trabajo.flujo|floatformat:6}}
+                        </td>
+                        <th class="table-dark">Densidad ({{condiciones_trabajo.densidad_unidad}})</th>
+                        <td>{{condiciones_trabajo.densidad|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with presion_unidad=condiciones_trabajo.presion_unidad.simbolo %}
+                    <tr>
+                      <th class="table-dark">Presión Entrada ({{presion_unidad}}g)</th>
+                      <td>{{condiciones_trabajo.presion_entrada|default_if_none:'-'}}</td>
+                      <th class="table-dark">Presión Salida ({{presion_unidad}}g)</th>
+                      <td>{{condiciones_trabajo.presion_salida|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    <tr>
+                      <th class="table-dark">Veloc. Func. ({{condiciones_trabajo.velocidad_funcionamiento_unidad}})</th>
+                      <td>{{condiciones_trabajo.velocidad_funcionamiento|default_if_none:'-'}}</td>
+                      <th class="table-dark">Temperatura ({{condiciones_trabajo.temperatura_unidad}})</th>
+                      <td>{{condiciones_trabajo.temperatura|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      {% with potencia_unidad=condiciones_trabajo.potencia_freno_unidad %}
+                      <th class="table-dark">Potencia Ventilador ({{potencia_unidad}})</th>
+                      <td>{{condiciones_trabajo.potencia|default_if_none:'-'}}</td>                      
+                      <th class="table-dark">Potencia de Freno ({{potencia_unidad}})</th>
+                      <td>{{condiciones_trabajo.potencia_freno|default_if_none:'-'}}</td>
+                      {% endwith %}
+                    </tr>
+                    {% endwith %}
+
+                    {% with condiciones_adicionales=ventilador.condiciones_adicionales %}
+                    {% if condiciones_adicionales %}
+                    <tr>
+                        <th class="table-dark text-uppercase" colspan="4">
+                          <div class="d-inline-flex align-items-center">
+                            CONDICIONES ADICIONALES
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">
+                          Flujo {% if condiciones_adicionales.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %} ({{condiciones_adicionales.flujo_unidad}})
+                        </th>
+                        <td>
+                          {{condiciones_adicionales.flujo|default_if_none:'-'}}
+                        </td>
+                        <th class="table-dark">Densidad ({{condiciones_adicionales.densidad_unidad}})</th>
+                        <td>{{condiciones_adicionales.densidad|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with presion_unidad=condiciones_adicionales.presion_unidad.simbolo %}
+                    <tr>
+                      <th class="table-dark">Presión Entrada ({{presion_unidad}}g)</th>
+                      <td>{{condiciones_adicionales.presion_entrada|default_if_none:'-'}}</td>
+                      <th class="table-dark">Presión Salida ({{presion_unidad}}g)</th>
+                      <td>{{condiciones_adicionales.presion_salida|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    <tr>
+                      <th class="table-dark">Veloc. Func. ({{condiciones_adicionales.velocidad_funcionamiento_unidad}})</th>
+                      <td>{{condiciones_adicionales.velocidad_funcionamiento|default_if_none:'-'}}</td>
+                      <th class="table-dark">Temperatura ({{condiciones_adicionales.temperatura_unidad}})</th>
+                      <td>{{condiciones_adicionales.temperatura|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      {% with potencia_unidad=condiciones_adicionales.potencia_freno_unidad.simbolo %}
+                      <th class="table-dark">Potencia Ventilador ({{potencia_unidad}})</th>
+                      <td>{{condiciones_adicionales.potencia|default_if_none:'-'}}</td>
+                      <th class="table-dark">Potencia de Freno ({{potencia_unidad}})</th>
+                      <td>{{condiciones_adicionales.potencia_freno|default_if_none:'-'}}</td>
+                      {% endwith %}
+                    </tr>
+                    {% endif %}
+                    {% endwith %}
+
+                    <tr>
+                        <th class="table-dark" colspan="6">
+                          <div class="d-inline-flex align-items-center text-uppercase">
+                            ESPECIFICACIONES DEL VENTILADOR
+                          </div>
+                        </th>
+                    </tr>
+                    {%  with especificaciones=ventilador.especificaciones %}
+                    {% with espesor_unidad=especificaciones.espesor_unidad %}
+                    <tr>
+                        <th class="table-dark">Espesor Carcasa ({{espesor_unidad}})</th>
+                        <td>{{especificaciones.espesor|default_if_none:'-'}}</td>
+                        <th class="table-dark">Espesor Caja Entrada ({{espesor_unidad}})</th>
+                        <td>{{especificaciones.espesor_caja|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    <tr>
+                        <th class="table-dark">Sello del Eje</th>
+                        <td>{{especificaciones.sello|default_if_none:'-'}}</td>
+                        <th class="table-dark">Lubricante</th>
+                        <td>{{especificaciones.lubricante|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Refrigerante</th>
+                        <td>{{especificaciones.refrigerante|default_if_none:'-'}}</td>
+                        <th class="table-dark">Diámetro</th>
+                        <td>{{especificaciones.diametro|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Motor</th>
+                        <td>{{especificaciones.motor|default_if_none:'-'}}</td>
+                        <th class="table-dark">Acceso Aire</th>
+                        <td>{{especificaciones.acceso_aire|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Potencia Motor ({{especificaciones.potencia_motor_unidad}})</th>
+                      <td>{{especificaciones.potencia_motor|default_if_none:'-'}}</td>
+                      <th class="table-dark">Factor de Servicio</th>
+                      <td>{{especificaciones.factor_servicio|default_if_none:'-'}}</td>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">Velocidad Motor ({{especificaciones.velocidad_motor_unidad}})</th>
+                    <td colspan="3">{{especificaciones.velocidad_motor|default_if_none:'-'}}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="6">Creado por el usuario <b>{{ventilador.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{ventilador.creado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% if ventilador.editado_al %}
+                  <tr>
+                    <td colspan="6">Editado por <b>{{ventilador.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{ventilador.editado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% endif %}
+                  {% endwith %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% if request.user.is_superuser or ventilador.planta.pk in permisos.ediciones %}
+          <a href="{% url 'edicion_ventilador' pk=ventilador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+
+          {% if request.user.is_superuser or ventilador.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_ventilador' pk=ventilador.pk %}" method="post" name="duplicacion">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {% endif %}
+
+          <form method="post" name="ficha_form">
+            {% csrf_token %}
+            <input type="hidden" name="ficha" value="{{ventilador.pk}}">
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          </form>
+          
+        </div>
+      </div>
+    </div>
+</div>

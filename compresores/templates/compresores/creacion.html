@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+            <a class="btn d-block btn-secondary" href="{% url 'consulta_compresores' %}">↶ Regresar</a>
+        </div>
+        <div class="col-md-6 col-lg-8">
+            <h3 class="text-center" style="color: #e31e24;">
+                {{ titulo }}
+                {% if numero_caso %}
+                    {{ numero_caso }} - Compresor {{ compresor.tag }}
+                {% endif %}
+            </h3>
+        </div>
+        <div class="col-md-3 col-lg-2">
+        </div>
+    </div>
+
+    <hr>
+    {% if form_compresor %}
+    <h4 class="text-center" style="color: #e31e24;">Identificación del Compresor</h4>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_compresor.tag.label_tag}}
+            {% render_field form_compresor.tag class="form-control" placeholder="Tag único" %}
+            <small>{{form_compresor.tag.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_compresor.complejo.label_tag}}*
+            {% render_field form_compresor.complejo class="form-select" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            <small>{{form_compresor.complejo.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_compresor.planta.label_tag}}*
+            {% render_field form_compresor.planta class="form-select" %}
+            <small>{{form_compresor.planta.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_compresor.fabricante.label_tag}}
+            {% render_field form_compresor.fabricante class="form-control" placeholder="Fabricante del Equipo" %}
+            <small>{{form_compresor.fabricante.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_compresor.modelo.label_tag}}
+            {% render_field form_compresor.modelo class="form-control" placeholder="Modelo de Compresor" %}
+            <small>{{form_compresor.modelo.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_compresor.tipo.label_tag}}
+            {% render_field form_compresor.tipo class="form-select" %}
+            <small>{{form_compresor.tipo.errors}}</small>
+        </div>
+        <div class="col-4">
+            Número de Etapas
+            {% render_field form_compresor.numero_etapas class="form-control" min="1" %}
+            <small>{{form_compresor.numero_etapas.errors}}</small>
+        </div>
+        <div class="col-8">
+            {{form_compresor.descripcion.label_tag}}
+            {% render_field form_compresor.descripcion class="form-control" placeholder="Descripción del compresor y su servicio" %}
+            <small>{{form_compresor.descripcion.errors}}</small>
+        </div>
+    </div>
+
+    <hr>
+    {% endif %}
+
+    {% if form_caso %}
+    <h4 class="text-center" style="color: #e31e24;">Propiedades del Compresor</h4>
+    {% if not numero_caso and form_compresor %}
+    <h6 class="text-center" style="color: #e31e24;">Caso Inicial</h6>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-4">
+            {{form_caso.numero_impulsores.label_tag}}
+            {% render_field form_caso.numero_impulsores class="form-control" min="0" placeholder="Número de Impulsores" %}
+            <small>{{form_caso.numero_impulsores.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.material_carcasa.label_tag}}
+            {% render_field form_caso.material_carcasa class="form-control" placeholder="Material de Carcasa" %}
+            <small>{{form_caso.material_carcasa.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.tipo_sello.label_tag}}
+            {% render_field form_caso.tipo_sello class="form-control" placeholder="Tipo de Sello" %}
+            <small>{{form_caso.tipo_sello.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_caso.velocidad_max_continua.label_tag}}
+            <div class="input-group">
+                {% render_field form_caso.velocidad_max_continua min="0.0001" class="form-control" placeholder="Velocidad Máxima Continua" %}
+                <select name="unidad_velocidad" id="id_unidad_velocidad" class="form-select">
+                    {% include 'unidades.html' with tipo='O' pk_selected=form_caso.instance.unidad_velocidad.pk %}
+                </select>
+            </div>
+
+            <small>{{form_caso.velocidad_max_continua.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.velocidad_rotacion.label_tag}}
+            <div class="input-group">
+                {% render_field form_caso.velocidad_rotacion min="0.0001" class="form-control" placeholder="Velocidad de Rotación" %}
+                <select name="unidad_velocidad" id="id_unidad_velocidad" class="form-select" disabled>
+                    {% include 'unidades.html' with tipo='O' pk_selected=form_caso.instance.unidad_velocidad.pk %}
+                </select>
+            </div>
+            <small>{{form_caso.velocidad_rotacion.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.tipo_lubricante.label_tag}}
+            <div class="input-group">
+                {% render_field form_caso.tipo_lubricante class="form-control" placeholder="Tipo de Lubricante" %}
+            </div>
+            <small>{{form_caso.tipo_lubricante.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.potencia_requerida.label_tag}}
+            <div class="input-group">
+                {% render_field form_caso.potencia_requerida min="0.0001" class="form-control" placeholder="Potencia Requerida" %}
+                <select name="unidad_potencia" id="id_unidad_potencia" class="form-select">
+                    {% include 'unidades.html' with tipo='B' pk_selected=form_caso.instance.unidad_potencia.pk %}
+                </select>
+            </div>
+            <small>{{form_caso.potencia_requerida.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.tipo_lubricacion.label_tag}}
+            <div class="input-group">
+                {% render_field form_caso.tipo_lubricacion class="form-select" %}
+            </div>
+            <small>{{form_caso.tipo_lubricacion.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.curva_caracteristica.label_tag}} <br>
+            {% render_field form_caso.curva_caracteristica class="form-control" placeholder="Curva Característica" accept=".png, .jpg" %}
+            <small>{{form_caso.curva_caracteristica.errors}}</small>
+        </div>
+    </div>
+    {% endif %}
+
+    <hr>
+
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-danger">
+            Enviar Formulario
+        </button>
+    </div>
+  </form>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+    $(document).ready(function(){
+        $('#id_unidad_velocidad').change(function(){
+            $('select[name$="unidad_velocidad"]').val($(this).val());
+        });
+    });
+</script>
+{% endblock %}

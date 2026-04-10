@@ -1,0 +1,30 @@
+<div id="resultados" class="col-lg-6 col-xs-12 p-4 h-auto d-flex align-items-center justify-content-center flex-column" hx-swap-oob="true">
+        <table class="table table-responsive table-bordered text-center">
+            <tbody>
+                <tr>
+                    <th colspan="2" class="table-dark w-50">
+                        Resultados de la Evaluación
+                    </th>
+                </tr>
+                <tr>
+                    <th class="table-dark w-50">
+                        Eficiencia de la Bomba
+                    </th>
+                    <td class="w-50">
+                        {{res.eficiencia}} %
+                    </td>
+                </tr>
+                <tr>
+                    <th class="table-dark w-50">
+                        Potencia Calculada
+                    </th>
+                    <td class="w-50">
+                        {{res.potencia_calculada|floatformat:4}} {{unidad_potencia}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="w-100 d-flex justify-content-center">
+            <button id="submit" name="submit" value="almacenar" type="submit" class="btn btn-danger">Almacenar Resultados</button>
+        </div>
+</div>

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div id="form">
+    <div class="row p-3">
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+                <a class="btn d-block btn-secondary" href="{% url 'evaluaciones_precalentador_aire' pk=precalentador.pk %}">↶ Regresar</a>
+            </div>
+            <div class="col-md-6 col-lg-8">
+                <h3 class="text-center" style="color: #e31e24;">Evaluación del Precalentador {{precalentador.tag}}</h3>
+            </div>
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+                <button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{precalentador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
+                {% include 'precalentadores_aire/partials/ficha.html' with precalentador=precalentador %}
+            </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_precalentador_aire' pk=precalentador.pk %}" hx-indicator="#spinner" hx-swap="none">
+        <div class="row">
+            {% csrf_token %}
+            <div class="col-12 mb-3">
+                {{forms.form_evaluacion.nombre.label_tag}}
+                {% render_field forms.form_evaluacion.nombre class="form-control" placeholder="Nombre descriptivo de la evaluación" %}
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-center">TUBO</h3>
+                        <h4 class="text-center">AIRE</h4>
+                    </div>
+
+                    <div class="col-12">
+                        {{forms.form_entrada_aire.flujo.label_tag}}
+                        <div class="input-group">
+                            {% render_field forms.form_entrada_aire.flujo class="form-control" placeholder="Flujo Másico" min="0.0001" %}
+                            <select name="aire-flujo_unidad" class="form-select" id="id_aire-flujo_unidad">
+                                {% include 'unidades.html' with unidades=unidades tipo='F' %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        {{forms.form_entrada_aire.temp_entrada.label_tag}}
+                        <div class="input-group">
+                            {% render_field forms.form_entrada_aire.temp_entrada class="form-control" placeholder="Temp. Entrada" min="-273.15" %}
+                            <select name="aire-temp_unidad" class="form-select" id="id_aire-temp_unidad">
+                                {% include 'unidades.html' with unidades=unidades tipo='T' %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        {{forms.form_entrada_aire.temp_salida.label_tag}}
+                        <div class="input-group">
+                            {% render_field forms.form_entrada_aire.temp_salida class="form-control" placeholder="Temp. Salida" min="-273.15" %}
+                            <select name="aire-temp_unidad" class="form-select" id="id_aire-temp_unidad" disabled>
+                                {% include 'unidades.html' with unidades=unidades tipo='T' %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <table class="table text-center table-bordered table-hover" style="vertical-align: center;">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th>Compuesto</th>
+                                    <th>% Volumen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for form in forms.forms_composicion_aire %}
+                                <tr>
+                                    <th>{{form.fluido}}</th>
+                                    <td>
+                                        {% render_field form.form.porcentaje class="form-control porc-aire" placeholder="% Volumen Aire" min="0" %}
+                                        {% render_field form.form.fluido %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-center">CARCASA</h3>
+                        <h4 class="text-center">GASES</h4>
+                    </div>
+                    <div class="col-12">
+                        {{forms.form_entrada_gases.flujo.label_tag}}
+                        <div class="input-group">
+                            {% render_field forms.form_entrada_gases.flujo class="form-control" placeholder="Flujo Másico" min="0.0001" %}
+                            <select name="gases-flujo_unidad" class="form-select" id="id_gases-flujo_unidad">
+                                {% include 'unidades.html' with unidades=unidades tipo='F' %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        {{forms.form_entrada_gases.temp_entrada.label_tag}}
+                        <div class="input-group">
+                            {% render_field forms.form_entrada_gases.temp_entrada class="form-control" placeholder="Temp. Entrada" min="-273.15"  %}
+                            <select name="gases-temp_unidad" class="form-select" id="id_gases-temp_unidad">
+                                {% include 'unidades.html' with unidades=unidades tipo='T' %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        {{forms.form_entrada_gases.temp_salida.label_tag}}
+                        <div class="input-group">
+                            {% render_field forms.form_entrada_gases.temp_salida class="form-control" placeholder="Temp. Salida" min="-273.15" %}
+                            <select name="gases-temp_unidad" class="form-select" id="id_gases-temp_unidad" disabled>
+                                {% include 'unidades.html' with unidades=unidades tipo='T' %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <table class="table text-center table-bordered table-hover">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th>Compuesto</th>
+                                    <th>% Volumen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for form in forms.forms_composicion_gases %}
+                                <tr>
+                                    <th>{{form.fluido}}</th>
+                                    <td>
+                                        {% render_field form.form.porcentaje class="form-control porc-vol" placeholder="% Volumen Aire" min="0" %}
+                                        {% render_field form.form.fluido %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div id="resultados">
+                
+            </div>
+
+            <div class="col-12 d-flex justify-content-center align-items-center">
+                <button value="calcular" name="submit" id="submit" type="submit" class="btn btn-danger">Calcular Resultados</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}^
+<script src="/static/js/auxiliares/precalentadores_aire/evaluacion.js"></script>
+{% endblock %}

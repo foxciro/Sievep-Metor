@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consultar_usuarios' %}">↶ Regresar</a></div>
+            <div class="col-md-6 col-lg-8">
+               <h3 class="text-center" style="color: #e31e24;">Registro de Nuevo Usuario</h3>                
+            </div>
+            <div class="col-3"></div>
+        </div>
+    
+        <hr>
+
+        {% if errores %}
+        <div>
+            <ul>
+                {% for error in errores %}
+                <li class="text-danger">{{error}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <hr>
+        {% endif %}
+    
+        <div class="row">
+            <div class="col-6">
+                <label class="form-label" for="nombre">ID del Usuario en Red:</label>
+                <input value="{{previo.nombre}}" type="text" name="id" class="form-control" id="id" maxlength="150" hx-get="{% url 'consultar_usuarios_ldap' %}" hx-trigger="keyup delay:1s" required>
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="correo">Correo Electrónico:</label>
+                <input type="email" name="correo" class="form-control" id="correo" disabled>
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="password">Nombre:</label>
+                <input type="text" name="nombre" class="form-control" id="nombre" disabled>
+            </div>
+            <div id="aviso" class="text-center text-danger">
+
+            </div>
+            {% if request.user.is_superuser %}
+            <div class="col-4 d-flex justify-content-center align-items-end">
+                <div class="d-flex">
+                    <input type="checkbox" name="superusuario" class="form-check-input" id="superusuario" height="200px" width="200px"
+                    {% if previo.superusuario or previo.permisos_complejo.all|length != 0 %}checked{%endif%}>
+                    &nbsp;
+                    <div><label class="form-label" for="superusuario">Superusuario</label></div>&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+            </div>
+
+            <div id="superusuario_de" class="col-4 d-flex justify-content-center align-items-end {% if not previo.superusuario and not previo.permisos_complejo.all|length %}d-none{% endif %}">
+                <div class="">
+                    <label for="form-label">Superusuario de:</label>
+                    <select name="superusuario_de" class="form-select" id="form-select">
+                        <option value="todos" {% if previo.permisos_complejo.all|length > 1 %}selected{% endif %}>Todos los Complejos</option>
+                        {% for complejo in complejos %}
+                        <option value="{{complejo.pk}}" {% if previo.permisos_complejo.0.complejo.pk == complejo.pk and previo.permisos_complejo.all|length == 1 %}selected{% endif %}>{{complejo}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    
+        <hr>
+        <h4 class="text-center">Permisos de acceso por Complejo y Planta</h4>
+        {% for complejo in complejos %}
+        <br>
+        <h5>{{complejo}}</h5>
+        <table class="table text-center table-hover" id="complejo-{{complejo.pk}}">
+            <thead>
+                <tr>
+                    <th scope="col">Planta</th>
+                    <th scope="col">Lectura</th>
+                    <th scope="col">Crear</th>
+                    <th scope="col">Editar Ficha</th>
+                    <th scope="col">Editar Instalación/Adicionales</th>
+                    <th scope="col">Duplicación</th>
+                    <th scope="col">Administrar Usuarios</th>
+                    <th scope="col">Ver Evaluaciones</th>
+                    <th scope="col">Crear Evaluaciones</th>
+                    <th scope="col">Eliminar Evaluaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for planta in complejo.plantas.all %}
+                <tr>
+                    <td>{{planta}}</td>
+                    <td><input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}} complejo-{{complejo.pk}}" class="form-check-input complejo-{{complejo.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.plantas or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="crear-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-crear-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.creaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="editar-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-editar-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.ediciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="instalacion-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-instalacion-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.ediciones_instalacion or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="duplicacion-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-duplicacion-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.duplicaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="usuarios-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-usuarios-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.usuarios or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="evaluaciones-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-eliminacion-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="crearevals-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-eliminacion-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.crear_evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="delevals-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-eliminacion-{{planta.pk}}" 
+                        {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
+                        {% if planta.pk in previo.eliminar_evaluaciones or previo.superusuario %}checked{% endif %}></td>                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+        {% endfor %}
+
+        <hr>
+        
+        <div class="d-flex justify-content-center mb-3">
+            <button class="btn btn-danger" id="submit" disabled>Registrar Usuario</button>
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const lecturaCheckbox = row.querySelector('input[name^="planta-"]');
+                const lecturaEvaluacionCheckbox = row.querySelector('input[name^="evaluaciones-"]');
+                const otherCheckboxes = row.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not(input[type="checkbox"][name^="crearevals-"]):not(input[type="checkbox"][name^="delevals-"])');
+                const evaluacionCheckboxes = row.querySelectorAll('input[type="checkbox"][name^="crearevals-"], input[type="checkbox"][name^="delevals-"]');
+
+                lecturaCheckbox.addEventListener('change', function() {
+                    otherCheckboxes.forEach(checkbox => {
+                        checkbox.disabled = !lecturaCheckbox.checked;
+                        if (!lecturaCheckbox.checked) {
+                            checkbox.checked = false;
+                            evaluacionCheckboxes.forEach(checkbox => {
+                                checkbox.disabled = true;
+                                checkbox.checked = false;
+                            })
+                        }
+                    });
+                });
+
+                lecturaEvaluacionCheckbox.addEventListener('change', function() {
+                    evaluacionCheckboxes.forEach(checkbox => {
+                        checkbox.disabled = !lecturaEvaluacionCheckbox.checked;
+                        if (!lecturaEvaluacionCheckbox.checked) {
+                            checkbox.checked = false;
+                        }
+                    });
+                });
+
+                otherCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = !lecturaCheckbox.checked || lecturaCheckbox.disabled;
+                });
+
+                evaluacionCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = !lecturaEvaluacionCheckbox.checked || lecturaEvaluacionCheckbox.disabled;
+                });
+            });
+
+            document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
+                const allCheckboxes = document.querySelectorAll('input[type="checkbox"]:not([name="activo"]):not([name="superusuario"])');
+                const lecturaCheckboxes = document.querySelectorAll('input[name^="planta-"]');
+                if (this.checked) {
+                    allCheckboxes.forEach(checkbox => {
+                        checkbox.checked = true;
+                        checkbox.disabled = false;
+                    });
+                } else {
+                    allCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                    });
+                    lecturaCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                        checkbox.disabled = false;
+                    });
+                }
+            });
+        });
+        
+        document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
+            const superusuarioDeDiv = document.getElementById('superusuario_de');
+            if (this.checked) {
+                superusuarioDeDiv.classList.remove('d-none');
+            } else {
+                superusuarioDeDiv.classList.add('d-none');
+            }
+        });
+
+        document.querySelector('select[name="superusuario_de"]').addEventListener('change', function() {
+            const complejoId = this.value;
+
+            if (complejoId === "todos") {
+                const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(input[name="superusuario"]):not(input[name="activo"])`);
+                allOtherCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+            } else {
+                const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(.complejo-${complejoId}):not(input[name="superusuario"]):not(input[name="activo"])`);
+                
+                allOtherCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.dispatchEvent(new Event('change'));
+
+                    if (checkbox.name.startsWith('planta-')) {
+                        checkbox.disabled = false;
+                    }
+                });
+                
+                const checkboxes = document.querySelectorAll(`.complejo-${complejoId}`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                });  
+            } 
+        });
+    </script>
+{% endblock %}

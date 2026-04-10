@@ -1,0 +1,6 @@
+
+{% load l10n %}
+
+{% for fase,pm in fases.items %}
+    <input type="number" name="pm-{{fase}}-pm" id="id_pm-{{fase}}-pm" value="{{pm|unlocalize}}" class="form-control" hx-swap-oob="true">
+{% endfor %}

@@ -1,0 +1,124 @@
+{% load static %}
+{% load mathfilters %}
+
+<div class="modal fade" id="resultados_{{evaluacion.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk|default_if_none:'-'}}Label">Resultados de la Evaluación (ID: {{evaluacion.id}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        {% with entrada=evaluacion.entrada %}
+        {% with salida=evaluacion.salida %}
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-lg-6 col-xs-12">
+                <table class="table table-bordered table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-success" colspan="3">
+                                DATOS DE ENTRADA DE LA EVALUACIÓN
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">PARÁMETRO</th>
+                            <th class="text-center table-dark" colspan="2">VALOR</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">Fluido</th>
+                            <td class="text-center" colspan="2">Aire</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Presión de Entrada ({{entrada.presion_salida_unidad}}g)</th>
+                            <td class="text-center" colspan="2">{{entrada.presion_entrada|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Presión de Salida ({{entrada.presion_salida_unidad}}g)</th>
+                            <td class="text-center">{{entrada.presion_salida|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Flujo {% if evaluacion.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %} ({{entrada.flujo_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.flujo|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Temp. Operación ({{entrada.temperatura_operacion_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.temperatura_operacion|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Potencia del Ventilador ({{entrada.potencia_ventilador_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.potencia_ventilador|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Densidad Calculada/Comparación (Trabajo)</th>
+                            <td class="text-center">
+                                {{entrada.densidad_evaluacion|floatformat:4}} {{entrada.densidad_evaluacion_unidad}}
+                                &nbsp;&nbsp;<b>/</b>&nbsp;&nbsp;
+                                
+                                {% if entrada.densidad_ficha %}
+                                {{entrada.densidad_ficha}} {{entrada.densidad_ficha_unidad}}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
+                <table class="table table-bordered table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-primary" colspan="3">
+                                RESULTADOS DE LA EVALUACIÓN
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">PARÁMETRO</th>
+                            <th class="text-center table-dark">RESULTADO</th>
+                            <th class="text-center table-dark">FICHA</th>                            
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">Eficiencia (%)</th>
+                            <td class="text-center">{{salida.eficiencia|floatformat:2}}</td>
+                            <td class="text-center">{{equipo.condiciones_trabajo.eficiencia|default_if_none:'-'}} <b>/</b> {{equipo.condiciones_adicionales.eficiencia|default_if_none:'-'}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Potencia Calculada</th>
+                            <td class="text-center">{{salida.potencia_calculada|floatformat:4}} {{salida.potencia_calculada_unidad}}</td>
+                            <td class="text-center">{{equipo.condiciones_trabajo.potencia|default_if_none:'-'}} <b>/</b> {{equipo.condiciones_trabajo.potencia_freno|default_if_none:'-'}} {{equipo.condiciones_trabajo.potencia_freno_unidad}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+          <div class="col-12 text-end">
+            <small>Evaluación creada por {{evaluacion.creado_por.get_full_name}} al {{evaluacion.fecha}}.</small> 
+          </div>
+        </div>
+        <div class="modal-footer">
+            {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
+            {%endif%}
+
+            <form method="post" name="reporte">
+                {% csrf_token %}
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+            </form>
+        </div>
+        {% endwith %}
+        {% endwith %}
+    </div>
+    </div>
+</div>

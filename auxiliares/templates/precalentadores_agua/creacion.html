@@ -1,0 +1,541 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_precalentadores_agua' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8">
+            {% if not edicion %}
+            <h3 class="text-center" style="color: #e31e24;">Nuevo Precalentador de Agua</h3>
+            {% else %}
+            <h3 class="text-center" style="color: #e31e24;">Edición de Precalentador de Agua</h3>
+            {% endif %}
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+    
+    <h4 class="text-center" style="color: #e31e24;">Identificación del Precalentador</h4>
+
+    <div class="row">
+        <div class="col-3">
+            {{form_equipo.tag.label_tag}}
+            {% render_field form_equipo.tag class="form-control" placeholder="Tag del Precalentador de Agua" %}
+            <small>{{form_equipo.tag.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{form_equipo.complejo.label_tag}}
+            {% render_field form_equipo.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            <small>{{form_equipo.complejo.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{form_equipo.planta.label_tag}}
+            {% render_field form_equipo.planta class="form-select" %}
+            <small>{{form_equipo.planta.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{form_equipo.fabricante.label_tag}}
+            {% render_field form_equipo.fabricante class="form-control" placeholder="Fabricante del Precalentador de Agua" %}
+            <small>{{form_equipo.fabricante.errors}}</small>
+        </div>
+
+        <div class="col-12">
+            {{form_equipo.descripcion.label_tag}}
+            {% render_field form_equipo.descripcion class="form-control" placeholder="Modelo del Precalentador de Agua" %}
+            <small>{{form_equipo.descripcion.errors}}</small>
+        </div>
+    </div>
+
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Condiciones de Diseño del Precalentador</h4>
+
+    <div class="row">
+        <div class="col-6">
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="text-center">Carcasa</h5>
+                </div>
+
+                <div class="col-6">
+                    <h6 class="text-center">Vapor</h6>
+                    {% render_field form_seccion_vapor.tipo %}
+                </div>
+                <div class="col-6">
+                    <h6 class="text-center">Drenaje</h6>
+                    {% render_field form_seccion_drenaje.tipo %}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_vapor.flujo_masico_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_vapor.flujo_masico_entrada placeholder="Flujo Másico Entrada Agua" class="form-control" required="" %}
+                        <select name="seccion-vapor-flujo_unidad" id="id_seccion-vapor-flujo_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_seccion_vapor.instance.flujo_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_vapor.flujo_masico_entrada.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.flujo_masico_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.flujo_masico_entrada placeholder="Flujo Másico Entrada Drenaje" class="form-control" required="" %}
+                        <select name="seccion-drenaje-flujo_unidad" id="id_seccion-drenaje-flujo_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_seccion_drenaje.instance.flujo_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.flujo_masico_entrada.errors}}
+                </div>
+
+                <div class="col-6"></div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.flujo_masico_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.flujo_masico_salida placeholder="Flujo Másico Salida Drenaje" class="form-control" required="" %}
+                        <select name="seccion-drenaje-flujo_unidad" id="id_seccion-drenaje-flujo_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_seccion_drenaje.instance.flujo_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.flujo_masico_salida.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_vapor.entalpia_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_vapor.entalpia_entrada placeholder="Entalpía de Entrada Drenaje" class="form-control" %}
+                        <select name="seccion-vapor-entalpia_unidad" id="id_seccion-vapor-entalpia_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='n' pk_selected=form_seccion_vapor.instance.entalpia_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_vapor.entalpia_entrada.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.entalpia_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.entalpia_entrada placeholder="Entalpía de Entrada Drenaje" class="form-control" %}
+                        <select name="seccion-drenaje-entalpia_unidad" id="id_seccion-drenaje-entalpia_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='n' pk_selected=form_seccion_drenaje.instance.entalpia_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.entalpia_entrada.errors}}
+                </div>
+
+                <div class="col-6"></div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.entalpia_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.entalpia_salida placeholder="Entalpía de Salida Drenaje" class="form-control" %}
+                        <select name="seccion-drenaje-entalpia_unidad" id="id_seccion-drenaje-entalpia_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='n' pk_selected=form_seccion_drenaje.instance.entalpia_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.entalpia_salida.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_vapor.temp_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_vapor.temp_entrada placeholder="Temperatura Entrada vapor" class="form-control" %}
+                        <select name="seccion-vapor-temp_unidad" id="id_seccion-vapor-temp_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_seccion_vapor.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_vapor.temp_entrada.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.temp_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.temp_entrada placeholder="Temperatura Entrada Drenaje" class="form-control" %}
+                        <select name="seccion-drenaje-temp_unidad" id="id_seccion-drenaje-temp_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_seccion_drenaje.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.temp_entrada.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_vapor.temp_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_vapor.temp_salida placeholder="Temperatura Salida vapor" class="form-control" %}
+                        <select name="seccion-vapor-temp_unidad" id="id_seccion-vapor-temp_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_seccion_vapor.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_vapor.temp_salida.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.temp_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.temp_salida placeholder="Temperatura Salida Drenaje" class="form-control" %}
+                        <select name="seccion-drenaje-temp_unidad" id="id_seccion-drenaje-temp_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_seccion_drenaje.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.temp_salida.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_vapor.presion_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_vapor.presion_entrada placeholder="Presión Manométrica de Entrada" class="form-control" %}
+                        <select name="seccion-vapor-presion_unidad" id="id_seccion-vapor-presion_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_seccion_vapor.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_vapor.presion_entrada.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.presion_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.presion_entrada placeholder="Presión Manométrica de Entrada" class="form-control" %}
+                        <select name="seccion-drenaje-presion_unidad" id="id_seccion-drenaje-presion_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_seccion_drenaje.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.presion_entrada.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_vapor.caida_presion.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_vapor.caida_presion placeholder="Caída de Presión Manométrica" class="form-control" %}
+                        <select name="seccion-vapor-presion_unidad" id="id_seccion-vapor-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_seccion_vapor.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_vapor.caida_presion.errors}}
+                </div>
+
+                <div class="col-6">
+                    {{form_seccion_drenaje.caida_presion.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_drenaje.caida_presion placeholder="Caída de Presión Manométrica" class="form-control" %}
+                        <select name="seccion-drenaje-presion_unidad" id="id_seccion-drenaje-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_seccion_drenaje.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_drenaje.caida_presion.errors}}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="text-center">Tubos</h5>
+                </div>
+                <div class="col-12">
+                    <h6 class="text-center">Agua</h6>
+                    {% render_field form_seccion_agua.tipo %}
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.flujo_masico_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.flujo_masico_entrada min="0.0001" placeholder="Flujo Másico de Entrada agua" class="form-control" %}
+                        <select name="seccion-agua-flujo_unidad" id="id_seccion-agua-flujo_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_seccion_agua.instance.flujo_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.flujo_masico_entrada.errors}}
+                </div>
+
+                <div class="col-12 mt-5 mb-3">
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.entalpia_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.entalpia_entrada min="0.0001" placeholder="Entalpía de Entrada agua" class="form-control" %}
+                        <select name="seccion-agua-entalpia_unidad" id="id_seccion-agua-entalpia_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='n' pk_selected=form_seccion_agua.instance.entalpia_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.entalpia_entrada.errors}}
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.entalpia_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.entalpia_salida min="0.0001" placeholder="Entalpía de Salida agua" class="form-control" %}
+                        <select name="seccion-agua-entalpia_unidad" id="id_seccion-agua-entalpia_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='n' pk_selected=form_seccion_agua.instance.entalpia_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.entalpia_salida.errors}}
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.temp_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.temp_entrada class="form-control" placeholder="Temperatura Entrada agua" %}
+                        <select name="seccion-agua-temp_unidad" id="id_seccion-agua-temp_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_seccion_agua.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.temp_entrada.errors}}
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.temp_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.temp_salida class="form-control" placeholder="Temperatura Salida agua" %}
+                        <select name="seccion-agua-temp_unidad" id="id_seccion-agua-temp_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_seccion_agua.instance.temp_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.temp_salida.errors}}
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.presion_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.presion_entrada class="form-control" placeholder="Presión Manométrica Entrada agua" %}
+                        <select name="seccion-agua-presion_unidad" id="id_seccion-agua-presion_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_seccion_agua.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.presion_entrada.errors}}
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.caida_presion.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.caida_presion class="form-control" placeholder="Caída Presión Manométrica agua" %}
+                        <select name="seccion-agua-presion_unidad" id="id_seccion-agua-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_seccion_agua.instance.presion_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.caida_presion.errors}}
+                </div>
+
+                <div class="col-12">
+                    {{form_seccion_agua.velocidad_promedio.label_tag}}
+                    <div class="input-group">
+                        {% render_field form_seccion_agua.velocidad_promedio min="0.0001" placeholder="Velocidad Promedio Corriente agua" class="form-control" %}
+                        <select name="seccion-agua-velocidad_unidad" id="id_seccion-agua-velocidad_unidad" class="form-select">
+                            {% include 'unidades.html' with unidades=unidades tipo='s' pk_selected=form_seccion_agua.instance.velocidad_unidad.pk %}
+                        </select>
+                    </div>
+                    {{form_seccion_agua.velocidad_promedio.errors}}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+    <h4 class="text-center mt-3 mb-3" style="color: #e31e24;">Especificaciones del Precalentador por Zonas</h4>
+    <h5 class="text-center mt-3 mb-3">— Únicamente rellene los campos de las zonas correspondientes al Precalentador —</h5>
+
+    <div class="row">
+        <div class="col-4">
+            <h5 class="text-center">Zona de Drenaje</h5>
+            {% render_field form_especs_drenaje.tipo %}
+        </div>
+        <div class="col-4">
+            <h5 class="text-center">Zona de Condensación</h5>
+            {% render_field form_especs_condensado.tipo %}
+        </div>
+        <div class="col-4">
+            <h5 class="text-center">Zona de Reducción de Sobrecalentamiento</h5>
+            {% render_field form_especs_reduccion.tipo %}
+        </div>
+
+        <div class="col-4">
+            {{form_especs_drenaje.calor.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_drenaje.calor min="0.0001" class="form-control" placeholder="Calor Transferido Drenaje" %}
+                <select name="especs-drenaje-calor_unidad" id="id_especs-drenaje-calor_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='Q' pk_selected=form_especs_drenaje.instance.calor_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_drenaje.calor.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_condensado.calor.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_condensado.calor min="0.0001" class="form-control" placeholder="Calor Transferido Condensado" %}
+                <select name="especs-condensado-calor_unidad" id="id_especs-condensado-calor_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='Q' pk_selected=form_especs_condensado.instance.calor_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_condensado.calor.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_reduccion.calor.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_reduccion.calor min="0.0001" class="form-control" placeholder="Calor Transferido Reducción" %}
+                <select name="especs-reduccion-calor_unidad" id="id_especs-reduccion-calor_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='Q' pk_selected=form_especs_reduccion.instance.calor_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_reduccion.calor.errors}}
+        </div>
+
+        <div class="col-4">
+            {{form_especs_drenaje.area.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_drenaje.area min="0.0001" class="form-control" placeholder="Área de Transferencia Drenaje" %}
+                <select name="especs-drenaje-area_unidad" id="id_especs-drenaje-area_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='A' pk_selected=form_especs_drenaje.instance.area_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_drenaje.area.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_condensado.area.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_condensado.area min="0.0001" class="form-control" placeholder="Área de Transferencia Condensado" %}
+                <select name="especs-condensado-area_unidad" id="id_especs-condensado-area_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='A' pk_selected=form_especs_condensado.instance.area_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_condensado.area.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_reduccion.area.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_reduccion.area min="0.0001" class="form-control" placeholder="Área de Transferencia Reducción" %}
+                <select name="especs-reduccion-area_unidad" id="id_especs-reduccion-area_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='A' pk_selected=form_especs_reduccion.instance.area_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_reduccion.area.errors}}
+        </div>
+
+        <div class="col-4">
+            {{form_especs_drenaje.coeficiente_transferencia.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_drenaje.coeficiente_transferencia min="0.0001" class="form-control" placeholder="Coeficiente Global de Transferencia Drenaje" %}
+                <select name="especs-drenaje-coeficiente_unidad" id="id_especs-drenaje-coeficiente_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_especs_drenaje.instance.coeficiente_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_drenaje.coeficiente_transferencia.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_condensado.coeficiente_transferencia.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_condensado.coeficiente_transferencia min="0.0001" class="form-control" placeholder="Coeficiente Global de Transferencia Condensado" %}
+                <select name="especs-condensado-coeficiente_unidad" id="id_especs-condensado-coeficiente_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_especs_condensado.instance.coeficiente_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_condensado.coeficiente_transferencia.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_reduccion.coeficiente_transferencia.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_reduccion.coeficiente_transferencia min="0.0001" class="form-control" placeholder="Coeficiente Global de Transferencia Reducción" %}
+                <select name="especs-reduccion-coeficiente_unidad" id="id_especs-reduccion-coeficiente_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_especs_reduccion.instance.coeficiente_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_reduccion.coeficiente_transferencia.errors}}
+        </div>
+
+        <div class="col-4">
+            {{form_especs_drenaje.caida_presion.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_drenaje.caida_presion min="0.0001" class="form-control" placeholder="Caída de Presión Drenaje" %}
+                <select name="especs-drenaje-caida_presion_unidad" id="id_especs-drenaje-caida_presion_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_especs_drenaje.instance.caida_presion_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_drenaje.caida_presion.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_condensado.caida_presion.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_condensado.caida_presion min="0.0001" class="form-control" placeholder="Caída de Presión Condensado" %}
+                <select name="especs-condensado-caida_presion_unidad" id="id_especs-condensado-caida_presion_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_especs_condensado.instance.caida_presion_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_condensado.caida_presion.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_reduccion.caida_presion.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_reduccion.caida_presion min="0.0001" class="form-control" placeholder="Caída de Presión Reducción" %}
+                <select name="especs-reduccion-caida_presion_unidad" id="id_especs-reduccion-caida_presion_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=form_especs_reduccion.instance.caida_presion_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_reduccion.caida_presion.errors}}
+        </div>
+
+        <div class="col-4">
+            {{form_especs_drenaje.mtd.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_drenaje.mtd class="form-control" placeholder="MTD Referencial Drenaje" %}
+                <select name="especs-drenaje-mtd_unidad" id="id_especs-drenaje-mtd_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_especs_drenaje.instance.mtd_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_drenaje.mtd.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_condensado.mtd.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_condensado.mtd class="form-control" placeholder="MTD Referencial Condensado" %}
+                <select name="especs-condensado-mtd_unidad" id="id_especs-condensado-mtd_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_especs_condensado.instance.mtd_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_condensado.mtd.errors}}
+        </div>
+        <div class="col-4">
+            {{form_especs_reduccion.mtd.label_tag}}
+            <div class="input-group">
+                {% render_field form_especs_reduccion.mtd class="form-control" placeholder="MTD Referencial Reducción" %}
+                <select name="especs-reduccion-mtd_unidad" id="id_especs-reduccion-mtd_unidad" class="form-select">
+                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_especs_reduccion.instance.mtd_unidad.pk %}
+                </select>
+            </div>
+            {{form_especs_reduccion.mtd.errors}}
+        </div>
+    </div>
+
+    <hr>
+
+    {{form_equipo.u.label_tag}}
+    <div class="input-group">
+        {% render_field form_equipo.u class="form-control" placeholder="Coeficiente Global de Transferencia por Balance General" %}
+        <select name="u_unidad" id="u_unidad" class="form-select">
+            {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_equipo.instance.u_unidad.pk %}
+        </select>
+    </div>
+
+    <div class="w-100 mt-3 mb-3 d-flex justify-content-center">
+        <button class="btn btn-danger">Enviar Formulario</button>
+    </div>
+
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/precalentadores_agua/creacion.js"></script>
+{% endblock %}

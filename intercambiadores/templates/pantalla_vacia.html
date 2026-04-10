@@ -1,0 +1,82 @@
+{% extends 'base_consultas.html' %}
+{% load static %}
+{% load templatetags %}
+
+{% block encabezado %}
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_tipo_intercambiador' %}">↶ Regresar</a></div>
+  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Intercambiadores de Calor {{tipo}}</h3></div>
+{% endblock %}
+
+{% block formulario_filtrado %}
+<div class="d-flex flex-column col">
+  <label class="form-label" for="tag">Tag:</label>
+  <input type="text" name="tag" id="tag" maxlength="20" class="form-control" value="{{tag}}">
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="servicio">Servicio:</label>
+    <input type="text" id="servicio" name="servicio" class="form-control" value="{{servicio}}">
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="complejo">Complejo:</label>
+    <select name="complejo" id="complejo" class="form-select seleccion-filtrado" value="complejos">
+        <option value="">
+            ----------------------------
+        </option>
+        {% for complejo in complejos %}
+        <option value="{{complejo.pk}}" {% if complejo.pk == complejox %}selected{% endif %}>{{complejo}}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="planta">Planta:</label>
+    <select name="planta" id="planta" {% if not plantas %}disabled="disabled"{% endif %} class="form-select seleccion-filtrado" value="{{plantax}}">
+        <option value="">
+            ----------------------------
+        </option>
+        {% for planta in plantas %}
+        <option value="{{planta.pk}}" {% if planta.pk == plantax %}selected{% endif %}>{{planta}}</option>
+        {% endfor %}
+    </select>
+</div>
+<input type=submit hidden>
+{% endblock %}
+
+{% block tabla %}
+<thead class="text-center">
+  <tr>
+    <th scope="col">#</th>
+    <th scope="col">Tag</th>
+    <th scope="col">Planta</th>
+    <th scope="col">Complejo</th>
+    <th scope="col">Servicio</th>
+    <th scope="col">Evaluaciones</th>
+    <th scope="col">Ficha Técnica</th>
+  </tr>
+</thead>
+<tbody class="text-center" id="tabla-body">
+  <td colspan="7">Los intercambiadores de este tipo no están disponibles en esta versión.</td>
+</tbody>
+{% endblock %}
+
+{% block opciones %}
+<div>
+  {% if object_list.count %}
+  <form method="post">
+    {% csrf_token %}
+    <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
+    <button name="tipo" value="xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
+  </form>
+  {% endif %}
+</div>
+<footer aria-label="Page navigation example">
+    <ul class="pagination">
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">1</a></li>
+    </ul>
+</footer>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+  $('form[method="get"]').submit((e) => false);
+</script>
+{% endblock %}

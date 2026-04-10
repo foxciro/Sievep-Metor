@@ -1,0 +1,273 @@
+{% load static %}
+
+<div hx-swap-oob="true" id="resultados">
+    <hr>
+
+    <h5 class="text-center">
+        Resultados de la Evaluación
+    </h5>
+
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th class="text-center table-dark" colspan="3">
+                    RESULTADOS DE LA EVALUACIÓN
+                </th>
+            </tr>
+            <tr>
+                <th class="text-center table-dark">RESULTADO</th>
+                <th class="text-center table-dark">VALOR CALCULADO</th>
+                <th class="text-center table-dark">VALOR POR FICHA</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <th class="table-dark text-center">Cabezal Total</th>
+                <td class="text-center">{{res.cabezal_total.0|floatformat:4}} {{bomba.especificaciones_bomba.cabezal_unidad|default_if_none:'-'}}</td>
+                <td class="text-center">{{bomba.especificaciones_bomba.cabezal_total}} {{bomba.especificaciones_bomba.cabezal_unidad}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark text-center">Eficiencia</th>
+                <td class="text-center">{{res.eficiencia|floatformat:4}}%</td>
+                <td class="text-center">{{bomba.especificaciones_bomba.eficiencia|default_if_none:'-'}}%</td>
+            </tr>
+            <tr>
+                <th class="table-dark text-center">Potencia Calculada</th>
+                <td class="text-center">{{res.potencia_calculada.0|floatformat:4}} {{bomba.especificaciones_bomba.potencia_unidad}}</td>
+                <td class="text-center">{{bomba.especificaciones_bomba.potencia_maxima|default_if_none:'-'}} {{bomba.especificaciones_bomba.potencia_unidad}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark text-center">Velocidad Específica</th>
+                <td class="text-center">{{res.velocidad_especifica|floatformat:4}} RPM</td>
+                <td class="text-center">-</td>
+            </tr>
+            <tr>
+                <th class="table-dark text-center">NPSHa / NPSHr</th>
+                <td class="text-center">{{res.npsha.0|floatformat:4}} {{res.npshr_unidad}}</td>
+                <td class="text-center">
+                    {% if res.npshr %}
+                    {{res.npshr}} {{res.npshr_unidad}}
+                    {% endif %}         
+                </td>
+            </tr>
+            <tr>
+                <th class="table-dark text-center">La bomba cavita</th>
+                <td class="text-center" colspan="2">
+                    {% if res.cavita == 'C' %}
+                    Sí
+                    {% elif res.cavita == 'N' %}
+                    No
+                    {% else %}
+                    Desconocido (NPSHr desconocido)
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="table-dark text-center">
+                    LADO
+                </th>
+                <th class="table-dark text-center">
+                    PÉRDIDAS POR TUBERÍA
+                </th>
+                <th class="table-dark text-center">
+                    PÉRDIDAS POR ACCESORIOS
+                </th>
+                <th class="table-dark text-center">
+                    PÉRDIDAS TOTALES
+                </th>
+                <th class="table-dark text-center">
+                    TRAMOS
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <th class="text-center table-dark">
+                    SUCCIÓN
+                </th>
+                <td class="text-center">
+                    {{res.perdidas.s.tuberia|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    {{res.perdidas.s.accesorio|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    {{res.perdidas.s.total|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    {% if res.flujo.s %}
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#succion" class="btn btn-primary">Flujos por Tramo</a>
+                    {% else %}
+                    N/A
+                    {% endif %}             
+                </td> 
+            </tr>
+
+            <tr>
+                <th class="table-dark text-center">
+                    DESCARGA
+                </th>
+                <td class="text-center">
+                    {{res.perdidas.d.tuberia|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    {{res.perdidas.d.accesorio|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    {{res.perdidas.d.total|floatformat:4}} m
+                </td>  
+                <td class="text-center">
+                    {% if res.flujo.d %}
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#descarga" class="btn btn-primary">Flujos por Tramo</a>
+                    {% else %}
+                    N/A
+                    {% endif %}             
+                </td>    
+            </tr>
+
+            <tr class="table-dark">
+                <th class="text-center">
+                    TOTAL
+                </th>
+                <td class="text-center">
+                    {{res.perdidas.t.tuberia|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    {{res.perdidas.t.accesorio|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    {{res.perdidas.t.total|floatformat:4}} m
+                </td>
+                <td class="text-center">
+                    -
+                </td> 
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="succion" tabindex="-1" aria-labelledby="succionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content text-dark">
+            <div class="modal-header">
+            <h5 class="modal-title" id="succionLabel">Tipos de Flujo de la Succión</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start small">
+            <div class="row">
+                <div class="col-12">
+                <div class="d-flex flex-column">
+                    <table class="table table-light text-center table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">
+                                # TRAMO
+                            </th>
+                            <th class="table-dark text-center">
+                                DIÁMETRO INTERNO
+                            </th>
+                            <th class="table-dark text-center">
+                                LONGITUD TOTAL
+                            </th>
+                            <th class="table-dark text-center">
+                                VELOCIDAD
+                            </th>
+                            <th class="table-dark text-center">
+                                TIPO DE FLUJO
+                            </th>
+                        </tr>
+                        {% for tramo in res.flujo.s %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{tramo.diametro}} {{tramo.diametro_unidad}}</td>
+                            <td>{{tramo.longitud}} {{tramo.longitud_unidad}}</td>
+                            <td>{{tramo.velocidad|floatformat:4}} m/s</td>
+                            <td class="{% if tramo.tipo_flujo == 'L' %}table-success{% elif tramo.tipo_flujo == 'T' %}table-danger{%else%}table-warning{%endif%} text-center">
+                                {% if tramo.tipo_flujo == 'L' %}
+                                Laminar
+                                {% elif tramo.tipo_flujo == 'T' %}
+                                Turbulento
+                                {% else %}
+                                Transitorio
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="descarga" tabindex="-1" aria-labelledby="descargaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content text-dark">
+            <div class="modal-header">
+            <h5 class="modal-title" id="descargaLabel">Tipos de Flujo de la Descarga</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start small">
+            <div class="row">
+                <div class="col-12">
+                <div class="d-flex flex-column">
+                    <table class="table table-light text-center table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">
+                                # TRAMO
+                            </th>
+                            <th class="table-dark text-center">
+                                DIÁMETRO INTERNO
+                            </th>
+                            <th class="table-dark text-center">
+                                LONGITUD TOTAL
+                            </th>
+                            <th class="table-dark text-center">
+                                VELOCIDAD
+                            </th>
+                            <th class="table-dark text-center">
+                                TIPO DE FLUJO
+                            </th>
+                        </tr>
+                        {% for tramo in res.flujo.d %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{tramo.diametro}} {{tramo.diametro_unidad}}</td>
+                            <td>{{tramo.longitud}} {{tramo.longitud_unidad}}</td>
+                            <td>{{tramo.velocidad|floatformat:4}} m/s</td>
+                            <td class="{% if tramo.tipo_flujo == 'L' %}table-success{% elif tramo.tipo_flujo == 'T' %}table-danger{%else%}table-warning{%endif%} text-center">
+                                {% if tramo.tipo_flujo == 'L' %}
+                                Laminar
+                                {% elif tramo.tipo_flujo == 'T' %}
+                                Turbulento
+                                {% else %}
+                                Transitorio
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                           <td colspan="5" class="text-center">No hay tramos cargados al momento de esta evaluación.</td> 
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<button name="submit" value="almacenar" type="submit" id="submit" hx-swap-oob="true" class="btn btn-danger">Almacenar Evaluación</button>

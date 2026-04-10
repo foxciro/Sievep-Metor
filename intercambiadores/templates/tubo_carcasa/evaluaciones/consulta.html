@@ -1,0 +1,151 @@
+{% extends 'base_consultas.html' %}
+{% load static %}
+{% load templatetags %}
+
+{% block encabezado %}
+  {% with generales=intercambiador.intercambiador %}
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="
+    {% if generales.tipo.pk == 1 %}
+    {% url 'consulta_tubo_carcasa' %}{% elif generales.tipo.pk == 2 %}
+    {% url 'consulta_doble_tubo' %}{% endif %}?page={{request.session.pagina_consulta}}&tag={{request.session.tag_consulta}}&servicio={{request.session.servicio_consulta}}&complejo={{request.session.complejo_consulta}}&planta={{request.session.planta_consulta}}
+  ">↶ Regresar</a></div>
+  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones del Intercambiador {{generales.tag}}</h3></div>
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
+    {% if request.user.is_superuser or generales.planta.pk in permisos.creacion_evaluaciones %}
+    {% if intercambiador.intercambiador.tipo.nombre == "TUBO/CARCASA" %}
+    {% if intercambiador.problemas_carga.1|length == 0 %}
+    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=generales.pk %}">+ Nueva</a> &nbsp;
+    {% endif %}
+    {%else%}
+    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=generales.pk %}">+ Nueva</a> &nbsp;
+    {%endif%}
+    {%endif%}
+  </div>
+
+  <script>
+    let chart = null;
+    let canvas = null;
+    let datosGrafica = null;
+  </script>
+  {% endwith %}
+{% endblock %}
+
+{% block formulario_filtrado %}
+  <div class="d-flex flex-column col-3">
+    <label class="form-label" for="tag">Desde:</label>
+    <input value="{{desde}}" type="datetime-local" class="form-control" name="desde" id="desde">
+  </div>
+  <div class="d-flex flex-column col-3">
+      <label class="form-label" for="empresa">Hasta:</label>
+      <input value="{{hasta}}" type="datetime-local" class="form-control" name="hasta" id="hasta">
+  </div>
+  <div class="d-flex flex-column col-3">
+    <label class="form-label" for="usuario">Nombre del Usuario:</label>
+    <input value="{{usuario}}" type="text" name="usuario" id="usuario" class="form-control" placeholder="Filtrar por Usuario (nombre/apellido)">
+  </div>
+  <div class="d-flex flex-column col-3">
+    <label class="form-label" for="tag">Nombre de la Evaluación:</label>
+    <input value="{{nombre}}" name="nombre" type="text" class="form-control" placeholder="Filtrar por Nombre de Evaluación">
+  </div>
+  <input type="submit" hidden>
+
+  {% if intercambiador.intercambiador.tipo.nombre == "TUBO/CARCASA" %}
+  {% if intercambiador.problemas_carga.1|length or intercambiador.problemas_carga.0|length %}
+  <hr class="mt-3">
+  <h3 class="text-danger text-center">ADVERTENCIAS</h3>
+  <p class="text-center text-danger">Se recomienda completar la ficha ya que no se encuentran los siguientes problemas en ficha respecto a datos críticos:</p>
+  <ul class="text-danger">
+    {% for adv in intercambiador.problemas_carga.1 %}
+    <li>{{adv}}</li>
+    {% endfor %}
+
+    {% for adv in intercambiador.problemas_carga.0 %}
+    <li>{{adv}}</li>
+    {% endfor %}
+  </ul>
+  <hr class="mt-3 mb-3">
+  {%endif%}
+  {%endif%}
+{% endblock %}
+  
+{% block tabla %}
+<thead class="text-center">
+  <tr>
+    <th scope="col">#</th>
+    <th scope="col">Fecha</th>
+    <th scope="col">Nombre</th>
+    <th scope="col">Realizada Por</th>
+    <th scope="col">Resultados</th>
+  </tr>
+</thead>
+{% if object_list.count and not intercambiador.intercambiador.lmtd %}
+<script>
+  $(document).ready((e) => alert("No se han podido obtener los datos de diseño para comparación. Comprobar datos de diseño en ficha."));
+</script>
+{% endif %}
+<tbody class="text-center">
+  {% if object_list.count %}
+  {% include 'tablas/evaluaciones.html' %}
+  {% else %}
+  <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
+  {% endif %}
+</tbody>
+{% endblock %}
+
+{% block opciones %}
+{% with generales=intercambiador.intercambiador %}
+<div>
+  <form method="post">
+    {% csrf_token %}
+    {% if object_list %}
+    <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Reporte PDF</button>
+    <button name="tipo" value="xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Reporte XLSX</button>
+    {% endif %}
+    <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
+    <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
+  </form>
+  {% include 'resultados/historico.html' %}
+  {% if generales.tipo.pk == 1 %}
+  {% include 'fichas/tubo_carcasa.html' %}
+  {% elif generales.tipo.pk == 2 %}
+  {% include 'fichas/doble_tubo.html' %}
+  {% endif %}
+</div>
+{% endwith %}
+<footer aria-label="Page navigation example">
+  <ul class="pagination">
+    <li class="page-item">
+      {% if page_obj.has_previous %}
+      <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+      {% endif %}
+    </li>
+    <li class="page-item"><a class="page-link bg-dark text-white" href="#">{{ page_obj.number }}</a></li>
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.next_page_number %}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</footer>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+  $('select').change(() => {
+    $('#filtrado').submit();
+  });
+
+  $('input[type="datetime-local"]').change(() => {
+    $('#filtrado').submit();
+  });
+
+  $('input').keyup((e) => {
+    if(e.keyCode === 13)
+      $('#filtrado').submit();
+  });
+</script>
+{% endblock %}

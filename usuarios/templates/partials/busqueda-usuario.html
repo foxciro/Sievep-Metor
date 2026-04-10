@@ -1,0 +1,15 @@
+<div class="col-6">
+    <label class="form-label" for="correo">Correo Electrónico:</label>
+    <input type="email" name="correo" class="form-control" hx-swap-oob="true" id="correo" value="{{correo}}" disabled>
+</div>
+<div class="col-6">
+    <label class="form-label" for="password">Nombre:</label>
+    <input type="text" name="nombre" class="form-control" hx-swap-oob="true" value="{{nombre}}" id="nombre" disabled>
+</div>
+<div id="aviso" hx-swap-oob="true" class="text-center text-danger">
+    {% if advertencia %}
+        {{advertencia}}
+    {% endif %}
+</div>
+
+<button class="btn btn-danger" hx-swap-oob="true" id="submit" {% if advertencia %}disabled{% endif %}>Registrar Usuario</button>

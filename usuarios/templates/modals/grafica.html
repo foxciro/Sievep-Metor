@@ -1,0 +1,80 @@
+{% load static %}
+
+<div class="modal fade" id="grafica_historica" tabindex="-1" aria-labelledby="grafica_historicaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="grafica_historicaLabel">Gráficas de los Resultados</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+            <div class="row">
+                {% for seccion in object_list.0.encuesta.secciones.all %}
+                {% if not forloop.first %}
+                <hr>
+                {% endif %}
+                <h3 class="text-center text-danger">— {{seccion.nombre}} —</h3>
+                <hr>
+                {% for pregunta in seccion.preguntas.all %}
+                {% if pregunta.tipo != "3" %}
+                <div class="col-md-6 col-sm-12">
+                    <h5 class="text-center">{{pregunta.nombre}}</h5>
+                    <br>
+                    <canvas width="100%" id="grafica_{{pregunta.pk}}"></canvas>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>    
+    $.ajax({
+        url: '{% url "grafica_encuesta" %}',
+        data: {
+            desde: $('#desde').val(),
+            hasta: $('#hasta').val(),
+            usuario: $('#usuario').val(),
+            nombre: $('#nombre').val(),
+        },
+        success: (res) => {
+            Object.entries(res).forEach(([key, value]) => {
+                let canvas = document.getElementById(`grafica_${key}`).getContext('2d');
+                $(`#grafica_${key}`).removeAttr('hidden');               
+
+                chart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        datasets: [
+                            {
+                                label: "Respuestas",
+                                data: Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'pregunta')),
+                                backgroundColor: ['#00F'],
+                                borderColor: ['#00F']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+                });
+            });
+                
+            for (let i = 0; i < res.length; i++) {
+            }
+        }
+    });
+</script>

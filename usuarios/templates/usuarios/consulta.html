@@ -1,0 +1,100 @@
+{% extends 'base_consultas.html' %}
+{% load static %}
+{% load templatetags %}
+
+{% block encabezado %}
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'bienvenida' %}">↶ Regresar</a></div>
+  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Usuarios del Sistema</h3></div>
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
+    {% if puede_crear %}
+    <!-- <a class="btn d-block btn-success" href="{% url 'crear_usuario_red' %}">+ Nuevo Usuario (Red)</a>&nbsp; -->
+    <a class="btn d-block btn-primary" href="{% url 'crear_nuevo_usuario' %}">+ Nuevo Usuario (Sistema)</a>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block formulario_filtrado %}
+<div class="d-flex flex-column col">
+  <label class="form-label" for="nombre">Nombre:</label>
+  <input type="text" name="nombre" id="nombre" maxlength="20" class="form-control" value="{{nombre}}">
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="correo">Correo:</label>
+    <input type="text" id="correo" name="correo" class="form-control" value="{{correo}}">
+</div>
+<div class="d-flex flex-column col">
+  <label class="form-label" for="correo">Usuario:</label>
+  <input type="text" id="usuario" name="usuario" class="form-control" value="{{usuario}}">
+</div>
+<div class="d-flex flex-column col">
+    <label class="form-label" for="superusuario">Superusuario:</label>
+    <select name="superusuario" id="superusuario" class="form-select seleccion-filtrado">
+        <option value="">
+            ----------------------------
+        </option>
+        <option value="1" {% if superusuario == "1" %}selected{% endif %}>Sí</option>
+        <option value="0" {% if superusuario == "0" %}selected{% endif %}>No</option>
+    </select>
+</div>
+<input type="submit" hidden>
+{% endblock %}
+
+{% block tabla %}
+<thead class="text-center">
+  <tr>
+    <th scope="col">#</th>
+    <th scope="col">Nombre</th>
+    <th scope="col">Usuario</th>
+    <th scope="col">Correo</th>
+    <th scope="col">Superusuario</th>
+    <th scope="col">Opciones</th>
+  </tr>
+</thead>
+<tbody class="text-center" id="tabla-body">
+  {% if object_list.count %}
+  {% include 'tablas/usuarios.html' %}
+  {% else %}
+  <td colspan="7">No se encontraron usuarios para administrar de acuerdo a sus permisos.</td>
+  {% endif %}
+</tbody>
+{% endblock %}
+
+{% block opciones %}
+<footer aria-label="Page navigation example">
+    <ul class="pagination">
+      <li class="page-item">
+        {% if page_obj.has_previous %}
+        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+        {% endif %}
+      </li>
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">{{ page_obj.number }}</a></li>
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.next_page_number %}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+</footer>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+  $('select').change(() => {
+    $('#filtrado').submit();
+  });
+
+  $('input').keyup((e) => {
+    if(e.keyCode === 13)
+      $('#filtrado').submit();
+  });
+
+  $('.alert').delay(2000, async () => {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    $('.alert').remove();
+  })
+</script>
+{% endblock %}

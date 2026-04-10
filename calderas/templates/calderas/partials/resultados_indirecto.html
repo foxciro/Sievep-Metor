@@ -1,0 +1,35 @@
+<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <th class="table-dark">Eficiencia de la Caldera</th>
+            <th>{{resultados.eficiencia|floatformat:2}}%</th>
+        </tr>
+        <tr>
+            <th class="table-dark text-center" colspan="2">PÉRDIDAS CALCULADAS</th>
+        </tr>
+        <tr>
+            <th class="table-dark">Pérdida por Gases de Combustión Secos</th>
+            <td>{{resultados.perdidas.l1|floatformat:4}} %</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Pérdidas por H2</th>
+            <td>{{resultados.perdidas.l2|floatformat:4}} %</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Pérdida de Calor debido a la Humedad presente en el Combustible</th>
+            <td>{{resultados.perdidas.l3|floatformat:4}} %</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Pérdida de Calor debido a la Humedad presente el Aire</th>
+            <td>{{resultados.perdidas.l4|floatformat:4}} %</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Pérdidas por Radiación y Convección</th>
+            <td>{{resultados.perdidas.l6|floatformat:4}} %</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="d-flex justify-center w-full">
+    <button type="submit" name="accion" value="almacenar" id="submit" class="btn btn-danger w-100">Almacenar</button>
+</div>

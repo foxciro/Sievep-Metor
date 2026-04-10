@@ -1,0 +1,73 @@
+<div id="resultados" hx-swap-oob="true">
+    <h3 class="text-center">RESULTADOS</h3>
+    
+    <table class="table table-hover text-center">
+        <tbody>
+            <tr>
+                <th class="text-center table-dark w-50">Eficiencia (%)</th>
+                <td class="w-50">{{resultados.eficiencia|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">Calor Carcasa (W)</th>
+                <td>{{resultados.q_gas|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">Calor Tubo (W)</th>
+                <td>{{resultados.q_aire|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">Calor Perdido (W)</th>
+                <td>{{resultados.perdida_calor|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">LMTD (°C)</th>
+                <td>{{resultados.lmtd|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">NTU</th>
+                <td>{{resultados.ntu|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">Coeficiente de Transferencia U (W/m²K)</th>
+                <td>{{resultados.u|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">Factor de Ensuciamiento (m²K/W)</th>
+                <td>{{resultados.ensuciamiento|floatformat:4}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table table-hover text-center">
+        <thead>
+            <tr class="table-dark">
+                <th colspan="3" class="text-center">Capacidades Caloríficas (J/KgK)</th>
+            </tr>
+            <tr class="table-dark">
+                <th></th>
+                <th>Tubo (Aire)</th>
+                <th>Carcasa (Gases)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="table-dark">ENTRADA</th>
+                <td>{{resultados.cp_promedio_aire_entrada|floatformat:4}}</td>
+                <td>{{resultados.cp_promedio_gas_entrada|floatformat:4}}</td>
+            </tr>
+            <tr>
+                <th class="table-dark">SALIDA</th>
+                <td>{{resultados.cp_promedio_aire_salida|floatformat:4}}</td>
+                <td>{{resultados.cp_promedio_gas_salida|floatformat:4}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% if 0 > resultados.perdida_calor %}
+    <div class="alert alert-danger" role="alert">
+        La pérdida de calor no es válida de acuerdo a las leyes termodinámicas. Revise antes de almacenar.
+    </div>
+    {% endif %}
+</div>
+
+<button value="almacenar" name="submit" id="submit" type="submit" class="btn btn-danger" hx-swap-oob="true">Almacenar Resultados</button>

@@ -1,0 +1,26 @@
+{% load static %}
+{% load mathfilters %}
+{% for precalentador in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{precalentador.tag}}</td>
+    <td>{{precalentador.planta}}</td>
+    <td>{{precalentador.planta.complejo}}</td>
+    <td>{{precalentador.descripcion}}</td>
+    <td>
+      {% if request.user.is_superuser or precalentador.planta.pk in permisos.evaluaciones %}
+      <a class="btn btn-danger" href="{% url 'evaluaciones_precalentador_aire' pk=precalentador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {% endif %}
+    </td>
+    <td>
+      {% include 'precalentadores_aire/partials/ficha.html' %}
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{precalentador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
+    </td>
+  </tr>
+{% endfor %}

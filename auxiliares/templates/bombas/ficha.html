@@ -1,0 +1,704 @@
+{% load static %}
+{% load mathfilters %}
+
+{% block head %}
+<script src="{% static 'js/popper.js' %}"></script>
+<script src="{% static 'js/tippy.js' %}"></script>
+{% endblock %}
+
+<div class="modal fade" id="ficha_{{bomba.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{bomba.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ficha_{{bomba.pk|default_if_none:'-'}}Label">Ficha Técnica Bomba Centrífuga ({{bomba.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                      <th class="table-dark">Tag</th>
+                      <td><span id="tag_ficha">{{bomba.tag|default_if_none:'-'}}</span></td>
+                      <td colspan="2" rowspan="5" style="background-color: lightgray;">
+                        {% if bomba.grafica %}
+                            <div id="carousel{{bomba.pk|default_if_none:'-'}}" class="carousel" data-bs-interval="false" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        {% if bomba.detalles_construccion.tipo %}
+                                        <img src="/static/img/equipos_aux/bombas/{{bomba.detalles_construccion.tipo}}.jpg" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;">
+                                        {% else %}
+                                        <img src="/static/img/equipos_aux/bomba_centrifuga.png" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="">
+                                        {% endif %}
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="/media/{{bomba.grafica}}" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="...">
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{bomba.pk|default_if_none:'-'}}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carousel{{bomba.pk|default_if_none:'-'}}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        {%else%}
+                            {% if bomba.detalles_construccion.tipo %}
+                            <img src="/static/img/equipos_aux/bombas/{{bomba.detalles_construccion.tipo|default_if_none:'-'}}.jpg" alt="">
+                            {% else %}
+                            <img src="/static/img/equipos_aux/bomba_centrifuga.png" style="max-width: 100%;" alt="">
+                            {% endif %}
+                        {%endif%}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Planta</th>
+                      <td>{{bomba.planta|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Tipo</th>
+                      <td>{{bomba.tipo_bomba|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Fabricante</th>
+                      <td>{{bomba.fabricante|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Modelo</th>
+                        <td>{{bomba.modelo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Descripción</th>
+                      <td colspan="3">{{bomba.descripcion|default_if_none:'-'}}</td>
+                    </tr>
+                    {% if bomba.grafica %}
+                    <tr>
+                      <td colspan="4">Presione el botón del carrusel o <a target="_blank" href="/media/{{bomba.grafica}}">aquí</a> para ver la gráfica</td>
+                    </tr>
+                    {%endif%}
+                  </tbody>
+                </table>
+                <table class="table table-light text-center table-bordered tabla_ficha mt-0">
+                  <tbody id="tabla_ficha_contenido_body">
+                    <tr>
+                      <th class="table-dark" colspan="6">
+                        <div class="d-inline-flex align-items-center text-uppercase">
+                          Condiciones de Diseño de la Bomba
+                        </div>
+                      </th>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Capacidad ({{bomba.condiciones_diseno.capacidad_unidad|default_if_none:'-'}})</th>
+                      <td colspan="3">{{bomba.condiciones_diseno.capacidad|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with unidad_presion=bomba.condiciones_diseno.presion_unidad %}
+                    <tr>
+                        <th class="table-dark">Presión Succión ({{unidad_presion|default_if_none:'-'}})</th>
+                        <td>{{bomba.condiciones_diseno.presion_succion|default_if_none:'-'}}</td>
+                        <th class="table-dark">Presión Descarga ({{unidad_presion|default_if_none:'-'}})</th>
+                        <td>{{bomba.condiciones_diseno.presion_descarga|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Presión Diferencial ({{unidad_presion|default_if_none:'-'}})</th>
+                        <td>{{bomba.condiciones_diseno.presion_diferencial|default_if_none:'-'}}</td>
+                        <th class="table-dark">NPSHa ({{bomba.condiciones_diseno.npsha_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.condiciones_diseno.npsha|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+
+                    {% with condiciones_fluido=bomba.condiciones_diseno.condiciones_fluido %}
+                    <tr>
+                        <th class="table-dark text-uppercase" colspan="4">
+                          <div class="d-inline-flex align-items-center">
+                            Condiciones de Diseño del Fluido
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">
+                            Fluido
+                        </th>
+                        <td colspan="3">
+                            <b>
+                                {% if condiciones_fluido.nombre_fluido %}
+                                {{condiciones_fluido.nombre_fluido.upper|default_if_none:'-'}}
+                                {% else %}
+                                {{condiciones_fluido.fluido|default_if_none:'-'}}
+                                {% endif %}
+                            </b>
+                        </td>
+                    </tr>
+                    {% with temperatura_unidad=condiciones_fluido.temperatura_unidad %}
+                    <tr>
+                        <th class="table-dark">Temp. Operación ({{temperatura_unidad}})</th>
+                        <td>{{condiciones_fluido.temperatura_operacion|default_if_none:'-'}}</td>
+                        <th class="table-dark">Presión Vapor ({{condiciones_fluido.presion_vapor_unidad}})</th>
+                        <td>{{condiciones_fluido.presion_vapor|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Temp. Presión Vapor ({{temperatura_unidad}})</th>
+                        <td>{{condiciones_fluido.temperatura_presion_vapor|default_if_none:'-'}}</td>
+                        <th class="table-dark">Densidad ({{condiciones_fluido.densidad_unidad|default_if_none:"Relativa"}})</th>
+                        <td>{{condiciones_fluido.densidad|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Viscosidad ({{condiciones_fluido.viscosidad_unidad}})</th>
+                        <td>{{condiciones_fluido.viscosidad|default_if_none:'-'}}</td>
+                        <th class="table-dark">¿Es Corrosivo/Erosivo?</th>
+                        <td>{{condiciones_fluido.corrosividad_largo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Peligroso</th>
+                        <td>{{condiciones_fluido.peligroso_largo|default_if_none:'-'}}</td>
+                        <th class="table-dark">Inflamable</th>
+                        <td>{{condiciones_fluido.inflamable_largo|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with concentracion_unidad=condiciones_fluido.concentracion_unidad %}
+                    <tr>
+                        <th class="table-dark">Concentración H2S ({{concentracion_unidad}})</th>
+                        <td>{{condiciones_fluido.concentracion_h2s|default_if_none:'-'}}</td>
+                        <th class="table-dark">Concentración Cloro ({{concentracion_unidad}})</th>
+                        <td>{{condiciones_fluido.concentracion_cloro|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+
+                    <tr>
+                        <th class="table-dark" colspan="6">
+                          <div class="d-inline-flex align-items-center text-uppercase">
+                            Especificaciones Técnicas de la Bomba
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Número de Curva</th>
+                        <td>{{bomba.especificaciones_bomba.numero_curva|default_if_none:'-'}}</td>
+                        <th class="table-dark">Velocidad ({{bomba.especificaciones_bomba.velocidad_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.especificaciones_bomba.velocidad|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Potencia Máxima ({{bomba.especificaciones_bomba.potencia_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.especificaciones_bomba.potencia_maxima|default_if_none:'-'}}</td>
+                        <th class="table-dark">Eficiencia (%)</th>
+                        <td>{{bomba.especificaciones_bomba.eficiencia|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">NPSHr ({{bomba.especificaciones_bomba.npshr_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.especificaciones_bomba.npshr|default_if_none:'-'}}</td>
+                        <th class="table-dark">Cabezal Total ({{bomba.especificaciones_bomba.cabezal_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.especificaciones_bomba.cabezal_total|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with id_unidad=bomba.especificaciones_bomba.id_unidad %}
+                    <tr>
+                        <th class="table-dark">Diametro Interno Succión ({{id_unidad}})</th>
+                        <td>{{bomba.especificaciones_bomba.succion_id|default_if_none:'-'}}</td>
+                        <th class="table-dark">Diámetro Interno Descarga ({{id_unidad}})</th>
+                        <td>{{bomba.especificaciones_bomba.descarga_id|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endwith %}
+                    <tr>
+                        <th class="table-dark">Número de Etapas</th>
+                        <td colspan="3">{{bomba.especificaciones_bomba.numero_etapas|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="6">
+                          <div class="d-inline-flex align-items-center text-uppercase">
+                            Detalles de Construcción
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Conexión Succión</th>
+                        <td>{{bomba.detalles_construccion.conexion_succion|default_if_none:'-'}}</td>
+                        <th class="table-dark">Tamaño Rating Succión</th>
+                        <td>{{bomba.detalles_construccion.tamano_rating_succion|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Conexión Descarga</th>
+                        <td>{{bomba.detalles_construccion.conexion_descarga|default_if_none:'-'}}</td>
+                        <th class="table-dark">Tamaño Rating Descarga</th>
+                        <td>{{bomba.detalles_construccion.tamano_rating_descarga|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Carcasa Dividida</th>
+                        <td>{{bomba.detalles_construccion.carcasa_dividida_largo|default_if_none:'-'}}</td>
+                        <th class="table-dark">Modelo</th>
+                        <td>{{bomba.detalles_construccion.modelo_construccion|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Fabricante de Sello</th>
+                        <td>{{bomba.detalles_construccion.fabricante_sello|default_if_none:'-'}}</td>
+                        <th class="table-dark">Tipo</th>
+                        <td>{{bomba.detalles_construccion.tipo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Tipo de Carcasa</th>
+                        <td colspan="3">
+                            {% if bomba.detalles_construccion.tipo_carcasa2 %}
+                            {{bomba.detalles_construccion.tipo_carcasa1|default_if_none:'-'}} / {{bomba.detalles_construccion.tipo_carcasa2|default_if_none:'-'}}
+                            {% else %}
+                            {{bomba.detalles_construccion.tipo_carcasa1|default_if_none:'-'}}
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th class="table-dark" colspan="6">
+                          <div class="d-inline-flex align-items-center text-uppercase">
+                            Detalles del Motor
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Potencia ({{bomba.detalles_motor.potencia_motor_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.detalles_motor.potencia_motor|default_if_none:'-'}}</td>
+                        <th class="table-dark">Velocidad ({{bomba.detalles_motor.velocidad_motor_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.detalles_motor.velocidad_motor|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Factor de Servicio</th>
+                        <td>{{bomba.detalles_motor.factor_de_servicio|default_if_none:'-'}}</td>
+                        <th class="table-dark">Posición</th>
+                        <td>{{bomba.detalles_motor.posicion_largo|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Voltaje ({{bomba.detalles_motor.voltaje_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.detalles_motor.voltaje|default_if_none:'-'}}</td>
+                        <th class="table-dark">Fases</th>
+                        <td>{{bomba.detalles_motor.fases|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Frecuencia ({{bomba.detalles_motor.frecuencia_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.detalles_motor.frecuencia|default_if_none:'-'}}</td>
+                        <th class="table-dark">Aislamiento (Clase)</th>
+                        <td>{{bomba.detalles_motor.aislamiento|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="1">Método de Arranque</th>
+                        <td colspan="3">{{bomba.detalles_motor.arranque|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="6">Creado por el usuario <b>{{bomba.creado_por.get_full_name}}</b> el día <b>{{bomba.creado_al|default_if_none:'-'}}</b>.</td>
+                    </tr>
+                    {% if bomba.editado_al %}
+                    <tr>
+                      <td colspan="6">Editado por <b>{{bomba.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{bomba.editado_al|default_if_none:'-'}}</b>.</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#modal_instalacion{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Especificaciones de Instalación</button>
+          {% if request.user.is_superuser or bomba.planta.pk in permisos.ediciones %}
+          <a href="{% url 'edicion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+
+          {% if request.user.is_superuser or bomba.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post" name="duplicacion">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {%endif%}
+
+          <form method="post" name="ficha_form">
+            {% csrf_token %}
+            <input type="hidden" name="ficha" value="{{bomba.pk}}">
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          </form>
+          
+        </div>
+      </div>
+    </div>
+</div>
+<div class="modal fade" id="modal_instalacion{{bomba.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="modal_instalacion{{bomba.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal_instalacion{{bomba.pk|default_if_none:'-'}}Label">Especificaciones de Instalación Bomba Centrífuga ({{bomba.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small" >
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
+                    <tr>
+                        <th colspan="3" class="table-dark">
+                            Instalación General
+                        </th>
+                        <th class="table-dark">
+                            Succión
+                        </th>
+                        <th class="table-dark">
+                            Descarga
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="3">Elevación ({{bomba.instalacion_succion.elevacion_unidad|default_if_none:'-'}})</td>
+                        <td>{{bomba.instalacion_succion.elevacion|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_descarga.elevacion|default_if_none:'-'}}</td>
+                    </tr>   
+                    <tr>
+                        <th class="table-dark" colspan="5">
+                          <div class="d-inline-flex align-items-center">
+                            Tramos de Tuberías en la Succión
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark text-center">#</th>
+                        <th class="table-dark text-center">Longitud Total</th>
+                        <th class="table-dark text-center">Diámetro Interno</th>
+                        <th class="table-dark text-center">Material</th>
+                        <th class="table-dark text-center">Accesorios</th>
+                    </tr>
+                    {% for tuberia in bomba.instalacion_succion.tuberias.all %}
+                    <tr>
+                        <td class="text-center">
+                            <small>{{forloop.counter}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.longitud_tuberia|default_if_none:'-'}} {{tuberia.longitud_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.diametro_tuberia|default_if_none:'-'}} {{tuberia.diametro_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.material_tuberia|default_if_none:'-'}}</small>
+                        </td>
+                        <td>
+                            <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
+                            <div id="t{{tuberia.id}}codos" style="display: none; font-size: 8pt;">
+                                <table class="table table-light">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center table-dark" colspan="4">
+                                                Codos del Tramo #{{forloop.counter}} Succión
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th class="table-dark">Codos 90°</th>
+                                            <td>{{tuberia.numero_codos_90|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 90° Radio Largo</th>
+                                            <td>{{tuberia.numero_codos_90_rl|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 90°</th>
+                                            <td>{{tuberia.numero_codos_90_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 45°</th>
+                                            <td>{{tuberia.numero_codos_45|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 45°</th>
+                                            <td>{{tuberia.numero_codos_45_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 180°</th>
+                                            <td>{{tuberia.numero_codos_180|default_if_none:'-'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="t{{tuberia.id}}valvulas" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Válvulas del Tramo #{{forloop.counter}} Succión</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th class="table-dark">Válv. Compuerta Abiertas</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Abiertas a 3/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_3_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Abiertas a 1/2</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_2|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Abiertas a 1/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 2"-8"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_2_8|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Mariposa 10"-14"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 16"-24"</th>
+                                                <td colspan="3">{{tuberia.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
+                                            </tr>
+                        
+                                            <tr>
+                                                <th class="table-dark">Válv. Verif. Giratorias</th>
+                                                <td>{{tuberia.numero_valvula_giratoria|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Verif. Bola</th>
+                                                <td>{{tuberia.numero_valvula_bola|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Disco Bisagra</th>
+                                                <td>{{tuberia.numero_valvula_bisagra|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Disco Vástago</th>
+                                                <td>{{tuberia.numero_valvula_vastago|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Globo</th>
+                                                <td>{{tuberia.numero_valvula_globo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Ángulo</th>
+                                                <td>{{tuberia.numero_valvula_angulo|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <div id="t{{tuberia.id}}conexiones" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Conexiones T del Tramo #{{forloop.counter}} Succión</th>
+                                        </thead>
+                                        <tbody>                        
+                                            <tr>
+                                                <th class="table-dark">Conexiones T Flujo Directo</th>
+                                                <td>{{tuberia.conexiones_t_directo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Conexiones T Flujo Ramal</th>
+                                                <td>{{tuberia.conexiones_t_ramal|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <script>
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}codos').innerHTML,
+                                    placement: 'left',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}valvulas').innerHTML,
+                                    placement: 'top-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}conexiones').innerHTML,
+                                    placement: 'bottom-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                            </script>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <th colspan="5" class="text-bold text-center">No hay tramos registrados en la succión.</th>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                      <th class="table-dark text-center" colspan="5">Tramos de Tuberías en la Descarga</th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark text-center">#</th>
+                        <th class="table-dark text-center">Longitud Total</th>
+                        <th class="table-dark text-center">Diámetro Interno</th>
+                        <th class="table-dark text-center">Material</th>
+                        <th class="table-dark text-center">Accesorios</th>
+                    </tr>
+                    {% for tuberia in bomba.instalacion_descarga.tuberias.all %}
+                    <tr>
+                        <td class="text-center">
+                            <small>{{forloop.counter}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.longitud_tuberia|default_if_none:'-'}} {{tuberia.longitud_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.diametro_tuberia|default_if_none:'-'}} {{tuberia.diametro_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.material_tuberia|default_if_none:'-'}}</small>
+                        </td>
+                        <td>
+                            <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
+                            <div id="t{{tuberia.id}}codos" style="display: none; font-size: 8pt;">
+                                <table class="table table-light">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center table-dark" colspan="4">
+                                                Codos del Tramo #{{forloop.counter}} Descarga
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th class="table-dark">Codos 90°</th>
+                                            <td>{{tuberia.numero_codos_90|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 90° Radio Largo</th>
+                                            <td>{{tuberia.numero_codos_90_rl|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 90°</th>
+                                            <td>{{tuberia.numero_codos_90_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 45°</th>
+                                            <td>{{tuberia.numero_codos_45|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 45°</th>
+                                            <td>{{tuberia.numero_codos_45_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 180°</th>
+                                            <td>{{tuberia.numero_codos_180|default_if_none:'-'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="t{{tuberia.id}}valvulas" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Válvulas del Tramo #{{forloop.counter}} Descarga</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th class="table-dark">Válv. Compuerta Abiertas</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Compuertas a 3/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_3_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Compuertas a 1/2</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_2|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Compuertas a 1/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 2"-8"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_2_8|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Mariposa 10"-14"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 16"-24"</th>
+                                                <td colspan="3">{{tuberia.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
+                                            </tr>
+                        
+                                            <tr>
+                                                <th class="table-dark">Válv. Verif. Giratorias</th>
+                                                <td>{{tuberia.numero_valvula_giratoria|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Verif. Bola</th>
+                                                <td>{{tuberia.numero_valvula_bola|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Disco Bisagra</th>
+                                                <td>{{tuberia.numero_valvula_bisagra|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Disco Vástago</th>
+                                                <td>{{tuberia.numero_valvula_vastago|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Globo</th>
+                                                <td>{{tuberia.numero_valvula_globo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Ángulo</th>
+                                                <td>{{tuberia.numero_valvula_angulo|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <div id="t{{tuberia.id}}conexiones" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Conexiones T del Tramo #{{forloop.counter}} Descarga</th>
+                                        </thead>
+                                        <tbody>                        
+                                            <tr>
+                                                <th class="table-dark">Conexiones T Flujo Directo</th>
+                                                <td>{{tuberia.conexiones_t_directo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Conexiones T Flujo Ramal</th>
+                                                <td>{{tuberia.conexiones_t_ramal|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <script>
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}codos').innerHTML,
+                                    placement: 'left',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}valvulas').innerHTML,
+                                    placement: 'top-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}conexiones').innerHTML,
+                                    placement: 'bottom-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                            </script>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <th colspan="5" class="text-bold text-center">No hay tramos registrados en la descarga.</th>
+                    </tr>
+                    {% endfor %}
+                       
+                   <tr>
+                      <td colspan="5">Datos de Instalación actualizados por última vez el <b>{{bomba.instalacion_succion.fecha}}</b> por <b>{{bomba.instalacion_succion.usuario.get_full_name}}</b>.</td>
+                    </tr>
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-target="#ficha_{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos de Ficha</button>
+          {% if request.user.is_superuser or bomba.planta.pk in permisos.instalaciones %}
+          <a href="{% url 'creacion_instalacion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {%endif%}
+          {% if request.user.is_superuser or bomba.planta.pk in permisos.duplicaciones %}
+          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post" name="duplicacion">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
+          {%endif%}          
+
+          <form method="post" name="ficha_form">
+            {% csrf_token %}
+            <input type="hidden" name="instalacion" value="{{bomba.pk}}">
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>

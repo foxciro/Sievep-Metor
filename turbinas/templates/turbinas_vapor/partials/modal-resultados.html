@@ -1,0 +1,134 @@
+{% load static %}
+{% load mathfilters %}
+
+<div class="modal fade" id="resultados_{{evaluacion.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk|default_if_none:'-'}}Label">Resultados de la Evaluación (ID: {{evaluacion.id}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        {% with entrada=evaluacion.entrada %}
+        {% with salida=evaluacion.salida %}
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-lg-6 col-12">
+                <table class="table table-bordered table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-success" colspan="3">
+                                DATOS DE ENTRADA GENERALES
+                            </th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">Flujo Entrada ({{entrada.flujo_entrada_unidad}})</th>
+                            <td class="text-center">{{entrada.flujo_entrada}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Potencia Real ({{entrada.potencia_real_unidad}})</th>
+                            <td class="text-center">{{entrada.potencia_real}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-6 col-12">
+                <table class="table table-bordered table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-danger" colspan="3">
+                                DATOS DE SALIDA GENERALES
+                            </th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        <tr>
+                            <th class="table-dark text-center">Eficiencia (%)</th>
+                            <td class="text-center"><b>Calculada:</b> {{salida.eficiencia|floatformat:4}} / <b>Diseño:</b> {{equipo.especificaciones.eficiencia|floatformat:4}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Potencia Calculada ({{entrada.potencia_real_unidad}})</th>
+                            <td class="text-center">{{salida.potencia_calculada|floatformat:4}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-12 d-flex justify-content-center align-items-center">
+                <table class="table table-bordered table-responsive table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-primary" colspan="7">
+                                INFORMACIÓN DE LAS CORRIENTES 
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="text-center table-dark">#</th>
+                            <th class="text-center table-dark">DESCRIPCIÓN</th>
+                            <th class="text-center table-dark">PRESIÓN ({{entrada.presion_unidad}}g)</th>  
+                            <th class="text-center table-dark">TEMPERATURA ({{entrada.temperatura_unidad}})</th>
+                            <th class="text-center table-dark">FLUJO ({{entrada.flujo_entrada_unidad}})</th>
+                            <th class="text-center table-dark">ENTALPÍA ({{salida.entalpia_unidad}})</th>  
+                            <th class="text-center table-dark">FASE</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        {% for corriente in evaluacion.corrientes_evaluacion.all %}
+                        {% with entrada_corriente=corriente.entrada %}
+                        {% with salida_corriente=corriente.salida %}
+                        <tr class="{% if corriente.corriente.entrada %}table-success{% elif corriente.corriente.fase == "S" %}table-warning{%endif%}">
+                            <th class="table-dark text-center">{{corriente.corriente.numero_corriente}}{% if corriente.corriente.entrada %}*{%endif%}</th>
+                            <td class="text-center">{{corriente.corriente.descripcion_corriente}}</td>
+                            <td class="text-center">
+                                {% if entrada_corriente.presion %}
+                                {{entrada_corriente.presion|floatformat:4}}
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if entrada_corriente.temperatura %}
+                                {{entrada_corriente.temperatura|floatformat:4}}
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{salida_corriente.flujo|floatformat:4}}</td>
+                            <td class="text-center">{{salida_corriente.entalpia|floatformat:4}}</td>
+                            <td class="text-center">{{salida_corriente.fase_largo}}</td>
+                        </tr>
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+          <div class="col-12 text-end">
+            <small>Evaluación creada por {{evaluacion.creado_por.get_full_name}} al {{evaluacion.fecha}}.</small> 
+          </div>
+        </div>
+        <div class="modal-footer">
+            {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
+            {%endif%}
+
+            <form method="post" name="reporte">
+                {% csrf_token %}
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+            </form>
+        </div>
+        {% endwith %}
+        {% endwith %}
+    </div>
+    </div>
+</div>

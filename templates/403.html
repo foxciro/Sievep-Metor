@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+ <link rel="stylesheet" href="{% static 'css/bienvenida/index.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="h-100 row g-5">
+    <div class="col-4 d-flex justify-content-center align-items-center">
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            <img src="{% static 'img/logo.png' %}" width="auto" style="max-width: 500px;" alt="Logo de Pequiven" id="logo_principal">
+            <hr style="width: 100%;">
+            <img src="{% static 'img/logo_indesca.svg' %}" width="auto" style="max-width: 500px;" height="80px" alt="Logo de Pequiven" id="logo_principal">
+            <hr style="width: 100%;">
+            <h2 class="text-center" style="color: #e31e24;">SIEVEP</h2>
+            <h5 class="text-center" style="color: #e31e24;">Sistema Integrado de Evaluación de Equipos de Procesos</h5>
+        </div>
+    </div>
+
+    <div style="height: 80vh;" class="col-8 d-flex justify-content-center align-items-center flex-column">
+      <h2>HTTP 403</h2>
+      <h3 class="text-center" style="color: #e31e24;">Usted no tiene permiso para acceder a este recurso.</h3>
+      <p class="text-center">Comuníquese con el personal de TI para más información.</p>            
+  </div>
+</div>
+{% endblock %}
