@@ -14,9 +14,9 @@
         <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_plantas' %}">↶ Regresar</a></div>
         <div class="col-md-6 col-lg-8">
             {% if not edicion %}
-            <h3 class="text-center" style="color: #e31e24;">Nueva Planta</h3>
+            <h3 class="text-center" style="color: #1d4ed8;">Nueva Planta</h3>
             {% else %}
-            <h3 class="text-center" style="color: #e31e24;">Editar Planta {{planta}}</h3>
+            <h3 class="text-center" style="color: #1d4ed8;">Editar Planta {{planta}}</h3>
             {% endif %}
         </div>
         <div class="col-3"></div>
@@ -25,7 +25,7 @@
     <hr>
 
     {% if error %}
-    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <h5 class="text-center" style="color: #1d4ed8;">{{error}}</h5>
     <hr>
     {% endif %}
 
@@ -46,12 +46,12 @@
     <hr>
 
     <div class="d-flex w-100 justify-content-center mb-3">
-        <button id="submit" type="submit" class="btn btn-danger">Enviar Formulario</button>
+        <button id="submit" type="submit" class="btn btn-primary">Enviar Formulario</button>
     </div>
 </form>
 
 <div id="spinner" class="htmx-indicator indicator-style">
-    <div class="spinner-grow text-danger" style="width: 2rem; height: 2rem;">
+    <div class="spinner-grow text-primary" style="width: 2rem; height: 2rem;">
     </div>
 </div>
 {% endblock %}
