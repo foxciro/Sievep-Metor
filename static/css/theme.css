@@ -1,0 +1,30 @@
+:root {
+  --metor-blue: #0a3b88;
+  --metor-blue-dark: #072a63;
+  --metor-blue-soft: rgba(10, 59, 136, 0.16);
+}
+
+.bg-primary {
+  background-color: var(--metor-blue) !important;
+}
+
+.text-primary {
+  color: var(--metor-blue) !important;
+}
+
+.btn-primary {
+  background-color: var(--metor-blue) !important;
+  border-color: var(--metor-blue) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--metor-blue-dark) !important;
+  border-color: var(--metor-blue-dark) !important;
+}
+
+.page-link.bg-primary {
+  background-color: var(--metor-blue) !important;
+  border-color: var(--metor-blue) !important;
+}
