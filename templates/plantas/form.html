@@ -14,9 +14,9 @@
         <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_plantas' %}">↶ Regresar</a></div>
         <div class="col-md-6 col-lg-8">
             {% if not edicion %}
-            <h3 class="text-center" style="color: #1d4ed8;">Nueva Planta</h3>
+            <h3 class="text-center" style="color: #0a3b88;">Nueva Planta</h3>
             {% else %}
-            <h3 class="text-center" style="color: #1d4ed8;">Editar Planta {{planta}}</h3>
+            <h3 class="text-center" style="color: #0a3b88;">Editar Planta {{planta}}</h3>
             {% endif %}
         </div>
         <div class="col-3"></div>
@@ -25,7 +25,7 @@
     <hr>
 
     {% if error %}
-    <h5 class="text-center" style="color: #1d4ed8;">{{error}}</h5>
+    <h5 class="text-center" style="color: #0a3b88;">{{error}}</h5>
     <hr>
     {% endif %}
 
