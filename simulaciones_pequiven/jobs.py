@@ -145,48 +145,6 @@ def delete_precalentador_copies():
         if(datos_corrientes):
             datos_corrientes.delete()
 
-def delete_turbinas_vapor_copies():
-    """
-    Resumen:
-        Borra todas las copias de turbinas de vapor existentes en la base de datos. Las copias se caracterizan por tener el campo 'copia' en True.
-        Borra todas las evaluaciones de las copias de turbinas de vapor y todas sus propiedades asociadas.
-    """
-    from turbinas.models import TurbinaVapor, Evaluacion, CorrienteEvaluacion
-
-    copias = TurbinaVapor.objects.filter(copia=True).select_related('especificaciones', 'generador_electrico', 'datos_corrientes').prefetch_related(
-        Prefetch('evaluaciones_turbinasvapor', Evaluacion.objects.select_related(
-            'entrada', 'salida'
-        ).prefetch_related(
-            Prefetch('corrientes_evaluacion', CorrienteEvaluacion.objects.select_related('entrada', 'salida'))
-        ))
-    )
-
-    for copia in copias:
-        for evaluacion in copia.evaluaciones_turbinasvapor.all():
-            corrientes_evaluacion = evaluacion.corrientes_evaluacion
-
-            for corriente in corrientes_evaluacion.all():
-                corriente.delete()  
-                corriente.entrada.delete()
-                corriente.salida.delete()
-
-            evaluacion.delete()
-            evaluacion.entrada.delete()
-            evaluacion.salida.delete()    
-
-        especificaciones = copia.especificaciones
-        generador_electrico = copia.generador_electrico
-        datos_corrientes = copia.datos_corrientes
-
-        copia.delete()
-
-        for corriente in datos_corrientes.corrientes.all():
-            corriente.delete()
-        
-        datos_corrientes.delete()
-        especificaciones.delete()
-        generador_electrico.delete()
-
 def delete_intercambiador_copies():
     """
     Resumen:
@@ -364,7 +322,6 @@ def delete_copies():
         delete_bombas_copies()
         delete_precalentador_copies()
         delete_precalentadores_aire_copies()
-        delete_turbinas_vapor_copies()
         delete_intercambiador_copies()
         delete_calderas_copies()
         delete_compresor_copies()

@@ -81,7 +81,6 @@ INSTALLED_APPS = [
 
     'intercambiadores',
     'auxiliares',
-    'turbinas',
     'calderas',
     'compresores',
     'usuarios',
