@@ -55,9 +55,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(BASE_DIR, 'secret-key.txt')) as f:
-    SECRET_KEY = f.read().strip()
+# Lee la clave secreta desde un archivo externo para evitar exponerla en el código fuente
+""" with open(os.path.join(BASE_DIR, 'secret-key.txt')) as f:
+    SECRET_KEY = f.read().strip() """
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
+if not SECRET_KEY:
+    raise Exception("La variable de entorno SECRET_KEY no está configurada.")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
