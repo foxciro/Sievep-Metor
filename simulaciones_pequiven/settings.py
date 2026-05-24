@@ -67,14 +67,19 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
 
 ALLOWED_HOSTS = [
-    'metor-b7dc6ss2aq-wl.a.run.app',      # Tu URL específica de Cloud Run
-    'metor-410526246437.us-west2.run.app', # URL regional
+    'metor-b7dc6ss2aq-wl.a.run.app',
+    'metor-410526246437.us-west2.run.app',
+    '.run.app',
     'localhost',
     '127.0.0.1',
 ]
 
-# OPCIÓN RECOMENDADA PARA CLOUD RUN (Permite cualquier subdominio de run.app):
-# ALLOWED_HOSTS = ['.a.run.app', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [
+    'https://metor-b7dc6ss2aq-wl.a.run.app',
+    'https://metor-410526246437.us-west2.run.app',
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 LOGIN_URL = '/'
 
@@ -148,62 +153,91 @@ WSGI_APPLICATION = 'simulaciones_pequiven.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+#
+# Configuración robusta para:
+# - Producción: Cloud Run + Cloud SQL para MySQL.
+# - Desarrollo local: SQLite cuando DEBUG=True y no se suministran variables de BD.
+#
+# En Cloud Run deben existir estas variables:
+# SECRET_KEY, DB_NAME, DB_USER, DB_PASS y DB_HOST.
+# DB_HOST debe tener la forma:
+# /cloudsql/PROJECT_ID:REGION:INSTANCE_NAME
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.mysql'),
-#         'NAME': os.environ.get('DB_NAME', 'sievep'),
-#         'USER': os.environ.get('DB_USER', 'root'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-#         'HOST': os.environ.get('DB_HOST', 'localhost'),
-#         'PORT': os.environ.get('DB_PORT', '3306'),
-#         'OPTIONS': {
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-#         },
-#     },
-#     'django_db_logger': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-# Leer variables de entorno (cargadas desde Secret Manager en Cloud Run)
-SECRET_KEY = os.environ.get("SECRET_KEY")
-# Variables de conexión a la Base de Datos
 DB_NAME = os.environ.get("DB_NAME")
 DB_USER = os.environ.get("DB_USER")
 DB_PASS = os.environ.get("DB_PASS")
-DB_HOST = os.environ.get("DB_HOST") # En Cloud Run es /cloudsql/CONNECTION_NAME
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT", "3306")
 
-# 3. Configuración de DATABASES
-if DB_NAME and DB_USER:
-    # Configuración para PRODUCCIÓN (Cloud Run + Cloud SQL)
+if not DEBUG:
+    missing_vars = [
+        name for name, value in {
+            "DB_NAME": DB_NAME,
+            "DB_USER": DB_USER,
+            "DB_PASS": DB_PASS,
+            "DB_HOST": DB_HOST,
+        }.items()
+        if not value
+    ]
+
+    if missing_vars:
+        raise Exception(
+            "Faltan variables de entorno obligatorias para producción: "
+            + ", ".join(missing_vars)
+        )
+
     db_config = {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASS,
-        'HOST': DB_HOST,
-        'PORT': '3306',
-    }
-    DATABASES = {
-        'default': db_config,
-        # ESTO SOLUCIONA TU ERROR ACTUAL:
-        # Crea la conexión 'django_db_logger' que el paquete está buscando
-        'django_db_logger': db_config, 
-    }
-else:
-    # Configuración para DESARROLLO LOCAL (SQLite)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(os.path.dirname(__file__), 'db.sqlite3'),
-        }
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": DB_NAME,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASS,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 
-# 4. Configuración específica para django-db-logger
-# Obligamos al logger a usar la conexión 'default' por si acaso
-DJANGO_DB_LOGGER_DATABASE = 'default'
-DATABASE_ROUTERS = ('simulaciones_pequiven.dbrouters.MyDBRouter',)
+    DATABASES = {
+        "default": db_config,
+        # Se conserva este alias para evitar errores si algún router,
+        # paquete o migración intenta acceder a la conexión django_db_logger.
+        "django_db_logger": db_config.copy(),
+    }
+
+else:
+    if DB_NAME and DB_USER and DB_HOST:
+        db_config = {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": DB_NAME,
+            "USER": DB_USER,
+            "PASSWORD": DB_PASS,
+            "HOST": DB_HOST,
+            "PORT": DB_PORT,
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+
+        DATABASES = {
+            "default": db_config,
+            "django_db_logger": db_config.copy(),
+        }
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+            }
+        }
+
+# Configuración específica para django-db-logger.
+# Se mantiene el alias por compatibilidad, pero el handler de logs se envía a consola.
+DJANGO_DB_LOGGER_DATABASE = "default"
+
+# Si tu router MyDBRouter envía modelos de django_db_logger al alias django_db_logger,
+# esta línea puede conservarse porque el alias existe en producción.
+DATABASE_ROUTERS = ("simulaciones_pequiven.dbrouters.MyDBRouter",)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -308,26 +342,41 @@ INTERNAL_IPS = [
 start_deleting_job()
 
 # CONFIGURACIÓN DE LOS LOGS
+#
+# En Cloud Run es preferible escribir logs en stdout/stderr.
+# Google Cloud Logging captura automáticamente lo que salga por consola.
+# Esto evita el ciclo de error donde django_db_logger intenta escribir en BD
+# justo cuando la conexión a la BD está fallando.
 
 LOGGING = {
     "version": 1,
+    "disable_existing_loggers": False,
     "formatters": {
         "request_formatter": {
-            "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S"
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
     "handlers": {
-        "request": {
-            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
-        }
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "request_formatter",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
     },
     "loggers": {
-        'django.request': {
-            "handlers": ["request"],
-            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-        }
+        "django.request": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "ERROR"),
+            "propagate": False,
+        },
+        "simulaciones_pequiven": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
     },
-    "disable_existing_loggers": False
 }
