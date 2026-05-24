@@ -1,0 +1,23 @@
+steps:
+  - name: 'gcr.io/k8s-skaffold/pack'
+    entrypoint: 'pack'
+    args:
+      - 'build'
+      - 'us-west2-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sievep-metor/metor:$COMMIT_SHA'
+      - '--builder'
+      - 'gcr.io/buildpacks/builder:google-22'
+      - '--path'
+      - '.'
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'metor'
+      - '--image'
+      - 'us-west2-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/sievep-metor/metor:$COMMIT_SHA'
+      - '--region'
+      - 'us-west2'
+      - '--platform'
+      - 'managed'
