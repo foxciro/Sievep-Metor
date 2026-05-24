@@ -21,3 +21,5 @@ steps:
       - 'us-west2'
       - '--platform'
       - 'managed'
+options:
+  logging: CLOUD_LOGGING_ONLY
