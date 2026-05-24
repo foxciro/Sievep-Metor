@@ -6,3 +6,6 @@ Años del desarrollo: 2023-2024.
 =======================================================
 Directorio principal del proyecto.
 '''
+import pymysql
+
+pymysql.install_as_MySQLdb()

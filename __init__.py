@@ -4,3 +4,7 @@ Solicitudes de Servicio asociadas al desarrollo: SS23147 y SS24119.
 Autores Individuales: Ing. Diego Faria, Ing. Edgar Salas, Ing. Fausto Rosales, Ing. Biaggi Zambrano, Ing. Ciro Nava.
 Años del desarrollo: 2023-2024.
 '''
+
+import pymysql
+
+pymysql.install_as_MySQLdb()
