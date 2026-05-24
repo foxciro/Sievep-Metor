@@ -157,7 +157,7 @@ WSGI_APPLICATION = 'simulaciones_pequiven.wsgi.application'
 # }
 # Leer variables de entorno (cargadas desde Secret Manager en Cloud Run)
 SECRET_KEY = os.environ.get("SECRET_KEY")
-
+DJANGO_DB_LOGGER_DATABASE = 'default'
 # Configuración de Base de Datos
 DB_NAME = os.environ.get("DB_NAME")
 DB_USER = os.environ.get("DB_USER")
