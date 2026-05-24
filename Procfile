@@ -1,0 +1,1 @@
+web: gunicorn simulaciones_pequiven.wsgi:application --bind :$PORT
