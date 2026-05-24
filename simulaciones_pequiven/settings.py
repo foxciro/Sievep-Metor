@@ -157,32 +157,41 @@ WSGI_APPLICATION = 'simulaciones_pequiven.wsgi.application'
 # }
 # Leer variables de entorno (cargadas desde Secret Manager en Cloud Run)
 SECRET_KEY = os.environ.get("SECRET_KEY")
-DJANGO_DB_LOGGER_DATABASE = 'default'
-# Configuración de Base de Datos
+# Variables de conexión a la Base de Datos
 DB_NAME = os.environ.get("DB_NAME")
 DB_USER = os.environ.get("DB_USER")
 DB_PASS = os.environ.get("DB_PASS")
-DB_HOST = os.environ.get("DB_HOST") # Será /cloudsql/CONNECTION_NAME en Cloud Run
+DB_HOST = os.environ.get("DB_HOST") # En Cloud Run es /cloudsql/CONNECTION_NAME
 
+# 3. Configuración de DATABASES
 if DB_NAME and DB_USER:
+    # Configuración para PRODUCCIÓN (Cloud Run + Cloud SQL)
+    db_config = {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': '3306',
+    }
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': DB_NAME,
-            'USER': DB_USER,
-            'PASSWORD': DB_PASS,
-            'HOST': DB_HOST,
-            'PORT': '3306',
-        }
+        'default': db_config,
+        # ESTO SOLUCIONA TU ERROR ACTUAL:
+        # Crea la conexión 'django_db_logger' que el paquete está buscando
+        'django_db_logger': db_config, 
     }
 else:
-    # Fallback para desarrollo local
+    # Configuración para DESARROLLO LOCAL (SQLite)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(os.path.dirname(__file__), 'db.sqlite3'),
         }
     }
+
+# 4. Configuración específica para django-db-logger
+# Obligamos al logger a usar la conexión 'default' por si acaso
+DJANGO_DB_LOGGER_DATABASE = 'default'
 DATABASE_ROUTERS = ('simulaciones_pequiven.dbrouters.MyDBRouter',)
 
 # Password validation
