@@ -65,7 +65,17 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()]
+
+ALLOWED_HOSTS = [
+    'metor-b7dc6ss2aq-wl.a.run.app',      # Tu URL específica de Cloud Run
+    'metor-410526246437.us-west2.run.app', # URL regional
+    'localhost',
+    '127.0.0.1',
+]
+
+# OPCIÓN RECOMENDADA PARA CLOUD RUN (Permite cualquier subdominio de run.app):
+# ALLOWED_HOSTS = ['.a.run.app', 'localhost', '127.0.0.1']
+
 LOGIN_URL = '/'
 
 SESSION_COOKIE_AGE = 120 * 60 # 2 horas sin uso
