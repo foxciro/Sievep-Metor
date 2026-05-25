@@ -1,1 +1,1 @@
-web: gunicorn simulaciones_pequiven.wsgi:application --bind :$PORT
+web: python manage.py collectstatic --noinput && gunicorn simulaciones_pequiven.wsgi:application --bind :$PORT
